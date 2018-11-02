@@ -7,9 +7,6 @@ class BaseValidator:
         self.valid = True
         self.errors = {}
 
-    def get_rules(self):
-        pass
-
     def execute_validation(self, rule, field, data):
         rule.validate(field, data)
 

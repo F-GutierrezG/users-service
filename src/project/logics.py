@@ -9,8 +9,14 @@ from project import db
 class CreateUserValidator(BaseValidator):
     def get_rules(self):
         return {
-            'first_name': [rules.Required()],
-            'last_name': [rules.Required()],
+            'first_name': [
+                rules.Required(),
+                rules.Length(max=User.FIRST_NAME_MAX_LENGTH)
+            ],
+            'last_name': [
+                rules.Required(),
+                rules.Length(max=User.LAST_NAME_MAX_LENGTH)
+            ],
             'email': [rules.Required()],
             'password': [rules.Required()],
         }

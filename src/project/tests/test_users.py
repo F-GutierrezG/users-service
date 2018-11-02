@@ -1,6 +1,8 @@
 import json
 import unittest
+from utils import random_string
 from project.tests.base import BaseTestCase
+from project.models import User
 
 
 class TestAddUser(BaseTestCase):
@@ -176,6 +178,92 @@ class TestAddUser(BaseTestCase):
                 response_data['data']['email'], 'email is required.')
             self.assertEqual(
                 response_data['data']['password'], 'password is required.')
+
+    def test_first_name_max_length(self):
+        """Ensure create user route support first_name max length"""
+        user_data = {
+            'first_name': random_string(
+                length=User.FIRST_NAME_MAX_LENGTH),
+            'last_name': 'Gutiérrez',
+            'email': 'fgutierrez@prueba.cl',
+            'password': '12345678'
+        }
+
+        with self.client:
+            response = self.client.post(
+                '/users',
+                data=json.dumps(user_data),
+                content_type='application/json'
+            )
+            response_data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 201)
+            self.assertEqual(response_data['message'], 'ok')
+
+    def test_first_name_max_length_exceeded(self):
+        """Ensure create user route support first_name max length"""
+        user_data = {
+            'first_name': random_string(
+                length=User.FIRST_NAME_MAX_LENGTH + 1),
+            'last_name': 'Gutiérrez',
+            'email': 'fgutierrez@prueba.cl',
+            'password': '12345678'
+        }
+
+        with self.client:
+            response = self.client.post(
+                '/users',
+                data=json.dumps(user_data),
+                content_type='application/json'
+            )
+            response_data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 400)
+            self.assertEqual(response_data['message'], 'invalid payload.')
+            self.assertEqual(
+                response_data['data']['first_name'],
+                'first name must be less or equal than 128 characters long.')
+
+    def test_last_name_max_length(self):
+        """Ensure create user route support last_name max length"""
+        user_data = {
+            'first_name': 'Francisco',
+            'last_name': random_string(
+                length=User.LAST_NAME_MAX_LENGTH),
+            'email': 'fgutierrez@prueba.cl',
+            'password': '12345678'
+        }
+
+        with self.client:
+            response = self.client.post(
+                '/users',
+                data=json.dumps(user_data),
+                content_type='application/json'
+            )
+            response_data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 201)
+            self.assertEqual(response_data['message'], 'ok')
+
+    def test_last_name_max_length_exceeded(self):
+        """Ensure create user route support last_name max length"""
+        user_data = {
+            'first_name': 'Francisco',
+            'last_name': random_string(
+                length=User.LAST_NAME_MAX_LENGTH + 1),
+            'email': 'fgutierrez@prueba.cl',
+            'password': '12345678'
+        }
+
+        with self.client:
+            response = self.client.post(
+                '/users',
+                data=json.dumps(user_data),
+                content_type='application/json'
+            )
+            response_data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 400)
+            self.assertEqual(response_data['message'], 'invalid payload.')
+            self.assertEqual(
+                response_data['data']['last_name'],
+                'last name must be less or equal than 128 characters long.')
 
     # TODO: Validar largos, tipo email, etc
 

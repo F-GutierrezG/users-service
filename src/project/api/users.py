@@ -29,7 +29,9 @@ def create():
     try:
         user = UserLogics().create(user_data)
         return success_response(UserSerializer.to_json(user), 201)
+
     except exc.IntegrityError:
         return failed_response('duplicate user.', 400)
+
     except ValidatorException as e:
         return failed_response('invalid payload.', 400, e.errors)
