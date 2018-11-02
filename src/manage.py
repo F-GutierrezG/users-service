@@ -3,7 +3,7 @@ import coverage
 
 from flask.cli import FlaskGroup
 
-from project import create_app
+from project import create_app, db
 
 
 COV = coverage.coverage(
@@ -11,6 +11,7 @@ COV = coverage.coverage(
     include='project/*',
     omit=[
         'project/tests/*',
+        'project/__init__.py',
         'project/config.py',
     ]
 )
@@ -19,6 +20,13 @@ COV.start()
 
 app = create_app()
 cli = FlaskGroup(create_app=create_app)
+
+
+@cli.command()
+def recreate_db():
+    db.drop_all()
+    db.create_all()
+    db.session.commit()
 
 
 @cli.command()
