@@ -12,6 +12,9 @@ Development Mode: `docker-compose -f docker-compose-dev.yml run users flake8 pro
 ## Run Test
 Development Mode: `docker-compose -f docker-compose-dev.yml run users python manage.py test`
 
+## Run a specific test file
+Development Mode: `docker-compose -f docker-compose-dev.yml run users python manage.py test --path=project/tests --file=health_test.py`
+
 ## Run Code Coverage
 Development Mode: `docker-compose -f docker-compose-dev.yml run users python manage.py cov`
 

@@ -1,3 +1,4 @@
+import click
 import unittest
 import coverage
 
@@ -30,9 +31,15 @@ def recreate_db():
 
 
 @cli.command()
-def test():
+@click.option('--path', default=None)
+@click.option('--file', default=None)
+def test(path, file):
     """Runs the tests without code coverage"""
-    tests = unittest.TestLoader().discover('project/tests', pattern='test*.py')
+    if path is None or file is None:
+        tests = unittest.TestLoader().discover(
+            'project/tests', pattern='*_test.py')
+    else:
+        tests = unittest.TestLoader().discover('{}'.format(path), pattern=file)
     result = unittest.TextTestRunner(verbosity=2).run(tests)
     if result.wasSuccessful():
         return 0
