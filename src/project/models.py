@@ -1,4 +1,5 @@
 from project import db
+from sqlalchemy.orm import validates
 
 
 class User(db.Model):
@@ -11,8 +12,30 @@ class User(db.Model):
     password = db.Column(db.String(128), nullable=False)
     active = db.Column(db.Boolean, default=True, nullable=False)
 
-    def __init__(self, first_name, last_name, email, password):
-        self.first_name = first_name
-        self.last_name = last_name
-        self.email = email
-        self.password = password
+    @validates('first_name')
+    def validate_first_name(self, key, first_name):
+        if not first_name:
+            raise ValueError('first_name')
+
+        return first_name
+
+    @validates('last_name')
+    def validate_last_name(self, key, last_name):
+        if not last_name:
+            raise ValueError('last_name')
+
+        return last_name
+
+    @validates('email')
+    def validate_email(self, key, email):
+        if not email:
+            raise ValueError('email')
+
+        return email
+
+    @validates('password')
+    def validate_password(self, key, password):
+        if not password:
+            raise ValueError('password')
+
+        return password

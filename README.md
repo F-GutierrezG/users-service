@@ -6,6 +6,9 @@ Development Mode: `docker-compose -f docker-compose-dev.yml up -d --build`
 ## Create Database
 Development Mode: `docker-compose -f docker-compose-dev.yml run users python manage.py recreate-db`
 
+## Lint
+Development Mode: `docker-compose -f docker-compose-dev.yml run users flake8 project`
+
 ## Run Test
 Development Mode: `docker-compose -f docker-compose-dev.yml run users python manage.py test`
 
