@@ -22,7 +22,7 @@ class TestAddUser(BaseTestCase):
                 content_type='application/json'
             )
             response_data = json.loads(response.data.decode())
-            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.status_code, 201)
             self.assertEqual(response_data['message'], 'ok')
             self.assertTrue(response_data['data'])
             self.assertEqual(
@@ -54,7 +54,7 @@ class TestAddUser(BaseTestCase):
                 data=json.dumps(user_data),
                 content_type='application/json'
             )
-            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.status_code, 201)
 
             response = self.client.post(
                 '/users',
@@ -79,8 +79,13 @@ class TestAddUser(BaseTestCase):
                 data=json.dumps(user_data),
                 content_type='application/json'
             )
+            response_data = json.loads(response.data.decode())
+
             self.assertEqual(response.status_code, 400)
-            # TODO: Verificar mensaje de error
+            self.assertEqual(response_data['message'], 'invalid payload.')
+            self.assertEqual(len(response_data['data']), 1)
+            self.assertEqual(
+                response_data['data']['first_name'], 'first name is required.')
 
     def test_add_user_without_last_name(self):
         """Ensure create user route behaves correctly without last_name"""
@@ -96,8 +101,13 @@ class TestAddUser(BaseTestCase):
                 data=json.dumps(user_data),
                 content_type='application/json'
             )
+            response_data = json.loads(response.data.decode())
+
             self.assertEqual(response.status_code, 400)
-            # TODO: Verificar mensaje de error
+            self.assertEqual(response_data['message'], 'invalid payload.')
+            self.assertEqual(len(response_data['data']), 1)
+            self.assertEqual(
+                response_data['data']['last_name'], 'last name is required.')
 
     def test_add_user_without_email(self):
         """Ensure create user route behaves correctly without email"""
@@ -113,8 +123,13 @@ class TestAddUser(BaseTestCase):
                 data=json.dumps(user_data),
                 content_type='application/json'
             )
+            response_data = json.loads(response.data.decode())
+
             self.assertEqual(response.status_code, 400)
-            # TODO: Verificar mensaje de error
+            self.assertEqual(response_data['message'], 'invalid payload.')
+            self.assertEqual(len(response_data['data']), 1)
+            self.assertEqual(
+                response_data['data']['email'], 'email is required.')
 
     def test_add_user_without_password(self):
         """Ensure create user route behaves correctly without password"""
@@ -130,8 +145,37 @@ class TestAddUser(BaseTestCase):
                 data=json.dumps(user_data),
                 content_type='application/json'
             )
+            response_data = json.loads(response.data.decode())
+
             self.assertEqual(response.status_code, 400)
-            # TODO: Verificar mensaje de error
+            self.assertEqual(response_data['message'], 'invalid payload.')
+            self.assertEqual(len(response_data['data']), 1)
+            self.assertEqual(
+                response_data['data']['password'], 'password is required.')
+
+    def test_add_user_blank_payload(self):
+        """Ensure create user route behaves correctly with blank payload"""
+        user_data = {}
+
+        with self.client:
+            response = self.client.post(
+                '/users',
+                data=json.dumps(user_data),
+                content_type='application/json'
+            )
+            response_data = json.loads(response.data.decode())
+
+            self.assertEqual(response.status_code, 400)
+            self.assertEqual(response_data['message'], 'invalid payload.')
+            self.assertEqual(len(response_data['data']), 4)
+            self.assertEqual(
+                response_data['data']['first_name'], 'first name is required.')
+            self.assertEqual(
+                response_data['data']['last_name'], 'last name is required.')
+            self.assertEqual(
+                response_data['data']['email'], 'email is required.')
+            self.assertEqual(
+                response_data['data']['password'], 'password is required.')
 
     # TODO: Validar largos, tipo email, etc
 
