@@ -9,14 +9,14 @@ Development Mode: `docker-compose -f docker-compose-dev.yml run users python man
 ## Run Test
 Development Mode: `docker-compose -f docker-compose-dev.yml run users python manage.py test`
 
-# Run Code Coverage
+## Run Code Coverage
 Development Mode: `docker-compose -f docker-compose-dev.yml run users python manage.py cov`
 
-# Create new DB Migrations
+## Create new DB Migrations
 Development Mode: `docker-compose -f docker-compose-dev.yml run users python manage.py db migrate `
 
-# Apply DB Migrations
+## Apply DB Migrations
 Development Mode: `docker-compose -f docker-compose-dev.yml run users python manage.py db upgrade `
 
-# Init DB Migrations (Only new projects)
+## Init DB Migrations (Only new projects)
 Development Mode: `docker-compose -f docker-compose-dev.yml run users python manage.py db init `
