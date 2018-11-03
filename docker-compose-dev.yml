@@ -26,3 +26,14 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+
+  swagger:
+    build:
+      context: ./swagger
+      dockerfile: Dockerfile-dev
+    ports:
+      - 8081:8080
+    volumes:
+      - './swagger/swagger:/usr/share/nginx/html/swagger'
+    environment:
+      - API_URL=swagger/swagger.yml

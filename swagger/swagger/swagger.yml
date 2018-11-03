@@ -1,0 +1,182 @@
+openapi: "3.0.0"
+info:
+  title: Users Service
+  version: 1.0.0
+  description: Users Service API documentation
+servers:
+  - url: http://localhost:5001
+tags:
+  - name: Health
+    description: Service Health Status
+  - name: Users
+    description: User Operations
+paths:
+  /users/health:
+    get:
+      tags:
+        - Health
+      summary: Service health
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Health"
+  /users:
+    post:
+      tags:
+        - Users
+      summary: Create User
+      description: Creates a new User
+      requestBody:
+        description: User data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+      responses:
+        '201':
+          description: User successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/User"
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/BadRequest"
+  /user/{id}:
+    put:
+      tags:
+        - Users
+      summary: Update User
+      description: Update an existing User
+      parameters:
+        - name: id
+          in: path
+          description: User id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: User data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+      responses:
+        '200':
+          description: User successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/User"
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/BadRequest"
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/NotFound"
+    delete:
+      tags:
+        - Users
+      summary: Delete User
+      description: Delete an existing User
+      parameters:
+        - name: id
+          in: path
+          description: User id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: User successfully deleted.
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/NotFound"
+components:
+  schemas:
+    Health:
+      properties:
+        message:
+          type: string
+          description: Health status
+    UserBase:
+      properties:
+        first_name:
+          type: string
+          description: User first name
+        last_name:
+          type: string
+          description: User last name
+        email:
+          type: string
+          description: User email
+    UserCreate:
+      allOf:
+        - $ref: "#/components/schemas/UserBase"
+        - required:
+          - first_name
+          - last_name
+          - email
+          - password
+          properties:
+            password:
+              type: string
+              description: User password
+    UserUpdate:
+      allOf:
+        - $ref: "#/components/schemas/UserBase"
+        - required:
+          - first_name
+          - last_name
+          - email
+    User:
+      allOf:
+        - $ref: "#/components/schemas/UserBase"
+        - required:
+          properties:
+            id:
+              type: integer
+              format: int64
+              description: User id
+            first_name:
+              type: string
+              description: User first name
+            last_name:
+              type: string
+              description: User last name
+            email:
+              type: string
+              description: User email
+            active:
+              type: boolean
+              description: User active status
+  responses:
+    BadRequest:
+      properties:
+        message:
+          type: string
+          description: Error cause
+    NotFound:
+      properties:
+        message:
+          type: string
+          description: Error cause
