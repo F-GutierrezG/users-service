@@ -1,28 +1,55 @@
 # Users Service
 
 ## Start Project
-Development Mode: `docker-compose -f docker-compose-dev.yml up -d --build`
+Development Mode
+```
+docker-compose -f docker-compose-dev.yml up -d --build
+```
 
 ## Create Database
-Development Mode: `docker-compose -f docker-compose-dev.yml run users python manage.py recreate-db`
+Development Mode
+```
+docker-compose -f docker-compose-dev.yml run users python manage.py recreate-db+
+```
 
 ## Lint
-Development Mode: `docker-compose -f docker-compose-dev.yml run users flake8 project`
+Development Mode
+```
+docker-compose -f docker-compose-dev.yml run users flake8 project
+```
 
 ## Run Test
-Development Mode: `docker-compose -f docker-compose-dev.yml run users python manage.py test`
+Development Mode
+```
+docker-compose -f docker-compose-dev.yml run users python manage.py test
+```
 
 ## Run a specific test file
-Development Mode: `docker-compose -f docker-compose-dev.yml run users python manage.py test --path=project/tests --file=health_test.py`
+Development Mode
+```
+docker-compose -f docker-compose-dev.yml run users python manage.py test --path=project/tests --file=health_test.py
+```
 
 ## Run Code Coverage
-Development Mode: `docker-compose -f docker-compose-dev.yml run users python manage.py cov`
+Development Mode
+```
+docker-compose -f docker-compose-dev.yml run users python manage.py cov
+```
 
 ## Create new DB Migrations
-Development Mode: `docker-compose -f docker-compose-dev.yml run users python manage.py db migrate `
+Development Mode
+```
+docker-compose -f docker-compose-dev.yml run users python manage.py db migrate
+```
 
 ## Apply DB Migrations
-Development Mode: `docker-compose -f docker-compose-dev.yml run users python manage.py db upgrade `
+Development Mode
+```
+docker-compose -f docker-compose-dev.yml run users python manage.py db upgrade
+```
 
 ## Init DB Migrations (Only new projects)
-Development Mode: `docker-compose -f docker-compose-dev.yml run users python manage.py db init `
+Development Mode
+```
+docker-compose -f docker-compose-dev.yml run users python manage.py db init
+```
