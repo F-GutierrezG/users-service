@@ -8,7 +8,7 @@ class TestUserServiceHealth(BaseTestCase):
 
     def test_health(self):
         """Ensure health route behaves correctly."""
-        response = self.client.get('/users/health')
+        response = self.client.get('/users-service/health')
         data = json.loads(response.data.decode())
         self.assertEqual(response.status_code, 200)
         self.assertIn('healthy', data['message'])

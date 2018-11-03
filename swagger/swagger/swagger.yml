@@ -11,7 +11,7 @@ tags:
   - name: Users
     description: User Operations
 paths:
-  /users/health:
+  /users-service/health:
     get:
       tags:
         - Health
