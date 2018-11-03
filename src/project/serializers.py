@@ -1,6 +1,6 @@
 class UserSerializer:
     @staticmethod
-    def to_json(user):
+    def to_dict(user):
         return {
             'first_name': user.first_name,
             'last_name': user.last_name,

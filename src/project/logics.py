@@ -1,12 +1,13 @@
 from project.validators import BaseValidator
 from project.validators.decorators import validate
 from project.validators import rules
+from project.serializers import UserSerializer
 
 from project.models import User
 from project import db
 
 
-class CreateUserValidator(BaseValidator):
+class UpdateUserValidator(BaseValidator):
     def get_rules(self):
         return {
             'first_name': [
@@ -18,8 +19,16 @@ class CreateUserValidator(BaseValidator):
                 rules.Length(max=User.LAST_NAME_MAX_LENGTH)
             ],
             'email': [rules.Required()],
-            'password': [rules.Required()],
         }
+
+
+class CreateUserValidator(UpdateUserValidator):
+    def get_rules(self):
+        new_rules = super().get_rules()
+
+        new_rules['password'] = [rules.Required()]
+
+        return new_rules
 
 
 class UserLogics:
@@ -31,4 +40,12 @@ class UserLogics:
         db.session.commit()
         db.session.refresh(user)
 
-        return user
+        return UserSerializer.to_dict(user)
+
+    @validate(UpdateUserValidator)
+    def update(self, data, id):
+        User.query.filter(User.id == id).update(data)
+
+        db.session.commit()
+
+        return UserSerializer.to_dict(User.query.get(id))

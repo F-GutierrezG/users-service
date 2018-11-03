@@ -1,7 +1,6 @@
 from flask import Blueprint, request, jsonify
 from sqlalchemy import exc
 from project.logics import UserLogics
-from project.serializers import UserSerializer
 from project.validators.exceptions import ValidatorException
 
 
@@ -28,7 +27,26 @@ def create():
 
     try:
         user = UserLogics().create(user_data)
-        return success_response(UserSerializer.to_json(user), 201)
+        return success_response(
+            data=user,
+            status_code=201)
+
+    except exc.IntegrityError:
+        return failed_response('duplicate user.', 400)
+
+    except ValidatorException as e:
+        return failed_response('invalid payload.', 400, e.errors)
+
+
+@users_blueprint.route('/user/<id>', methods=['PUT'])
+def update(id):
+    user_data = request.get_json()
+
+    try:
+        user = UserLogics().update(user_data, id)
+        return success_response(
+            data=user,
+            status_code=200)
 
     except exc.IntegrityError:
         return failed_response('duplicate user.', 400)
