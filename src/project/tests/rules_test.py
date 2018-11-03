@@ -5,7 +5,7 @@ from project.validators.decorators import validate
 from project.validators.exceptions import ValidatorException
 from project.validators import rules
 
-from utils import random_string
+from project.tests.utils import random_string
 
 
 class TestRequiredRule(BaseTestCase):

@@ -31,15 +31,16 @@ def recreate_db():
 
 
 @cli.command()
-@click.option('--path', default=None)
 @click.option('--file', default=None)
-def test(path, file):
+def test(file):
     """Runs the tests without code coverage"""
-    if path is None or file is None:
+    if file is None:
         tests = unittest.TestLoader().discover(
             'project/tests', pattern='*_test.py')
     else:
-        tests = unittest.TestLoader().discover('{}'.format(path), pattern=file)
+        tests = unittest.TestLoader().discover(
+            'project/tests', pattern='{}.py'.format(file))
+
     result = unittest.TextTestRunner(verbosity=2).run(tests)
     if result.wasSuccessful():
         return 0

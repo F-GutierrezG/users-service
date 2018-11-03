@@ -36,6 +36,14 @@ class DoesNotExist(Exception):
 
 
 class UserLogics:
+    def get(self, id):
+        user = User.query.get(id)
+
+        if not user:
+            raise DoesNotExist
+
+        return UserSerializer.to_dict(user)
+
     @validate(CreateUserValidator)
     def create(self, data):
         user = User(**data)
@@ -51,18 +59,10 @@ class UserLogics:
         User.query.filter(User.id == id).update(data)
         db.session.commit()
 
-        user = User.query.get(id)
-
-        if not user:
-            raise DoesNotExist
-
-        return UserSerializer.to_dict(user)
+        return self.get(id)
 
     def delete(self, id):
-        user = User.query.get(id)
-
-        if not user:
-            raise DoesNotExist
+        self.get(id)
 
         User.query.filter(User.id == id).update({'active': False})
         db.session.commit()

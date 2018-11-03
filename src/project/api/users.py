@@ -21,6 +21,17 @@ def failed_response(message, status_code, data=None):
     }), status_code
 
 
+@users_blueprint.route('/user/<id>', methods=['GET'])
+def get(id):
+    try:
+        user = UserLogics().get(id)
+        return success_response(
+            data=user,
+            status_code=200)
+    except DoesNotExist:
+        return failed_response(message='not found.', status_code=404)
+
+
 @users_blueprint.route('/users', methods=['POST'])
 def create():
     user_data = request.get_json()

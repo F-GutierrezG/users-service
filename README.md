@@ -24,11 +24,20 @@ Development Mode
 ```
 docker-compose -f docker-compose-dev.yml run users python manage.py test
 ```
+or
+```
+./test.sh
+```
+
+## Autorun test on file changes
+```
+./test.sh watch
+```
 
 ## Run a specific test file
 Development Mode
 ```
-docker-compose -f docker-compose-dev.yml run users python manage.py test --path=project/tests --file=health_test.py
+docker-compose -f docker-compose-dev.yml run users python manage.py test --file=health_test
 ```
 
 ## Run Code Coverage

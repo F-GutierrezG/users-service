@@ -1,7 +1,7 @@
 import json
 import unittest
 
-from utils import random_string
+from project.tests.utils import random_string
 
 from project import db
 from project.tests.base import BaseTestCase
@@ -527,7 +527,7 @@ class TestDeleteUser(BaseTestCase):
             self.assertFalse(User.query.first().active)
 
     def test_delete_with_not_existing_user(self):
-        """Ensure delete user with not existing user behaves correctly"""
+        """Ensure delete behaves correctly when user doesn't exist"""
         self.assertEqual(User.query.count(), 0)
 
         with self.client:
@@ -538,6 +538,63 @@ class TestDeleteUser(BaseTestCase):
 
             self.assertEqual(response.status_code, 404)
             self.assertEqual(User.query.count(), 0)
+
+
+class TestViewUser(BaseTestCase):
+    """Test for view User"""
+
+    def __get_random_user_data(self):
+        return {
+            'first_name': random_string(32),
+            'last_name': random_string(32),
+            'email': '{}@test.com'.format(random_string(16))
+        }
+
+    def __add_user(self, first_name, last_name, email):
+        user = User(
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            password=random_string(32))
+        db.session.add(user)
+        db.session.commit()
+        return user
+
+    def test_view_user(self):
+        """Ensure user is visible"""
+        user_data = self.__get_random_user_data()
+        user = self.__add_user(**user_data)
+
+        with self.client:
+            response = self.client.get(
+                '/user/{}'.format(user.id),
+                content_type='application/json'
+            )
+
+            response_data = json.loads(response.data.decode())
+
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                response_data['data']['id'], user.id)
+            self.assertEqual(
+                response_data['data']['first_name'], user.first_name)
+            self.assertEqual(
+                response_data['data']['last_name'], user.last_name)
+            self.assertEqual(
+                response_data['data']['email'], user.email)
+
+    def test_view_with_non_existing_user(self):
+        """Ensure view behaves correctly when user doesn't exist"""
+        with self.client:
+            response = self.client.get(
+                '/user/{}'.format(1),
+                content_type='application/json'
+            )
+
+            response_data = json.loads(response.data.decode())
+
+            self.assertEqual(response.status_code, 404)
+            self.assertEqual(response_data['message'], 'not found.')
 
 
 if __name__ == '__main__':
