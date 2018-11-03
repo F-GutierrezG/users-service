@@ -31,14 +31,63 @@ paths:
         - Auth
       summay: Auth User
       description: Login User
+      requestBody:
+        description: Login data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#components/schemas/Login"
       responses:
         '200':
-          description: User logen in.
+          description: User logued in.
           content:
             application/json:
               schema:
-                type: string
-                description: 'Auth Bearer Token'
+                type: object
+                properties:
+                  data:
+                    type: string
+                    description: 'Auth Bearer Token'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/BadRequest"
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/NotFound"
+  /auth/logout:
+    get:
+      tags:
+        - Auth
+      summay: Logout User
+      description: Logout User
+      responses:
+        '204':
+          description: User logued out.
+
+  /auth/status:
+    get:
+      tags:
+        - Auth
+      summay: Auth Status
+      description: Get Auth Status
+      responses:
+        '200':
+          description: Auth Status.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: string
+                    description: 'Auth Status'
   /users:
     get:
       tags:
@@ -169,6 +218,17 @@ paths:
                 $ref: "#components/responses/NotFound"
 components:
   schemas:
+    Login:
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          description: User email
+        password:
+          type: string
+          description: User password
     UserCreate:
       allOf:
         - $ref: "#/components/requestBodies/UserBase"
