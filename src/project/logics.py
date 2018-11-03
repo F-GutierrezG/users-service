@@ -31,6 +31,10 @@ class CreateUserValidator(UpdateUserValidator):
         return new_rules
 
 
+class DoesNotExist(Exception):
+    pass
+
+
 class UserLogics:
     @validate(CreateUserValidator)
     def create(self, data):
@@ -45,7 +49,15 @@ class UserLogics:
     @validate(UpdateUserValidator)
     def update(self, data, id):
         User.query.filter(User.id == id).update(data)
-
         db.session.commit()
 
-        return UserSerializer.to_dict(User.query.get(id))
+        user = User.query.get(id)
+
+        if not user:
+            raise DoesNotExist
+
+        return UserSerializer.to_dict(user)
+
+    def delete(self, id):
+        User.query.filter(User.id == id).update({'active': False})
+        db.session.commit()

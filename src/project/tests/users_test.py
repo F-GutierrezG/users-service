@@ -459,6 +459,73 @@ class TestUpdateUser(BaseTestCase):
             self.assertEqual(response.status_code, 400)
             self.assertEqual(response_data['message'], 'duplicate user.')
 
+    def test_update_not_existing_user(self):
+        """Ensure update user behaves correctly with not existing user"""
+        new_data = self.__get_random_user_data()
+
+        with self.client:
+            response = self.client.put(
+                '/user/{}'.format(2),
+                data=json.dumps(new_data),
+                content_type='application/json'
+            )
+
+            response_data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 404)
+            self.assertEqual(response_data['message'], 'not found.')
+
+
+class TestDeleteUser(BaseTestCase):
+    """Tests for delete User"""
+
+    def __get_random_user_data(self):
+        return {
+            'first_name': random_string(32),
+            'last_name': random_string(32),
+            'email': '{}@test.com'.format(random_string(16))
+        }
+
+    def __add_user(self, first_name, last_name, email):
+        user = User(
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            password=random_string(32))
+        db.session.add(user)
+        db.session.commit()
+        return user
+
+    def test_delete_user(self):
+        """Ensure delete user behaves correctly"""
+        user_data = self.__get_random_user_data()
+        user = self.__add_user(**user_data)
+
+        with self.client:
+            response = self.client.delete(
+                '/user/{}'.format(user.id),
+                content_type='application/json'
+            )
+
+            self.assertEqual(response.status_code, 204)
+
+    def test_delete_user_update_the_database(self):
+        """Ensure delete user behaves correctly"""
+        user_data = self.__get_random_user_data()
+        user = self.__add_user(**user_data)
+
+        self.assertEqual(User.query.count(), 1)
+        self.assertTrue(User.query.first().active)
+
+        with self.client:
+            response = self.client.delete(
+                '/user/{}'.format(user.id),
+                content_type='application/json'
+            )
+
+            self.assertEqual(response.status_code, 204)
+            self.assertEqual(User.query.count(), 1)
+            self.assertFalse(User.query.first().active)
+
 
 if __name__ == '__main__':
     unittest.main()

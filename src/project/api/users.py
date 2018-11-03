@@ -1,13 +1,13 @@
 from flask import Blueprint, request, jsonify
 from sqlalchemy import exc
-from project.logics import UserLogics
+from project.logics import UserLogics, DoesNotExist
 from project.validators.exceptions import ValidatorException
 
 
 users_blueprint = Blueprint('users', __name__)
 
 
-def success_response(data, status_code=200):
+def success_response(data=None, status_code=200):
     return jsonify({
         'message': 'ok',
         'data': data,
@@ -48,8 +48,21 @@ def update(id):
             data=user,
             status_code=200)
 
+    except DoesNotExist:
+        return failed_response(message='not found.', status_code=404)
+
     except exc.IntegrityError:
         return failed_response('duplicate user.', 400)
 
     except ValidatorException as e:
         return failed_response('invalid payload.', 400, e.errors)
+
+
+@users_blueprint.route('/user/<id>', methods=['DELETE'])
+def delete(id):
+    try:
+        UserLogics().delete(id)
+        return success_response(status_code=204)
+
+    except DoesNotExist:
+        return failed_response(message='not found.', status_code=404)
