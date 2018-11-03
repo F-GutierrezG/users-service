@@ -4,17 +4,15 @@ services:
   - docker:dind
 
 stages:
-  - pre_build
   - build
   - unit_test
 
-pre_build:
-  stage: pre_build
-  script:
-    - apt-get update
-    - apt-get install -y python pip
-    - apt-get clean
-    - pip install docker-compose
+before_script:
+  - docker info
+  - apk update
+  - apk upgrade
+  - apk add python python-dev py-pip build-base
+  - pip install docker-compose
 
 build:
   stage: build
