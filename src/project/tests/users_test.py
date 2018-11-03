@@ -8,6 +8,45 @@ from project.tests.base import BaseTestCase
 from project.models import User
 
 
+class TestListUsers(BaseTestCase):
+    """Tests for list users"""
+
+    def __get_random_user_data(self):
+        return {
+            'first_name': random_string(32),
+            'last_name': random_string(32),
+            'email': '{}@test.com'.format(random_string(16))
+        }
+
+    def __add_user(self, first_name, last_name, email):
+        user = User(
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            password=random_string(32))
+        db.session.add(user)
+        db.session.commit()
+        return user
+
+    def test_list_user(self):
+        """Ensure list users behaves correctly"""
+        self.__add_user(**self.__get_random_user_data())
+        self.__add_user(**self.__get_random_user_data())
+        self.__add_user(**self.__get_random_user_data())
+
+        self.assertEqual(User.query.count(), 3)
+
+        with self.client:
+            response = self.client.get(
+                '/users',
+                content_type='application/json'
+            )
+            response_data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 200)
+            self.assertTrue(response_data['data'])
+            self.assertTrue(len(response_data['data']), 3)
+
+
 class TestAddUser(BaseTestCase):
     """Tests for add User"""
 
@@ -324,7 +363,7 @@ class TestUpdateUser(BaseTestCase):
 
         with self.client:
             response = self.client.put(
-                '/user/{}'.format(user.id),
+                '/users/{}'.format(user.id),
                 data=json.dumps(new_data),
                 content_type='application/json'
             )
@@ -353,7 +392,7 @@ class TestUpdateUser(BaseTestCase):
 
         with self.client:
             self.client.put(
-                '/user/{}'.format(user.id),
+                '/users/{}'.format(user.id),
                 data=json.dumps(new_data),
                 content_type='application/json'
             )
@@ -376,7 +415,7 @@ class TestUpdateUser(BaseTestCase):
 
         with self.client:
             response = self.client.put(
-                '/user/{}'.format(user.id),
+                '/users/{}'.format(user.id),
                 data=json.dumps(new_data),
                 content_type='application/json'
             )
@@ -395,7 +434,7 @@ class TestUpdateUser(BaseTestCase):
 
         with self.client:
             response = self.client.put(
-                '/user/{}'.format(user.id),
+                '/users/{}'.format(user.id),
                 data=json.dumps(new_data),
                 content_type='application/json'
             )
@@ -414,7 +453,7 @@ class TestUpdateUser(BaseTestCase):
 
         with self.client:
             response = self.client.put(
-                '/user/{}'.format(user.id),
+                '/users/{}'.format(user.id),
                 data=json.dumps(new_data),
                 content_type='application/json'
             )
@@ -430,7 +469,7 @@ class TestUpdateUser(BaseTestCase):
 
         with self.client:
             response = self.client.put(
-                '/user/{}'.format(user.id),
+                '/users/{}'.format(user.id),
                 data=json.dumps(new_data),
                 content_type='application/json'
             )
@@ -450,7 +489,7 @@ class TestUpdateUser(BaseTestCase):
 
         with self.client:
             response = self.client.put(
-                '/user/{}'.format(user.id),
+                '/users/{}'.format(user.id),
                 data=json.dumps(new_data),
                 content_type='application/json'
             )
@@ -465,7 +504,7 @@ class TestUpdateUser(BaseTestCase):
 
         with self.client:
             response = self.client.put(
-                '/user/{}'.format(2),
+                '/users/{}'.format(2),
                 data=json.dumps(new_data),
                 content_type='application/json'
             )
@@ -502,7 +541,7 @@ class TestDeleteUser(BaseTestCase):
 
         with self.client:
             response = self.client.delete(
-                '/user/{}'.format(user.id),
+                '/users/{}'.format(user.id),
                 content_type='application/json'
             )
 
@@ -518,7 +557,7 @@ class TestDeleteUser(BaseTestCase):
 
         with self.client:
             response = self.client.delete(
-                '/user/{}'.format(user.id),
+                '/users/{}'.format(user.id),
                 content_type='application/json'
             )
 
@@ -532,7 +571,7 @@ class TestDeleteUser(BaseTestCase):
 
         with self.client:
             response = self.client.delete(
-                '/user/{}'.format(1),
+                '/users/{}'.format(1),
                 content_type='application/json'
             )
 
@@ -567,7 +606,7 @@ class TestViewUser(BaseTestCase):
 
         with self.client:
             response = self.client.get(
-                '/user/{}'.format(user.id),
+                '/users/{}'.format(user.id),
                 content_type='application/json'
             )
 
@@ -587,7 +626,7 @@ class TestViewUser(BaseTestCase):
         """Ensure view behaves correctly when user doesn't exist"""
         with self.client:
             response = self.client.get(
-                '/user/{}'.format(1),
+                '/users/{}'.format(1),
                 content_type='application/json'
             )
 

@@ -36,6 +36,11 @@ class DoesNotExist(Exception):
 
 
 class UserLogics:
+    def list(self):
+        users = User.query.all()
+
+        return UserSerializer.to_array(users)
+
     def get(self, id):
         user = User.query.get(id)
 

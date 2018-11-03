@@ -21,7 +21,15 @@ def failed_response(message, status_code, data=None):
     }), status_code
 
 
-@users_blueprint.route('/user/<id>', methods=['GET'])
+@users_blueprint.route('/users', methods=['GET'])
+def list():
+    users = UserLogics().list()
+    return success_response(
+        data=users,
+        status_code=200)
+
+
+@users_blueprint.route('/users/<id>', methods=['GET'])
 def get(id):
     try:
         user = UserLogics().get(id)
@@ -49,7 +57,7 @@ def create():
         return failed_response('invalid payload.', 400, e.errors)
 
 
-@users_blueprint.route('/user/<id>', methods=['PUT'])
+@users_blueprint.route('/users/<id>', methods=['PUT'])
 def update(id):
     user_data = request.get_json()
 
@@ -69,7 +77,7 @@ def update(id):
         return failed_response('invalid payload.', 400, e.errors)
 
 
-@users_blueprint.route('/user/<id>', methods=['DELETE'])
+@users_blueprint.route('/users/<id>', methods=['DELETE'])
 def delete(id):
     try:
         UserLogics().delete(id)

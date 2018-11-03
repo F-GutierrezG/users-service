@@ -8,3 +8,12 @@ class UserSerializer:
             'email': user.email,
             'active': user.active
         }
+
+    @staticmethod
+    def to_array(users):
+        users_list = []
+
+        for user in users:
+            users_list.append(UserSerializer.to_dict(user))
+
+        return users_list
