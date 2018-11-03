@@ -10,7 +10,7 @@ unit_test:
     - cd /builds/gusisoft/OneLike/users-service
 
   script:
-    - docker-compose -f docker-compose-dev up -d --build
+    - docker-compose -f docker-compose-dev.yml up -d --build
     - docker-compose -f docker-compose-dev.yml run users python manage.py recreate-db
     - docker-compose -f docker-compose-dev.yml run users python manage.py test
     - docker-compose -f docker-compose-dev.yml run users flake8 project
