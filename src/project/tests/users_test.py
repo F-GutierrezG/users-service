@@ -526,6 +526,19 @@ class TestDeleteUser(BaseTestCase):
             self.assertEqual(User.query.count(), 1)
             self.assertFalse(User.query.first().active)
 
+    def test_delete_with_not_existing_user(self):
+        """Ensure delete user with not existing user behaves correctly"""
+        self.assertEqual(User.query.count(), 0)
+
+        with self.client:
+            response = self.client.delete(
+                '/user/{}'.format(1),
+                content_type='application/json'
+            )
+
+            self.assertEqual(response.status_code, 404)
+            self.assertEqual(User.query.count(), 0)
+
 
 if __name__ == '__main__':
     unittest.main()

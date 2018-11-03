@@ -59,5 +59,10 @@ class UserLogics:
         return UserSerializer.to_dict(user)
 
     def delete(self, id):
+        user = User.query.get(id)
+
+        if not user:
+            raise DoesNotExist
+
         User.query.filter(User.id == id).update({'active': False})
         db.session.commit()
