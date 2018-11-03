@@ -5,6 +5,7 @@ Development Mode
 ```
 docker-compose -f docker-compose-dev.yml up -d --build
 ```
+Service is now up in http://localhost:5001, you can check the service's health on http://localhost:5001/users/health
 
 ## Create Database
 Development Mode
