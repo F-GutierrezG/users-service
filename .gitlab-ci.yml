@@ -1,15 +1,27 @@
-image:
-  name: docker/compose:1.23.1
-  entrypoint: [""]
+image: docker
 
-unit_test:
-  services:
-    - docker
+services:
+  - docker:dind
 
-  
+stages:
+  - pre_build
+  - build
+  - unit_test
 
+pre_build:
+  stage: pre_build
+  script:
+    - sudo apt-get install -y python pip
+    - pip install docker-compose
+
+build:
+  stage: build
   script:
     - docker-compose -f docker-compose-dev.yml up -d --build
+
+unit_test:
+  stage: unit_test
+  script:
     - docker-compose -f docker-compose-dev.yml run users python manage.py recreate-db
     - docker-compose -f docker-compose-dev.yml run users python manage.py test
     - docker-compose -f docker-compose-dev.yml run users flake8 project
