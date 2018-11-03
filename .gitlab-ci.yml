@@ -3,10 +3,6 @@ image: docker
 services:
   - docker:dind
 
-stages:
-  - build
-  - unit_test
-
 before_script:
   - docker info
   - apk update
@@ -14,14 +10,9 @@ before_script:
   - apk add python python-dev py-pip build-base
   - pip install docker-compose
 
-build:
-  stage: build
+unit_test:
   script:
     - docker-compose -f docker-compose-dev.yml up -d --build
-
-unit_test:
-  stage: unit_test
-  script:
     - docker-compose -f docker-compose-dev.yml run users python manage.py recreate-db
     - docker-compose -f docker-compose-dev.yml run users python manage.py test
     - docker-compose -f docker-compose-dev.yml run users flake8 project
