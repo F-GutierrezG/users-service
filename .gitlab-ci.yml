@@ -11,12 +11,12 @@ before_script:
   - apk update
   - apk upgrade
   - apk add python python-dev py-pip build-base
-  - pip install docker-compose
 
 build:
   stage: build
   script:
-    - docker-compose -f docker-compose-dev.yml up -d --build
+    - pip install docker-compose
+    - docker-compose -f docker-compose-dev.yml up --build
 
 unit_test:
   stage: unit_test
