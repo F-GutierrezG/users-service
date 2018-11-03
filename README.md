@@ -10,7 +10,7 @@ Service is now up on http://localhost:5001, you can check the service's health o
 ## Create Database
 Development Mode
 ```
-docker-compose -f docker-compose-dev.yml run users python manage.py recreate-db+
+docker-compose -f docker-compose-dev.yml run users python manage.py recreate-db
 ```
 
 ## Lint
