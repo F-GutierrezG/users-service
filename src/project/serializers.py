@@ -1,3 +1,8 @@
+import jwt
+import datetime
+from flask import current_app
+
+
 class UserSerializer:
     @staticmethod
     def to_dict(user):
@@ -17,3 +22,23 @@ class UserSerializer:
             users_list.append(UserSerializer.to_dict(user))
 
         return users_list
+
+
+class TokenSerializer:
+    @staticmethod
+    def encode(user):
+        secret = current_app.config.get('SECRET_KEY')
+        payload = {
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(
+                days=current_app.config.get('TOKEN_EXPIRATION_DAYS'),
+                seconds=current_app.config.get('TOKEN_EXPIRATION_SECONDS')
+            ),
+            'iat': datetime.datetime.utcnow(),
+            'sub': user.id
+        }
+        return jwt.encode(payload, secret, algorithm='HS256')
+
+    @staticmethod
+    def decode(token):
+        secret = current_app.config.get('SECRET_KEY')
+        return jwt.decode(token, secret)

@@ -42,7 +42,7 @@ class TestListUsers(BaseTestCase):
             response_data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 200)
             self.assertEqual(
-                len(response_data['data']),
+                len(response_data),
                 User.query.count())
 
     def test_list_only_active_users(self):
@@ -67,7 +67,7 @@ class TestListUsers(BaseTestCase):
             response_data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 200)
             self.assertEqual(User.query.count(), 3)
-            self.assertEqual(len(response_data['data']), 2)
+            self.assertEqual(len(response_data), 2)
 
 
 class TestAddUser(BaseTestCase):
@@ -90,17 +90,15 @@ class TestAddUser(BaseTestCase):
             )
             response_data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 201)
-            self.assertEqual(response_data['message'], 'ok')
-            self.assertTrue(response_data['data'])
             self.assertEqual(
-                response_data['data']['id'], User.query.first().id)
+                response_data['id'], User.query.first().id)
             self.assertEqual(
-                response_data['data']['first_name'], user_data['first_name'])
+                response_data['first_name'], user_data['first_name'])
             self.assertEqual(
-                response_data['data']['last_name'], user_data['last_name'])
+                response_data['last_name'], user_data['last_name'])
             self.assertEqual(
-                response_data['data']['email'], user_data['email'])
-            self.assertTrue(response_data['data']['active'])
+                response_data['email'], user_data['email'])
+            self.assertTrue(response_data['active'])
 
     def test_add_user_save_to_database(self):
         """Ensure add sabe user to database"""
@@ -282,9 +280,7 @@ class TestAddUser(BaseTestCase):
                 data=json.dumps(user_data),
                 content_type='application/json'
             )
-            response_data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 201)
-            self.assertEqual(response_data['message'], 'ok')
 
     def test_first_name_max_length_exceeded(self):
         """Ensure create user route support first_name max length"""
@@ -325,9 +321,7 @@ class TestAddUser(BaseTestCase):
                 data=json.dumps(user_data),
                 content_type='application/json'
             )
-            response_data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 201)
-            self.assertEqual(response_data['message'], 'ok')
 
     def test_last_name_max_length_exceeded(self):
         """Ensure create user route support last_name max length"""
@@ -396,11 +390,11 @@ class TestUpdateUser(BaseTestCase):
             self.assertEqual(response.status_code, 200)
 
             self.assertEqual(
-                response_data['data']['first_name'], new_data['first_name'])
+                response_data['first_name'], new_data['first_name'])
             self.assertEqual(
-                response_data['data']['last_name'], new_data['last_name'])
+                response_data['last_name'], new_data['last_name'])
             self.assertEqual(
-                response_data['data']['email'], new_data['email'])
+                response_data['email'], new_data['email'])
 
     def test_update_user_save_data_to_database(self):
         """Ensure update user update the database"""
@@ -739,13 +733,13 @@ class TestViewUser(BaseTestCase):
 
             self.assertEqual(response.status_code, 200)
             self.assertEqual(
-                response_data['data']['id'], user.id)
+                response_data['id'], user.id)
             self.assertEqual(
-                response_data['data']['first_name'], user.first_name)
+                response_data['first_name'], user.first_name)
             self.assertEqual(
-                response_data['data']['last_name'], user.last_name)
+                response_data['last_name'], user.last_name)
             self.assertEqual(
-                response_data['data']['email'], user.email)
+                response_data['email'], user.email)
 
     def test_view_with_non_existing_user(self):
         """Ensure view behaves correctly when user doesn't exist"""

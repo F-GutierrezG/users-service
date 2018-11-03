@@ -1,24 +1,11 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request
 from sqlalchemy import exc
 from project.logics import UserLogics, DoesNotExist
 from project.validators.exceptions import ValidatorException
+from project.api.utils import success_response, failed_response
 
 
 users_blueprint = Blueprint('users', __name__)
-
-
-def success_response(data=None, status_code=200):
-    return jsonify({
-        'message': 'ok',
-        'data': data,
-    }), status_code
-
-
-def failed_response(message, status_code, data=None):
-    return jsonify({
-        'message': message,
-        'data': data
-    }), status_code
 
 
 @users_blueprint.route('/users', methods=['GET'])

@@ -6,6 +6,8 @@ info:
 servers:
   - url: http://localhost:5001
 tags:
+  - name: Auth
+    description: Auth Operations
   - name: Users
     description: User Operations
   - name: Service Health
@@ -23,6 +25,20 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Health"
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summay: Auth User
+      description: Login User
+      responses:
+        '200':
+          description: User logen in.
+          content:
+            application/json:
+              schema:
+                type: string
+                description: 'Auth Bearer Token'
   /users:
     get:
       tags:

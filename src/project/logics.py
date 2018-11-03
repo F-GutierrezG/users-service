@@ -1,12 +1,10 @@
 from project.validators import BaseValidator
 from project.validators.decorators import validate
 from project.validators import rules
-from project.serializers import UserSerializer
+from project.serializers import UserSerializer, TokenSerializer
 
 from project.models import User
 from project import db
-
-from sqlalchemy.sql.expression import true
 
 
 class UpdateUserValidator(BaseValidator):
@@ -39,12 +37,12 @@ class DoesNotExist(Exception):
 
 class UserLogics:
     def list(self):
-        users = User.query.filter(User.active == true())
+        users = User.query.filter_by(active=True)
 
         return UserSerializer.to_array(users)
 
     def get(self, id):
-        user = User.query.filter(User.id == id, User.active == true()).first()
+        user = User.query.filter_by(id=id, active=True).first()
 
         if not user:
             raise DoesNotExist
@@ -62,8 +60,7 @@ class UserLogics:
 
     @validate(UpdateUserValidator)
     def update(self, data, id):
-        User.query.filter(
-            User.id == id, User.active == true()).update(data)
+        User.query.filter_by(id=id, active=True).update(data)
         db.session.commit()
 
         return self.get(id)
@@ -71,6 +68,15 @@ class UserLogics:
     def delete(self, id):
         self.get(id)
 
-        User.query.filter(
-            User.id == id, User.active == true()).update({'active': False})
+        User.query.filter_by(id=id, active=True).update({'active': False})
         db.session.commit()
+
+
+class AuthLogics:
+    def login(self, data):
+        user = User.query.filter_by(email=data['email'], active=True).first()
+
+        if not user:
+            raise DoesNotExist
+
+        return TokenSerializer.encode(user).decode()
