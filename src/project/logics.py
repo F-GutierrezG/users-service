@@ -6,6 +6,8 @@ from project.serializers import UserSerializer
 from project.models import User
 from project import db
 
+from sqlalchemy.sql.expression import true
+
 
 class UpdateUserValidator(BaseValidator):
     def get_rules(self):
@@ -37,12 +39,12 @@ class DoesNotExist(Exception):
 
 class UserLogics:
     def list(self):
-        users = User.query.all()
+        users = User.query.filter(User.active == true())
 
         return UserSerializer.to_array(users)
 
     def get(self, id):
-        user = User.query.get(id)
+        user = User.query.filter(User.id == id, User.active == true()).first()
 
         if not user:
             raise DoesNotExist
@@ -55,13 +57,13 @@ class UserLogics:
 
         db.session.add(user)
         db.session.commit()
-        db.session.refresh(user)
 
         return UserSerializer.to_dict(user)
 
     @validate(UpdateUserValidator)
     def update(self, data, id):
-        User.query.filter(User.id == id).update(data)
+        User.query.filter(
+            User.id == id, User.active == true()).update(data)
         db.session.commit()
 
         return self.get(id)
@@ -69,5 +71,6 @@ class UserLogics:
     def delete(self, id):
         self.get(id)
 
-        User.query.filter(User.id == id).update({'active': False})
+        User.query.filter(
+            User.id == id, User.active == true()).update({'active': False})
         db.session.commit()

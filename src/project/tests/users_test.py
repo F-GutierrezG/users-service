@@ -34,7 +34,30 @@ class TestListUsers(BaseTestCase):
         self.__add_user(**self.__get_random_user_data())
         self.__add_user(**self.__get_random_user_data())
 
-        self.assertEqual(User.query.count(), 3)
+        with self.client:
+            response = self.client.get(
+                '/users',
+                content_type='application/json'
+            )
+            response_data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                len(response_data['data']),
+                User.query.count())
+
+    def test_list_only_active_users(self):
+        """Ensure list only get active users"""
+        self.__add_user(**self.__get_random_user_data())
+        self.__add_user(**self.__get_random_user_data())
+        user = User(
+            first_name=random_string(32),
+            last_name=random_string(32),
+            email=random_string(32),
+            password=random_string(32),
+            active=False)
+
+        db.session.add(user)
+        db.session.commit()
 
         with self.client:
             response = self.client.get(
@@ -43,8 +66,8 @@ class TestListUsers(BaseTestCase):
             )
             response_data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 200)
-            self.assertTrue(response_data['data'])
-            self.assertTrue(len(response_data['data']), 3)
+            self.assertEqual(User.query.count(), 3)
+            self.assertEqual(len(response_data['data']), 2)
 
 
 class TestAddUser(BaseTestCase):
@@ -69,6 +92,8 @@ class TestAddUser(BaseTestCase):
             self.assertEqual(response.status_code, 201)
             self.assertEqual(response_data['message'], 'ok')
             self.assertTrue(response_data['data'])
+            self.assertEqual(
+                response_data['data']['id'], User.query.first().id)
             self.assertEqual(
                 response_data['data']['first_name'], user_data['first_name'])
             self.assertEqual(
@@ -403,6 +428,60 @@ class TestUpdateUser(BaseTestCase):
             self.assertEqual(new_user.last_name, new_data['last_name'])
             self.assertEqual(new_user.email, new_data['email'])
 
+    def test_update_inactive_user(self):
+        """Ensure update behaves correctly when user is inactive"""
+        new_data = self.__get_random_user_data()
+        user = User(
+            first_name=random_string(32),
+            last_name=random_string(32),
+            email=random_string(32),
+            password=random_string(32),
+            active=False)
+
+        db.session.add(user)
+        db.session.commit()
+
+        self.assertEqual(User.query.count(), 1)
+
+        with self.client:
+            response = self.client.put(
+                '/users/{}'.format(user.id),
+                data=json.dumps(new_data),
+                content_type='application/json'
+            )
+
+            self.assertEqual(response.status_code, 404)
+            self.assertEqual(User.query.count(), 1)
+
+    def test_update_inactive_user_not_save_to_database(self):
+        """Ensure update inactive user not save to database"""
+        old_data = self.__get_random_user_data()
+        old_data['password'] = random_string(32)
+        old_data['active'] = False
+
+        new_data = self.__get_random_user_data()
+
+        user = User(**old_data)
+
+        db.session.add(user)
+        db.session.commit()
+
+        self.assertEqual(User.query.count(), 1)
+
+        with self.client:
+            response = self.client.put(
+                '/users/{}'.format(user.id),
+                data=json.dumps(new_data),
+                content_type='application/json'
+            )
+
+            updated_user = User.query.first()
+
+            self.assertEqual(response.status_code, 404)
+            self.assertEqual(updated_user.first_name, old_data['first_name'])
+            self.assertEqual(updated_user.last_name, old_data['last_name'])
+            self.assertEqual(updated_user.email, old_data['email'])
+
     def test_update_user_without_first_name(self):
         """Ensure update user behaves correctly without first_name"""
         old_data = self.__get_random_user_data()
@@ -578,6 +657,52 @@ class TestDeleteUser(BaseTestCase):
             self.assertEqual(response.status_code, 404)
             self.assertEqual(User.query.count(), 0)
 
+    def test_delete_inactive_user(self):
+        """Ensure delete behaves correctly when user is inactive"""
+        user = User(
+            first_name=random_string(32),
+            last_name=random_string(32),
+            email=random_string(32),
+            password=random_string(32),
+            active=False)
+
+        db.session.add(user)
+        db.session.commit()
+
+        self.assertEqual(User.query.count(), 1)
+
+        with self.client:
+            response = self.client.delete(
+                '/users/{}'.format(1),
+                content_type='application/json'
+            )
+
+            self.assertEqual(response.status_code, 404)
+            self.assertEqual(User.query.count(), 1)
+
+    def test_delete_inactive_user_doesnt_update_the_database(self):
+        """Ensure delete behaves inactive user doesn't update the database"""
+        user = User(
+            first_name=random_string(32),
+            last_name=random_string(32),
+            email=random_string(32),
+            password=random_string(32),
+            active=False)
+
+        db.session.add(user)
+        db.session.commit()
+
+        self.assertEqual(User.query.count(), 1)
+
+        with self.client:
+            response = self.client.delete(
+                '/users/{}'.format(1),
+                content_type='application/json'
+            )
+
+            self.assertEqual(response.status_code, 404)
+            self.assertEqual(User.query.count(), 1)
+
 
 class TestViewUser(BaseTestCase):
     """Test for view User"""
@@ -634,6 +759,30 @@ class TestViewUser(BaseTestCase):
 
             self.assertEqual(response.status_code, 404)
             self.assertEqual(response_data['message'], 'not found.')
+
+    def test_view_inactive_user(self):
+        """Ensure user is not visible when active is False"""
+        user = User(
+            first_name=random_string(32),
+            last_name=random_string(32),
+            email=random_string(32),
+            password=random_string(32),
+            active=False)
+
+        db.session.add(user)
+        db.session.commit()
+
+        with self.client:
+            response = self.client.get(
+                '/users/{}'.format(user.id),
+                content_type='application/json'
+            )
+
+            response_data = json.loads(response.data.decode())
+
+            self.assertEqual(response.status_code, 404)
+            self.assertEqual(response_data['message'], 'not found.')
+            self.assertEqual(User.query.count(), 1)
 
 
 if __name__ == '__main__':
