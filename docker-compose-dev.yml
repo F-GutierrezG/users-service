@@ -20,7 +20,7 @@ services:
 
   users-db:
     build:
-      context: ./src/project/db
+      context: ./db
       dockerfile: Dockerfile
     ports:
       - 5433:5432
