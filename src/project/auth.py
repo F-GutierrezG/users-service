@@ -8,20 +8,27 @@ def forbidden():
     return jsonify({'message': 'forbidden.'}), 403
 
 
+def parse_token(request):
+    auth_header = request.headers.get('Authorization')
+
+    if not auth_header:
+        return False
+
+    token_parts = auth_header.split(' ')
+
+    if len(token_parts) != 2:
+        return False
+
+    return token_parts[1]
+
+
 def authenticate(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        auth_header = request.headers.get('Authorization')
+        token = parse_token(request)
 
-        if not auth_header:
+        if token is False:
             return forbidden()
-
-        token_parts = auth_header.split(' ')
-
-        if len(token_parts) != 2:
-            return forbidden()
-
-        token = token_parts[1]
 
         try:
             payload = TokenSerializer.decode(token)
