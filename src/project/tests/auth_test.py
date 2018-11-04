@@ -134,5 +134,64 @@ class TestStatus(BaseTestCase, LoginMixin):
             self.assertEqual(response.status_code, 200)
 
 
+class TestAuthenticate(BaseTestCase, LoginMixin):
+    """Tests for authenticate decorator"""
+
+    def test_valid_token(self):
+        """Test authenticate behaves correctly"""
+        token = self.add_and_login()
+
+        with self.client:
+            response = self.client.get(
+                '/auth/status',
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, 200)
+
+    def test_no_auth_header(self):
+        """Test authenticate without auth header behaves correcty"""
+        with self.client:
+            response = self.client.get(
+                '/auth/status',
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, 403)
+
+    def test_wrong_format_auth_header(self):
+        """Test authenticate with wrong format auth header behaves correcty"""
+        with self.client:
+            response = self.client.get(
+                '/auth/status',
+                headers={'Authorization': 'no_space'},
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, 403)
+
+    def test_no_existing_user(self):
+        """Test authenticate with no existing user behaves correcty"""
+        user = User()
+        user.id = random.randint(1, 10000)
+
+        token = TokenSerializer.encode(user).decode()
+        with self.client:
+            response = self.client.get(
+                '/auth/status',
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, 403)
+
+    def test_invalid_token(self):
+        """Test authenticate with invalid token behaves correcty"""
+        with self.client:
+            response = self.client.get(
+                '/auth/status',
+                headers={'Authorization': 'Bearer {}'.format('invalid')},
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, 403)
+
+
 if __name__ == '__main__':
     unittest.main()
