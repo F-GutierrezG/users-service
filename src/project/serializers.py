@@ -24,6 +24,10 @@ class UserSerializer:
         return users_list
 
 
+class InvalidToken(Exception):
+    pass
+
+
 class TokenSerializer:
     @staticmethod
     def encode(user):
@@ -41,4 +45,7 @@ class TokenSerializer:
     @staticmethod
     def decode(token):
         secret = current_app.config.get('SECRET_KEY')
-        return jwt.decode(token, secret)
+        try:
+            return jwt.decode(token, secret)
+        except jwt.exceptions.DecodeError:
+            raise InvalidToken

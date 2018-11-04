@@ -2,12 +2,12 @@ import json
 import random
 import unittest
 
-from project.tests.utils import random_string
+from project.tests.utils import random_string, LoginMixin
 
 from project import db
 from project.tests.base import BaseTestCase
 from project.models import User
-from project.serializers import TokenSerializer
+from project.serializers import TokenSerializer, InvalidToken
 
 
 class TestLogin(BaseTestCase):
@@ -67,6 +67,10 @@ class TestLogin(BaseTestCase):
             self.assertEqual(response.status_code, 404)
             self.assertEqual(response_data['message'], 'not found.')
 
+
+class TestToken(BaseTestCase):
+    """Tests for token encode/decode"""
+
     def test_decode_token(self):
         """Ensure token is decodable"""
         user = User()
@@ -78,6 +82,56 @@ class TestLogin(BaseTestCase):
         self.assertEqual(decoded_info['sub'], user.id)
         self.assertIn('exp', decoded_info)
         self.assertIn('iat', decoded_info)
+
+    def test_decode_invalid_token(self):
+        """Ensure invalid token raises InvalidToken"""
+        token = 'Invalidtoken'
+
+        with self.assertRaises(InvalidToken):
+            TokenSerializer.decode(token)
+
+
+class TestLogout(BaseTestCase, LoginMixin):
+    """Tests for logout"""
+
+    def test_logout(self):
+        """Ensure logout behaves correctly"""
+        email = '{}@test.com'.format(random_string(16))
+        password = random_string(16)
+
+        token = self.add_and_login(email=email, password=password)
+        with self.client:
+            response = self.client.get(
+                '/auth/logout',
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, 200)
+
+    def test_logout_without_authorization(self):
+        """Ensure logout behaves correctly"""
+        with self.client:
+            response = self.client.get(
+                '/auth/logout',
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, 403)
+
+
+class TestStatus(BaseTestCase, LoginMixin):
+    """Tests for auth status"""
+
+    def test_status(self):
+        """Ensure status behaves correctly"""
+        token = self.add_and_login()
+
+        with self.client:
+            response = self.client.get(
+                '/auth/status',
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, 200)
 
 
 if __name__ == '__main__':

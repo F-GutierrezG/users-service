@@ -1,14 +1,14 @@
 import json
 import unittest
 
-from project.tests.utils import random_string
+from project.tests.utils import random_string, LoginMixin
 
 from project import db
 from project.tests.base import BaseTestCase
 from project.models import User
 
 
-class TestListUsers(BaseTestCase):
+class TestListUsers(BaseTestCase, LoginMixin):
     """Tests for list users"""
 
     def __get_random_user_data(self):
@@ -34,9 +34,12 @@ class TestListUsers(BaseTestCase):
         self.__add_user(**self.__get_random_user_data())
         self.__add_user(**self.__get_random_user_data())
 
+        token = self.add_and_login()
+
         with self.client:
             response = self.client.get(
                 '/users',
+                headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
             response_data = json.loads(response.data.decode())
@@ -59,18 +62,21 @@ class TestListUsers(BaseTestCase):
         db.session.add(user)
         db.session.commit()
 
+        token = self.add_and_login()
+
         with self.client:
             response = self.client.get(
                 '/users',
+                headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
             response_data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(User.query.count(), 3)
-            self.assertEqual(len(response_data), 2)
+            self.assertEqual(User.query.count(), 4)
+            self.assertEqual(len(response_data), 3)
 
 
-class TestAddUser(BaseTestCase):
+class TestAddUser(BaseTestCase, LoginMixin):
     """Tests for add User"""
 
     def test_add_user(self):
@@ -82,16 +88,21 @@ class TestAddUser(BaseTestCase):
             'password': '12345678'
         }
 
+        token = self.add_and_login()
+
         with self.client:
             response = self.client.post(
                 '/users',
                 data=json.dumps(user_data),
+                headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
             response_data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 201)
             self.assertEqual(
-                response_data['id'], User.query.first().id)
+                response_data['id'],
+                User.query.filter_by(
+                    email=user_data['email']).first().id)
             self.assertEqual(
                 response_data['first_name'], user_data['first_name'])
             self.assertEqual(
@@ -111,14 +122,17 @@ class TestAddUser(BaseTestCase):
 
         self.assertEqual(User.query.count(), 0)
 
+        token = self.add_and_login()
+
         with self.client:
             self.client.post(
                 '/users',
                 data=json.dumps(user_data),
+                headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
 
-        self.assertEqual(User.query.count(), 1)
+        self.assertEqual(User.query.count(), 2)
 
     def test_add_duplicate_user(self):
         """Ensure add duplicate user behaves correctly"""
@@ -135,10 +149,13 @@ class TestAddUser(BaseTestCase):
             'password': '1234567890'
         }
 
+        token = self.add_and_login()
+
         with self.client:
             response = self.client.post(
                 '/users',
                 data=json.dumps(user_data),
+                headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
             self.assertEqual(response.status_code, 201)
@@ -146,6 +163,7 @@ class TestAddUser(BaseTestCase):
             response = self.client.post(
                 '/users',
                 data=json.dumps(user_data2),
+                headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
             response_data = json.loads(response.data.decode())
@@ -160,10 +178,13 @@ class TestAddUser(BaseTestCase):
             'password': '12345678'
         }
 
+        token = self.add_and_login()
+
         with self.client:
             response = self.client.post(
                 '/users',
                 data=json.dumps(user_data),
+                headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
             response_data = json.loads(response.data.decode())
@@ -182,10 +203,13 @@ class TestAddUser(BaseTestCase):
             'password': '12345678'
         }
 
+        token = self.add_and_login()
+
         with self.client:
             response = self.client.post(
                 '/users',
                 data=json.dumps(user_data),
+                headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
             response_data = json.loads(response.data.decode())
@@ -204,10 +228,13 @@ class TestAddUser(BaseTestCase):
             'password': '12345678'
         }
 
+        token = self.add_and_login()
+
         with self.client:
             response = self.client.post(
                 '/users',
                 data=json.dumps(user_data),
+                headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
             response_data = json.loads(response.data.decode())
@@ -226,10 +253,13 @@ class TestAddUser(BaseTestCase):
             'email': 'fgutierrez@prueba.cl',
         }
 
+        token = self.add_and_login()
+
         with self.client:
             response = self.client.post(
                 '/users',
                 data=json.dumps(user_data),
+                headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
             response_data = json.loads(response.data.decode())
@@ -244,10 +274,13 @@ class TestAddUser(BaseTestCase):
         """Ensure create user route behaves correctly with blank payload"""
         user_data = {}
 
+        token = self.add_and_login()
+
         with self.client:
             response = self.client.post(
                 '/users',
                 data=json.dumps(user_data),
+                headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
             response_data = json.loads(response.data.decode())
@@ -274,10 +307,13 @@ class TestAddUser(BaseTestCase):
             'password': '12345678'
         }
 
+        token = self.add_and_login()
+
         with self.client:
             response = self.client.post(
                 '/users',
                 data=json.dumps(user_data),
+                headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
             self.assertEqual(response.status_code, 201)
@@ -292,10 +328,13 @@ class TestAddUser(BaseTestCase):
             'password': '12345678'
         }
 
+        token = self.add_and_login()
+
         with self.client:
             response = self.client.post(
                 '/users',
                 data=json.dumps(user_data),
+                headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
             response_data = json.loads(response.data.decode())
@@ -315,10 +354,13 @@ class TestAddUser(BaseTestCase):
             'password': '12345678'
         }
 
+        token = self.add_and_login()
+
         with self.client:
             response = self.client.post(
                 '/users',
                 data=json.dumps(user_data),
+                headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
             self.assertEqual(response.status_code, 201)
@@ -333,10 +375,13 @@ class TestAddUser(BaseTestCase):
             'password': '12345678'
         }
 
+        token = self.add_and_login()
+
         with self.client:
             response = self.client.post(
                 '/users',
                 data=json.dumps(user_data),
+                headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
             response_data = json.loads(response.data.decode())
@@ -349,7 +394,7 @@ class TestAddUser(BaseTestCase):
     # TODO: Validar largos, tipo email, etc
 
 
-class TestUpdateUser(BaseTestCase):
+class TestUpdateUser(BaseTestCase, LoginMixin):
     """Tests for update User"""
 
     def __get_random_user_data(self):
@@ -380,10 +425,13 @@ class TestUpdateUser(BaseTestCase):
         self.assertEqual(user.last_name, old_data['last_name'])
         self.assertEqual(user.email, old_data['email'])
 
+        token = self.add_and_login()
+
         with self.client:
             response = self.client.put(
                 '/users/{}'.format(user.id),
                 data=json.dumps(new_data),
+                headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
             response_data = json.loads(response.data.decode())
@@ -409,10 +457,13 @@ class TestUpdateUser(BaseTestCase):
         self.assertEqual(old_user.last_name, old_data['last_name'])
         self.assertEqual(old_user.email, old_data['email'])
 
+        token = self.add_and_login()
+
         with self.client:
             self.client.put(
                 '/users/{}'.format(user.id),
                 data=json.dumps(new_data),
+                headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
 
@@ -435,17 +486,20 @@ class TestUpdateUser(BaseTestCase):
         db.session.add(user)
         db.session.commit()
 
-        self.assertEqual(User.query.count(), 1)
+        token = self.add_and_login()
+
+        self.assertEqual(User.query.count(), 2)
 
         with self.client:
             response = self.client.put(
                 '/users/{}'.format(user.id),
                 data=json.dumps(new_data),
+                headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
 
             self.assertEqual(response.status_code, 404)
-            self.assertEqual(User.query.count(), 1)
+            self.assertEqual(User.query.count(), 2)
 
     def test_update_inactive_user_not_save_to_database(self):
         """Ensure update inactive user not save to database"""
@@ -462,10 +516,13 @@ class TestUpdateUser(BaseTestCase):
 
         self.assertEqual(User.query.count(), 1)
 
+        token = self.add_and_login()
+
         with self.client:
             response = self.client.put(
                 '/users/{}'.format(user.id),
                 data=json.dumps(new_data),
+                headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
 
@@ -486,10 +543,13 @@ class TestUpdateUser(BaseTestCase):
 
         user = self.__add_user(**old_data)
 
+        token = self.add_and_login()
+
         with self.client:
             response = self.client.put(
                 '/users/{}'.format(user.id),
                 data=json.dumps(new_data),
+                headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
 
@@ -505,10 +565,13 @@ class TestUpdateUser(BaseTestCase):
 
         user = self.__add_user(**old_data)
 
+        token = self.add_and_login()
+
         with self.client:
             response = self.client.put(
                 '/users/{}'.format(user.id),
                 data=json.dumps(new_data),
+                headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
 
@@ -524,10 +587,13 @@ class TestUpdateUser(BaseTestCase):
 
         user = self.__add_user(**old_data)
 
+        token = self.add_and_login()
+
         with self.client:
             response = self.client.put(
                 '/users/{}'.format(user.id),
                 data=json.dumps(new_data),
+                headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
 
@@ -540,10 +606,13 @@ class TestUpdateUser(BaseTestCase):
 
         user = self.__add_user(**old_data)
 
+        token = self.add_and_login()
+
         with self.client:
             response = self.client.put(
                 '/users/{}'.format(user.id),
                 data=json.dumps(new_data),
+                headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
 
@@ -560,10 +629,13 @@ class TestUpdateUser(BaseTestCase):
         new_data = self.__get_random_user_data()
         new_data['email'] = old_data2['email']
 
+        token = self.add_and_login()
+
         with self.client:
             response = self.client.put(
                 '/users/{}'.format(user.id),
                 data=json.dumps(new_data),
+                headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
 
@@ -575,10 +647,13 @@ class TestUpdateUser(BaseTestCase):
         """Ensure update user behaves correctly with not existing user"""
         new_data = self.__get_random_user_data()
 
+        token = self.add_and_login()
+
         with self.client:
             response = self.client.put(
                 '/users/{}'.format(2),
                 data=json.dumps(new_data),
+                headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
 
@@ -587,7 +662,7 @@ class TestUpdateUser(BaseTestCase):
             self.assertEqual(response_data['message'], 'not found.')
 
 
-class TestDeleteUser(BaseTestCase):
+class TestDeleteUser(BaseTestCase, LoginMixin):
     """Tests for delete User"""
 
     def __get_random_user_data(self):
@@ -612,9 +687,12 @@ class TestDeleteUser(BaseTestCase):
         user_data = self.__get_random_user_data()
         user = self.__add_user(**user_data)
 
+        token = self.add_and_login()
+
         with self.client:
             response = self.client.delete(
                 '/users/{}'.format(user.id),
+                headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
 
@@ -625,31 +703,37 @@ class TestDeleteUser(BaseTestCase):
         user_data = self.__get_random_user_data()
         user = self.__add_user(**user_data)
 
-        self.assertEqual(User.query.count(), 1)
+        token = self.add_and_login()
+
+        self.assertEqual(User.query.count(), 2)
         self.assertTrue(User.query.first().active)
 
         with self.client:
             response = self.client.delete(
                 '/users/{}'.format(user.id),
+                headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
 
             self.assertEqual(response.status_code, 204)
-            self.assertEqual(User.query.count(), 1)
-            self.assertFalse(User.query.first().active)
+            self.assertEqual(User.query.count(), 2)
+            self.assertFalse(User.query.get(user.id).active)
 
     def test_delete_with_not_existing_user(self):
         """Ensure delete behaves correctly when user doesn't exist"""
-        self.assertEqual(User.query.count(), 0)
+        token = self.add_and_login()
+
+        self.assertEqual(User.query.count(), 1)
 
         with self.client:
             response = self.client.delete(
-                '/users/{}'.format(1),
+                '/users/{}'.format(3812739),
+                headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
 
             self.assertEqual(response.status_code, 404)
-            self.assertEqual(User.query.count(), 0)
+            self.assertEqual(User.query.count(), 1)
 
     def test_delete_inactive_user(self):
         """Ensure delete behaves correctly when user is inactive"""
@@ -663,16 +747,19 @@ class TestDeleteUser(BaseTestCase):
         db.session.add(user)
         db.session.commit()
 
-        self.assertEqual(User.query.count(), 1)
+        token = self.add_and_login()
+
+        self.assertEqual(User.query.count(), 2)
 
         with self.client:
             response = self.client.delete(
                 '/users/{}'.format(1),
+                headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
 
             self.assertEqual(response.status_code, 404)
-            self.assertEqual(User.query.count(), 1)
+            self.assertEqual(User.query.count(), 2)
 
     def test_delete_inactive_user_doesnt_update_the_database(self):
         """Ensure delete behaves inactive user doesn't update the database"""
@@ -686,19 +773,22 @@ class TestDeleteUser(BaseTestCase):
         db.session.add(user)
         db.session.commit()
 
-        self.assertEqual(User.query.count(), 1)
+        token = self.add_and_login()
+
+        self.assertEqual(User.query.count(), 2)
 
         with self.client:
             response = self.client.delete(
                 '/users/{}'.format(1),
+                headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
 
             self.assertEqual(response.status_code, 404)
-            self.assertEqual(User.query.count(), 1)
+            self.assertEqual(User.query.count(), 2)
 
 
-class TestViewUser(BaseTestCase):
+class TestViewUser(BaseTestCase, LoginMixin):
     """Test for view User"""
 
     def __get_random_user_data(self):
@@ -722,10 +812,12 @@ class TestViewUser(BaseTestCase):
         """Ensure user is visible"""
         user_data = self.__get_random_user_data()
         user = self.__add_user(**user_data)
+        token = self.add_and_login()
 
         with self.client:
             response = self.client.get(
                 '/users/{}'.format(user.id),
+                headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
 
@@ -743,9 +835,12 @@ class TestViewUser(BaseTestCase):
 
     def test_view_with_non_existing_user(self):
         """Ensure view behaves correctly when user doesn't exist"""
+        token = self.add_and_login()
+
         with self.client:
             response = self.client.get(
-                '/users/{}'.format(1),
+                '/users/{}'.format(392137),
+                headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
 
@@ -766,9 +861,12 @@ class TestViewUser(BaseTestCase):
         db.session.add(user)
         db.session.commit()
 
+        token = self.add_and_login()
+
         with self.client:
             response = self.client.get(
                 '/users/{}'.format(user.id),
+                headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
 
@@ -776,7 +874,7 @@ class TestViewUser(BaseTestCase):
 
             self.assertEqual(response.status_code, 404)
             self.assertEqual(response_data['message'], 'not found.')
-            self.assertEqual(User.query.count(), 1)
+            self.assertEqual(User.query.count(), 2)
 
 
 if __name__ == '__main__':

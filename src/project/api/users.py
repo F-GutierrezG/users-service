@@ -1,5 +1,6 @@
 from flask import Blueprint, request
 from sqlalchemy import exc
+from project.auth import authenticate
 from project.logics import UserLogics, DoesNotExist
 from project.validators.exceptions import ValidatorException
 from project.api.utils import success_response, failed_response
@@ -9,6 +10,7 @@ users_blueprint = Blueprint('users', __name__)
 
 
 @users_blueprint.route('/users', methods=['GET'])
+@authenticate
 def list():
     users = UserLogics().list()
     return success_response(
@@ -17,6 +19,7 @@ def list():
 
 
 @users_blueprint.route('/users/<id>', methods=['GET'])
+@authenticate
 def get(id):
     try:
         user = UserLogics().get(id)
@@ -28,6 +31,7 @@ def get(id):
 
 
 @users_blueprint.route('/users', methods=['POST'])
+@authenticate
 def create():
     user_data = request.get_json()
 
@@ -45,6 +49,7 @@ def create():
 
 
 @users_blueprint.route('/users/<id>', methods=['PUT'])
+@authenticate
 def update(id):
     user_data = request.get_json()
 
@@ -65,6 +70,7 @@ def update(id):
 
 
 @users_blueprint.route('/users/<id>', methods=['DELETE'])
+@authenticate
 def delete(id):
     try:
         UserLogics().delete(id)
