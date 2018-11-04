@@ -6,8 +6,8 @@ info:
 servers:
   - url: http://localhost:5001
 tags:
-  - name: Auth
-    description: Auth Operations
+  - name: Authenticate
+    description: Authenticate Operations
   - name: Users
     description: User Operations
   - name: Service Health
@@ -28,8 +28,8 @@ paths:
   /auth/login:
     post:
       tags:
-        - Auth
-      summay: Auth User
+        - Authenticate
+      summay: Authenticate User
       description: Login User
       requestBody:
         description: Login data
@@ -64,7 +64,7 @@ paths:
   /auth/logout:
     get:
       tags:
-        - Auth
+        - Authenticate
       summay: Logout User
       description: Logout User
       security:
@@ -76,14 +76,14 @@ paths:
   /auth/status:
     get:
       tags:
-        - Auth
-      summay: Auth Status
-      description: Get Auth Status
+        - Authenticate
+      summay: Authenticate Status
+      description: Get Authenticate Status
       security:
         - bearerAuth: []
       responses:
         '200':
-          description: Auth Status.
+          description: Authenticate Status.
           content:
             application/json:
               schema:
@@ -91,7 +91,7 @@ paths:
                 properties:
                   data:
                     type: string
-                    description: 'Auth Status'
+                    description: 'Authenticate Status'
   /users:
     get:
       tags:
