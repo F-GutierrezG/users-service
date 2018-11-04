@@ -10,62 +10,124 @@ from project.models import User
 from project.serializers import TokenSerializer, InvalidToken
 
 
+def get_login_data():
+    email = '{}@test.com'.format(random_string(16))
+    password = random_string(16)
+
+    return email, password
+
+
 class TestLogin(BaseTestCase):
     """Tests for login"""
 
-    def __get_data(self):
-        return {
-            'first_name': random_string(32),
-            'last_name': random_string(32),
-            'email': '{}@test.com'.format(random_string(16)),
-            'password': random_string(16)
-        }
+    def add_user(self,
+                 first_name=None, last_name=None, email=None, password=None):
+        first_name = random_string(16) if first_name is None else first_name
+        last_name = random_string(16) if last_name is None else last_name
+        email = '{}@test.com'.format(
+            random_string(16)) if email is None else email
+        password = random_string(16) if password is None else password
 
-    def __add_user(self, data):
-        user = User(**data)
+        user = User(**{
+            'first_name': first_name,
+            'last_name': last_name,
+            'email': email,
+            'password': password
+        })
+
         db.session.add(user)
         db.session.commit()
 
         return user
 
-    def test_login(self):
-        """Ensure login behaves correctly"""
-        user_data = self.__get_data()
-        self.__add_user(user_data)
-
-        login_data = {
-            'email': user_data['email'],
-            'password': user_data['password']
-        }
-
-        self.assertEqual(User.query.count(), 1)
-
+    def do_login(self, login_data):
         with self.client:
-            response = self.client.post(
+            return self.client.post(
                 '/auth/login',
                 data=json.dumps(login_data),
                 content_type='application/json'
             )
-            self.assertEqual(response.status_code, 200)
+
+    def test_login(self):
+        """Ensure login behaves correctly"""
+        email, password = get_login_data()
+        self.add_user(email=email, password=password)
+
+        login_data = {'email': email, 'password': password}
+
+        self.assertEqual(User.query.count(), 1)
+        response = self.do_login(login_data)
+        self.assertEqual(response.status_code, 200)
 
     def test_login_not_found(self):
         """Ensure login not found behaves correctly"""
-        user_data = self.__get_data()
+        email, password = get_login_data()
+        login_data = {'email': email, 'password': password}
 
-        login_data = {
-            'email': user_data['email'],
-            'password': user_data['password']
-        }
+        response = self.do_login(login_data)
 
+        response_data = json.loads(response.data.decode())
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response_data['message'], 'not found.')
+
+    def test_login_with_empty_email(self):
+        email = ''
+        _, password = get_login_data()
+        login_data = {'email': email, 'password': password}
+
+        response = self.do_login(login_data)
+
+        response_data = json.loads(response.data.decode())
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response_data['message'], 'invalid payload.')
+
+    def test_login_with_empty_password(self):
+        password = ''
+        email, _ = get_login_data()
+        login_data = {'email': email, 'password': password}
+
+        response = self.do_login(login_data)
+
+        response_data = json.loads(response.data.decode())
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response_data['message'], 'invalid payload.')
+
+    def test_login_without_email(self):
+        _, password = get_login_data()
+        login_data = {'password': password}
+
+        response = self.do_login(login_data)
+
+        response_data = json.loads(response.data.decode())
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response_data['message'], 'invalid payload.')
+
+    def test_login_without_password(self):
+        email, _ = get_login_data()
+        login_data = {'email': email}
+
+        response = self.do_login(login_data)
+
+        response_data = json.loads(response.data.decode())
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response_data['message'], 'invalid payload.')
+
+    def test_login_with_empty_payload(self):
+        login_data = {}
+
+        response = self.do_login(login_data)
+
+        response_data = json.loads(response.data.decode())
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response_data['message'], 'invalid payload.')
+
+    def test_login_without_payload(self):
         with self.client:
             response = self.client.post(
                 '/auth/login',
-                data=json.dumps(login_data),
                 content_type='application/json'
             )
-            response_data = json.loads(response.data.decode())
-            self.assertEqual(response.status_code, 404)
-            self.assertEqual(response_data['message'], 'not found.')
+            self.assertEqual(response.status_code, 400)
 
 
 class TestToken(BaseTestCase):
@@ -94,19 +156,21 @@ class TestToken(BaseTestCase):
 class TestLogout(BaseTestCase, LoginMixin):
     """Tests for logout"""
 
-    def test_logout(self):
-        """Ensure logout behaves correctly"""
-        email = '{}@test.com'.format(random_string(16))
-        password = random_string(16)
-
-        token = self.add_and_login(email=email, password=password)
+    def do_logout(self, token):
         with self.client:
-            response = self.client.get(
+            return self.client.get(
                 '/auth/logout',
                 headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
-            self.assertEqual(response.status_code, 200)
+
+    def test_logout(self):
+        """Ensure logout behaves correctly"""
+        email, password = get_login_data()
+
+        token = self.add_and_login(email=email, password=password)
+        response = self.do_logout(token)
+        self.assertEqual(response.status_code, 200)
 
     def test_logout_without_authorization(self):
         """Ensure logout behaves correctly"""

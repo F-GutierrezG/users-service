@@ -31,6 +31,14 @@ class CreateUserValidator(UpdateUserValidator):
         return new_rules
 
 
+class LoginValidator(BaseValidator):
+    def get_rules(self):
+        return {
+            'email': [rules.Required()],
+            'password': [rules.Required()]
+        }
+
+
 class DoesNotExist(Exception):
     pass
 
@@ -73,6 +81,7 @@ class UserLogics:
 
 
 class AuthLogics:
+    @validate(LoginValidator)
     def login(self, data):
         user = User.query.filter_by(email=data['email'], active=True).first()
 
