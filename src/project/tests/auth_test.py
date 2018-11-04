@@ -121,6 +121,18 @@ class TestLogin(BaseTestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response_data['message'], 'invalid payload.')
 
+    def test_login_with_wrong_password(self):
+        """Ensure login with wrong password behaves correctly"""
+        email, password = get_login_data()
+        self.add_user(email=email, password=password)
+        login_data = {'email': email, 'password': random_string(16)}
+
+        response = self.do_login(login_data)
+
+        response_data = json.loads(response.data.decode())
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response_data['message'], 'invalid login data.')
+
     def test_login_without_payload(self):
         with self.client:
             response = self.client.post(
@@ -170,7 +182,7 @@ class TestLogout(BaseTestCase, LoginMixin):
 
         token = self.add_and_login(email=email, password=password)
         response = self.do_logout(token)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 204)
 
     def test_logout_without_authorization(self):
         """Ensure logout behaves correctly"""

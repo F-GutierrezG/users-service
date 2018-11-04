@@ -1,4 +1,5 @@
-from project import db
+from flask import current_app
+from project import db, bcrypt
 
 
 class User(db.Model):
@@ -13,3 +14,10 @@ class User(db.Model):
     email = db.Column(db.String(256), unique=True, nullable=False)
     password = db.Column(db.String(128), nullable=False)
     active = db.Column(db.Boolean, default=True, nullable=False)
+
+    def __init__(self, **kwargs):
+        super(User, self).__init__(**kwargs)
+        if 'password' in kwargs:
+            password = kwargs['password']
+            self.password = bcrypt.generate_password_hash(
+                password, current_app.config.get('BCRYPT_LOG_ROUNDS')).decode()

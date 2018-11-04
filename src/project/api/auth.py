@@ -14,6 +14,9 @@ def login():
 
     try:
         token = AuthLogics().login(user_data)
+        if token is False:
+            return failed_response(
+                message='invalid login data.', status_code=400)
         return success_response(data=token, status_code=200)
     except DoesNotExist:
         return failed_response(message='not found.', status_code=404)

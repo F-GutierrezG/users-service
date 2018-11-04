@@ -3,7 +3,7 @@ import unittest
 
 from project.tests.utils import random_string, LoginMixin
 
-from project import db
+from project import db, bcrypt
 from project.tests.base import BaseTestCase
 from project.models import User
 
@@ -110,6 +110,52 @@ class TestAddUser(BaseTestCase, LoginMixin):
             self.assertEqual(
                 response_data['email'], user_data['email'])
             self.assertTrue(response_data['active'])
+
+    def test_add_user_encrypt_password(self):
+        """Ensure add user encrypt password"""
+        user_data = {
+            'first_name': 'Francisco',
+            'last_name': 'Gutiérrez',
+            'email': 'fgutierrez@prueba.cl',
+            'password': '12345678'
+        }
+
+        token = self.add_and_login()
+
+        with self.client:
+            response = self.client.post(
+                '/users',
+                data=json.dumps(user_data),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+            response_data = json.loads(response.data.decode())
+            user = User.query.get(response_data['id'])
+            self.assertTrue(bcrypt.check_password_hash(
+                user.password, user_data['password']))
+
+    def test_add_user_incorrect_password(self):
+        """Ensure add user encrypt password correctly"""
+        user_data = {
+            'first_name': 'Francisco',
+            'last_name': 'Gutiérrez',
+            'email': 'fgutierrez@prueba.cl',
+            'password': '12345678'
+        }
+
+        token = self.add_and_login()
+
+        with self.client:
+            response = self.client.post(
+                '/users',
+                data=json.dumps(user_data),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+            response_data = json.loads(response.data.decode())
+            user = User.query.get(response_data['id'])
+            self.assertFalse(bcrypt.check_password_hash(
+                user.password, random_string(16)))
 
     def test_add_user_save_to_database(self):
         """Ensure add sabe user to database"""

@@ -4,7 +4,7 @@ from project.validators import rules
 from project.serializers import UserSerializer, TokenSerializer
 
 from project.models import User
-from project import db
+from project import db, bcrypt
 
 
 class UpdateUserValidator(BaseValidator):
@@ -87,6 +87,10 @@ class AuthLogics:
 
         if not user:
             raise DoesNotExist
+
+        password = data['password']
+        if bcrypt.check_password_hash(user.password, password) is False:
+            return False
 
         return TokenSerializer.encode(user).decode()
 
