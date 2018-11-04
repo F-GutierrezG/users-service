@@ -24,7 +24,7 @@ def login():
 @auth_blueprint.route('/auth/logout', methods=['GET'])
 @authenticate
 def logout():
-    return success_response(status_code=200)
+    return success_response(status_code=204)
 
 
 @auth_blueprint.route('/auth/status', methods=['GET'])

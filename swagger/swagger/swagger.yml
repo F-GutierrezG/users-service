@@ -72,6 +72,12 @@ paths:
       responses:
         '204':
           description: User logued out.
+        '403':
+          description: Forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/Forbidden"
 
   /auth/status:
     get:
@@ -92,6 +98,12 @@ paths:
                   data:
                     type: string
                     description: 'Authenticate Status'
+        '403':
+          description: Forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/Forbidden"
   /users:
     get:
       tags:
@@ -109,6 +121,12 @@ paths:
                 type: array
                 items:
                   $ref: "#components/schemas/User"
+        '403':
+          description: Forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/Forbidden"
     post:
       tags:
         - Users
@@ -136,6 +154,12 @@ paths:
             application/json:
               schema:
                 $ref: "#components/responses/BadRequest"
+        '403':
+          description: Forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/Forbidden"
   /users/{id}:
     get:
       tags:
@@ -165,6 +189,12 @@ paths:
             application/json:
               schema:
                 $ref: "#components/responses/NotFound"
+        '403':
+          description: Forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/Forbidden"
     put:
       tags:
         - Users
@@ -206,6 +236,12 @@ paths:
             application/json:
               schema:
                 $ref: "#components/responses/NotFound"
+        '403':
+          description: Forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/Forbidden"
     delete:
       tags:
         - Users
@@ -230,6 +266,12 @@ paths:
             application/json:
               schema:
                 $ref: "#components/responses/NotFound"
+        '403':
+          description: Forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/Forbidden"
 components:
   schemas:
     Login:
@@ -307,6 +349,11 @@ components:
           type: string
           description: Error cause
     NotFound:
+      properties:
+        message:
+          type: string
+          description: Error cause
+    Forbidden:
       properties:
         message:
           type: string
