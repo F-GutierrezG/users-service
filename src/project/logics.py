@@ -80,3 +80,8 @@ class AuthLogics:
             raise DoesNotExist
 
         return TokenSerializer.encode(user).decode()
+
+    def status(self, token):
+        user_id = TokenSerializer.decode(token)['sub']
+
+        return UserLogics().get(user_id)

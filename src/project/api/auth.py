@@ -27,4 +27,7 @@ def logout():
 @auth_blueprint.route('/auth/status', methods=['GET'])
 @authenticate
 def status():
-    return success_response(status_code=200)
+    token = request.headers.get('Authorization').split(' ')[1]
+
+    user = AuthLogics().status(token)
+    return success_response(data=user, status_code=200)
