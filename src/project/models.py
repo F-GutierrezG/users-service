@@ -1,4 +1,6 @@
 from flask import current_app
+from sqlalchemy.sql import func
+
 from project import db, bcrypt
 
 
@@ -14,6 +16,8 @@ class User(db.Model):
     email = db.Column(db.String(256), unique=True, nullable=False)
     password = db.Column(db.String(128), nullable=False)
     active = db.Column(db.Boolean, default=True, nullable=False)
+    created = db.Column(db.DateTime, default=func.now(), nullable=False)
+    updated = db.Column(db.DateTime, onupdate=func.now())
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)

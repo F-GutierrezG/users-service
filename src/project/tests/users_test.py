@@ -1,4 +1,5 @@
 import json
+import datetime
 import unittest
 
 from project.tests.utils import random_string, LoginMixin
@@ -158,7 +159,7 @@ class TestAddUser(BaseTestCase, LoginMixin):
                 user.password, random_string(16)))
 
     def test_add_user_save_to_database(self):
-        """Ensure add sabe user to database"""
+        """Ensure add save user to database"""
         user_data = {
             'first_name': 'Francisco',
             'last_name': 'Gutiérrez',
@@ -437,6 +438,34 @@ class TestAddUser(BaseTestCase, LoginMixin):
                 response_data['data']['last_name'],
                 'last name must be less or equal than 128 characters long.')
 
+    def test_add_user_creation_date(self):
+        """Ensure user has creation date"""
+        user_data = {
+            'first_name': random_string(16),
+            'last_name': random_string(16),
+            'email': '{}@test.com'.format(random_string(16)),
+            'password': random_string(16)
+        }
+
+        init_time = datetime.datetime.utcnow()
+        token = self.add_and_login()
+
+        with self.client:
+            response = self.client.post(
+                '/users',
+                data=json.dumps(user_data),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+            end_time = datetime.datetime.utcnow()
+
+            response_data = json.loads(response.data.decode())
+
+            user = User.query.get(response_data['id'])
+
+            self.assertTrue(user.created >= init_time)
+            self.assertTrue(user.created <= end_time)
+
     # TODO: Validar largos, tipo email, etc
 
 
@@ -706,6 +735,31 @@ class TestUpdateUser(BaseTestCase, LoginMixin):
             response_data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 404)
             self.assertEqual(response_data['message'], 'not found.')
+
+    def test_update_user_update_date(self):
+        """Ensure user has update date"""
+        init_time = datetime.datetime.utcnow()
+
+        old_data = self.__get_random_user_data()
+        new_data = self.__get_random_user_data()
+
+        user = self.__add_user(**old_data)
+        token = self.add_and_login()
+
+        with self.client:
+            response = self.client.put(
+                '/users/{}'.format(user.id),
+                data=json.dumps(new_data),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+            end_time = datetime.datetime.utcnow()
+
+            response_data = json.loads(response.data.decode())
+            user = User.query.get(response_data['id'])
+
+            self.assertTrue(user.updated >= init_time)
+            self.assertTrue(user.updated <= end_time)
 
 
 class TestDeleteUser(BaseTestCase, LoginMixin):
