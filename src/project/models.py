@@ -23,7 +23,12 @@ class User(db.Model):
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
-        if 'password' in kwargs:
-            password = kwargs['password']
-            self.password = bcrypt.generate_password_hash(
-                password, current_app.config.get('BCRYPT_LOG_ROUNDS')).decode()
+        self.password = self._generate_password_hash(**kwargs)
+
+    def _generate_password_hash(self, **kwargs):
+        if 'password' not in kwargs:
+            return None
+
+        return bcrypt.generate_password_hash(
+            kwargs['password'],
+            current_app.config.get('BCRYPT_LOG_ROUNDS')).decode()
