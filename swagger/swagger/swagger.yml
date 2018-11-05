@@ -10,9 +10,34 @@ tags:
     description: Authenticate Operations
   - name: Users
     description: User Operations
+  - name: Companies
+    description: Companies Operations
   - name: Service Health
     description: Service Health Status
 paths:
+  /companies:
+    get:
+      tags:
+        - Companies
+      summary: List Companies
+      description: List Companies by user Token
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Companies List
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#components/schemas/Company"
+        '403':
+          description: Forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/Forbidden"
   /users-service/health:
     get:
       tags:
@@ -274,6 +299,15 @@ paths:
                 $ref: "#components/responses/Forbidden"
 components:
   schemas:
+    Company:
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Company id
+        name:
+          type: string
+          description: Company name
     Login:
       required:
         - email
