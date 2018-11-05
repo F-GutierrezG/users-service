@@ -46,6 +46,12 @@ Development Mode
 docker-compose -f docker-compose-dev.yml run users python manage.py cov
 ```
 
+## Run Shell
+Development Mode
+```
+docker-compose -f docker-compose-dev.yml run users python flask shell
+```
+
 ## Create new DB Migrations
 Development Mode
 ```

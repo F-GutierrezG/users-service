@@ -40,10 +40,13 @@ class UserLogics:
 
         return self.get(id)
 
-    def delete(self, id):
+    def delete(self, id, deleted_by):
         self.get(id)
 
-        User.query.filter_by(id=id, active=True).update({'active': False})
+        User.query.filter_by(id=id, active=True).update({
+            'active': False,
+            'updated_by': deleted_by.id
+        })
         db.session.commit()
 
 

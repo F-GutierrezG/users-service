@@ -36,7 +36,7 @@ def test(file):
     """Runs the tests without code coverage"""
     if file is None:
         tests = unittest.TestLoader().discover(
-            'project/tests', pattern='*_test.py')
+            'project/tests', pattern='test_*.py')
     else:
         tests = unittest.TestLoader().discover(
             'project/tests', pattern='{}.py'.format(file))
@@ -51,7 +51,7 @@ def test(file):
 def cov():
     """Runs the unit tests with coverage."""
     tests = unittest.TestLoader().discover(
-        'project/tests', pattern='*_test.py')
+        'project/tests', pattern='test_*.py')
     result = unittest.TextTestRunner(verbosity=2).run(tests)
     if result.wasSuccessful():
         COV.stop()

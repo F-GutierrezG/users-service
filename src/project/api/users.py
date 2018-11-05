@@ -75,7 +75,7 @@ def update(user, id):
 @authenticate
 def delete(user, id):
     try:
-        UserLogics().delete(id)
+        UserLogics().delete(id, user)
         return success_response(status_code=204)
 
     except DoesNotExist:

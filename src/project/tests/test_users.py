@@ -956,6 +956,44 @@ class TestDeleteUser(BaseTestCase, LoginMixin):
             self.assertEqual(response.status_code, 404)
             self.assertEqual(User.query.count(), 2)
 
+    def test_delete_user_save_updated_by(self):
+        """Ensure delete user save updated_by"""
+        user_data = self.__get_random_user_data()
+        user = self.__add_user(**user_data)
+
+        token = self.add_and_login()
+        user_id = TokenSerializer.decode(token)['sub']
+        with self.client:
+            self.client.delete(
+                '/users/{}'.format(user.id),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+            user = User.query.get(user.id)
+            self.assertEqual(user.updated_by, user_id)
+
+    def test_delete_user_save_updated_datetime(self):
+        """Ensure delete user save updated datetime"""
+        user_data = self.__get_random_user_data()
+        user = self.__add_user(**user_data)
+
+        init_time = datetime.datetime.utcnow()
+
+        token = self.add_and_login()
+
+        with self.client:
+            self.client.delete(
+                '/users/{}'.format(user.id),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+            end_time = datetime.datetime.utcnow()
+
+            user = User.query.get(user.id)
+
+            self.assertTrue(user.updated >= init_time)
+            self.assertTrue(user.updated <= end_time)
+
 
 class TestViewUser(BaseTestCase, LoginMixin):
     """Test for view User"""
