@@ -11,7 +11,11 @@ class UserSerializer:
             'first_name': user.first_name,
             'last_name': user.last_name,
             'email': user.email,
-            'active': user.active
+            'active': user.active,
+            'created': str(user.created),
+            'created_by': user.created_by,
+            'updated': str(user.updated),
+            'updated_by': user.updated_by,
         }
 
     @staticmethod

@@ -509,6 +509,30 @@ class TestAddUser(BaseTestCase, LoginMixin):
 
             self.assertEqual(user.created_by, user_id)
 
+    def test_add_user_dont_save_update_data(self):
+        """Ensure create user dont save updated info"""
+        user_data = {
+            'first_name': 'Francisco',
+            'last_name': 'Gutiérrez',
+            'email': 'fgutierrez@prueba.cl',
+            'password': '12345678'
+        }
+
+        token = self.add_and_login()
+
+        with self.client:
+            response = self.client.post(
+                '/users',
+                data=json.dumps(user_data),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+            response_data = json.loads(response.data.decode())
+            user = User.query.get(response_data['id'])
+
+            self.assertIsNone(user.updated)
+            self.assertIsNone(user.updated_by)
+
     # TODO: Validar largos, tipo email, etc
 
 
@@ -830,6 +854,32 @@ class TestUpdateUser(BaseTestCase, LoginMixin):
             user = User.query.get(response_data['id'])
             self.assertEqual(user.updated_by, user_id)
 
+    def test_update_user_save_update_data(self):
+        """Ensure update user save update data"""
+        old_data = self.__get_random_user_data()
+        new_data = self.__get_random_user_data()
+
+        user = self.__add_user(**old_data)
+
+        self.assertEqual(user.first_name, old_data['first_name'])
+        self.assertEqual(user.last_name, old_data['last_name'])
+        self.assertEqual(user.email, old_data['email'])
+
+        token = self.add_and_login()
+
+        with self.client:
+            response = self.client.put(
+                '/users/{}'.format(user.id),
+                data=json.dumps(new_data),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+            response_data = json.loads(response.data.decode())
+            user = User.query.get(response_data['id'])
+
+            self.assertIsNotNone(user.updated)
+            self.assertIsNotNone(user.updated_by)
+
 
 class TestDeleteUser(BaseTestCase, LoginMixin):
     """Tests for delete User"""
@@ -1028,17 +1078,17 @@ class TestViewUser(BaseTestCase, LoginMixin):
                 content_type='application/json'
             )
 
-            response_data = json.loads(response.data.decode())
+            data = json.loads(response.data.decode())
 
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(
-                response_data['id'], user.id)
-            self.assertEqual(
-                response_data['first_name'], user.first_name)
-            self.assertEqual(
-                response_data['last_name'], user.last_name)
-            self.assertEqual(
-                response_data['email'], user.email)
+            self.assertEqual(data['id'], user.id)
+            self.assertEqual(data['first_name'], user.first_name)
+            self.assertEqual(data['last_name'], user.last_name)
+            self.assertEqual(data['email'], user.email)
+            self.assertEqual(data['created'], str(user.created))
+            self.assertEqual(data['created_by'], user.created_by)
+            self.assertEqual(data['updated'], str(user.updated))
+            self.assertEqual(data['updated_by'], user.updated_by)
 
     def test_view_with_non_existing_user(self):
         """Ensure view behaves correctly when user doesn't exist"""
