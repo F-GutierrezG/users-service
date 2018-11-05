@@ -28,6 +28,10 @@ class InvalidToken(Exception):
     pass
 
 
+class ExpiredToken(Exception):
+    pass
+
+
 class TokenSerializer:
     @staticmethod
     def encode(user):
@@ -49,3 +53,5 @@ class TokenSerializer:
             return jwt.decode(token, secret)
         except jwt.exceptions.DecodeError:
             raise InvalidToken
+        except jwt.exceptions.ExpiredSignatureError:
+            raise ExpiredToken

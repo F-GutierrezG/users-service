@@ -1,11 +1,11 @@
 from functools import wraps
 from flask import request, jsonify
 from project.models import User
-from project.serializers import TokenSerializer, InvalidToken
+from project.serializers import TokenSerializer, InvalidToken, ExpiredToken
 
 
-def forbidden():
-    return jsonify({'message': 'forbidden.'}), 403
+def forbidden(message='forbidden'):
+    return jsonify({'message': message}), 403
 
 
 def parse_token(request):
@@ -37,7 +37,9 @@ def authenticate(f):
             if not user:
                 return forbidden()
         except InvalidToken:
-            return forbidden()
+            return forbidden('invalid token.')
+        except ExpiredToken:
+            return forbidden('expired token.')
 
         return f(*args, **kwargs)
     return decorated_function

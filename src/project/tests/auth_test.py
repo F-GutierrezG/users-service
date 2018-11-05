@@ -1,6 +1,9 @@
 import json
 import random
+import datetime
 import unittest
+
+from flask import current_app
 
 from project.tests.utils import random_string, LoginMixin
 
@@ -209,6 +212,26 @@ class TestStatus(BaseTestCase, LoginMixin):
             )
             self.assertEqual(response.status_code, 200)
 
+    def test_status_with_invalid_token(self):
+        """Ensure status with invalid token behaves correctly"""
+        with self.client:
+            response = self.client.get(
+                '/auth/status',
+                headers={'Authorization': 'Bearer {}'.format(
+                    random_string(16))},
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, 403)
+
+    def test_status_without_token(self):
+        """Ensure status without token behaves correctly"""
+        with self.client:
+            response = self.client.get(
+                '/auth/status',
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, 403)
+
 
 class TestAuthenticate(BaseTestCase, LoginMixin):
     """Tests for authenticate decorator"""
@@ -267,6 +290,30 @@ class TestAuthenticate(BaseTestCase, LoginMixin):
                 content_type='application/json'
             )
             self.assertEqual(response.status_code, 403)
+
+    def test_expired_token(self):
+        current_app.config['TOKEN_EXPIRATION_SECONDS'] = -1
+
+        token = self.add_and_login()
+
+        with self.client:
+            response = self.client.get(
+                '/auth/status',
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+            response_data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 403)
+            self.assertEqual(response_data['message'], 'expired token.')
+
+    def test_token_expiration_date_token(self):
+        init_date = datetime.datetime.utcnow()
+
+        token = self.add_and_login()
+        expiration_date = datetime.datetime.fromtimestamp(
+            TokenSerializer.decode(token)['exp'])
+
+        self.assertTrue(init_date < expiration_date)
 
 
 if __name__ == '__main__':
