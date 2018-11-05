@@ -61,7 +61,5 @@ class AuthLogics:
 
         return TokenSerializer.encode(user).decode()
 
-    def status(self, token):
-        user_id = TokenSerializer.decode(token)['sub']
-
-        return UserLogics().get(user_id)
+    def get_status(self, user):
+        return UserSerializer.to_dict(user)

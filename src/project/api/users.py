@@ -11,7 +11,7 @@ users_blueprint = Blueprint('users', __name__)
 
 @users_blueprint.route('/users', methods=['GET'])
 @authenticate
-def list():
+def list(user):
     users = UserLogics().list()
     return success_response(
         data=users,
@@ -20,7 +20,7 @@ def list():
 
 @users_blueprint.route('/users/<id>', methods=['GET'])
 @authenticate
-def get(id):
+def get(user, id):
     try:
         user = UserLogics().get(id)
         return success_response(
@@ -32,7 +32,7 @@ def get(id):
 
 @users_blueprint.route('/users', methods=['POST'])
 @authenticate
-def create():
+def create(user):
     user_data = request.get_json()
 
     try:
@@ -50,7 +50,7 @@ def create():
 
 @users_blueprint.route('/users/<id>', methods=['PUT'])
 @authenticate
-def update(id):
+def update(user, id):
     user_data = request.get_json()
 
     try:
@@ -71,7 +71,7 @@ def update(id):
 
 @users_blueprint.route('/users/<id>', methods=['DELETE'])
 @authenticate
-def delete(id):
+def delete(user, id):
     try:
         UserLogics().delete(id)
         return success_response(status_code=204)

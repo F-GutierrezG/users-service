@@ -34,12 +34,12 @@ def authenticate(f):
             payload = TokenSerializer.decode(token)
             user = User.query.filter_by(id=payload['sub'], active=True).first()
 
-            if not user:
-                return forbidden()
+            if user:
+                return f(user, *args, **kwargs)
         except InvalidToken:
             return forbidden('invalid token.')
         except ExpiredToken:
             return forbidden('expired token.')
 
-        return f(*args, **kwargs)
+        return forbidden()
     return decorated_function
