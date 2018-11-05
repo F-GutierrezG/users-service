@@ -1,11 +1,7 @@
 from flask import current_app
 from sqlalchemy.sql import func
-from sqlalchemy.ext.declarative import declarative_base
 
 from project import db, bcrypt
-
-
-Base = declarative_base()
 
 
 company_has_users = db.Table(

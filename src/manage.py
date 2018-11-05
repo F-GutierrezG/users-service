@@ -5,7 +5,6 @@ import coverage
 from flask.cli import FlaskGroup
 
 from project import create_app, db
-from project.models import User, Company
 
 
 COV = coverage.coverage(
@@ -14,7 +13,6 @@ COV = coverage.coverage(
     omit=[
         'project/tests/*',
         'project/__init__.py',
-        'project/config.py',
     ]
 )
 COV.start()
@@ -34,6 +32,8 @@ def recreate_db():
 @cli.command()
 def seed_db():
     """Seeds the database."""
+    from project.models import User, Company
+
     company = Company(name='Test Company')
     user = User(
         first_name='Francisco',
@@ -67,8 +67,7 @@ def test(file):
 @cli.command()
 def cov():
     """Runs the unit tests with coverage."""
-    tests = unittest.TestLoader().discover(
-        'project/tests', pattern='test_*.py')
+    tests = unittest.TestLoader().discover('project/tests')
     result = unittest.TextTestRunner(verbosity=2).run(tests)
     if result.wasSuccessful():
         COV.stop()
