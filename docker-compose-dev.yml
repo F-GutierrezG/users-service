@@ -36,6 +36,6 @@ services:
     ports:
       - 8081:8080
     volumes:
-      - './swagger/swagger:/usr/share/nginx/html/swagger'
+      - './swagger/definitions:/usr/share/nginx/html/definitions'
     environment:
-      - API_URL=swagger/swagger.yml
+      - API_URL=definitions/users-service.yml
