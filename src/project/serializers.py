@@ -32,6 +32,7 @@ class CompanySerializer:
     @staticmethod
     def to_dict(company):
         return {
+            'id': company.id,
             'name': company.name,
         }
 

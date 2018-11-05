@@ -78,3 +78,14 @@ class CompanyLogics:
             Company.users.any(User.id == user.id))
 
         return CompanySerializer.to_array(companies)
+
+    def get(self, user, id):
+        company = Company.query.filter(
+            Company.id == id,
+            Company.active == true(),
+            Company.users.any(User.id == user.id)).first()
+
+        if not company:
+            raise DoesNotExist
+
+        return CompanySerializer.to_dict(company)

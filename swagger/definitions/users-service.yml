@@ -38,6 +38,41 @@ paths:
             application/json:
               schema:
                 $ref: "#components/responses/Forbidden"
+  /companies/{id}:
+    get:
+      tags:
+        - Companies
+      summary: Get Company
+      description: Get Company by user Token
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: User id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Company Get
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/Company"
+        '403':
+          description: Forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/Forbidden"
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/NotFound"
   /users-service/health:
     get:
       tags:
@@ -359,6 +394,21 @@ components:
             active:
               type: boolean
               description: User active status
+            created:
+              type: string
+              format: date-time
+              description: Created datetime
+            created_by:
+              type: integer
+              description: User id who creates this
+            updated:
+              type: string
+              format: date-time
+              description: Updated datetime
+            updated_by:
+              type: integer
+              description: User id who updates this
+
     Health:
       properties:
         message:

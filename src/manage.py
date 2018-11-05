@@ -5,6 +5,7 @@ import coverage
 from flask.cli import FlaskGroup
 
 from project import create_app, db
+from project.models import User, Company
 
 
 COV = coverage.coverage(
@@ -27,6 +28,22 @@ cli = FlaskGroup(create_app=create_app)
 def recreate_db():
     db.drop_all()
     db.create_all()
+    db.session.commit()
+
+
+@cli.command()
+def seed_db():
+    """Seeds the database."""
+    company = Company(name='Test Company')
+    user = User(
+        first_name='Francisco',
+        last_name='Gutiérrez',
+        email='gute20@gmail.com',
+        password='12345678',
+    )
+
+    company.users.append(user)
+    db.session.add(company)
     db.session.commit()
 
 
