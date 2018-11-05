@@ -6,6 +6,7 @@ from project.tests.utils import random_string, LoginMixin
 
 from project import db, bcrypt
 from project.tests.base import BaseTestCase
+from project.serializers import TokenSerializer
 from project.models import User
 
 
@@ -466,6 +467,48 @@ class TestAddUser(BaseTestCase, LoginMixin):
             self.assertTrue(user.created >= init_time)
             self.assertTrue(user.created <= end_time)
 
+    def test_add_user_created_by_default(self):
+        """Ensure user has default created_by using model creation"""
+        user_data = {
+            'first_name': random_string(16),
+            'last_name': random_string(16),
+            'email': '{}@test.com'.format(random_string(16)),
+            'password': random_string(16)
+        }
+
+        user = User(**user_data)
+        db.session.add(user)
+        db.session.commit()
+
+        self.assertIsNotNone(user.id)
+        self.assertEqual(user.created_by, 0)
+
+    def test_add_user_created_by(self):
+        """Ensure user has correct created_by value"""
+
+        user_data = {
+            'first_name': random_string(16),
+            'last_name': random_string(16),
+            'email': '{}@test.com'.format(random_string(16)),
+            'password': random_string(16)
+        }
+
+        token = self.add_and_login()
+        user_id = TokenSerializer.decode(token)['sub']
+
+        with self.client:
+            response = self.client.post(
+                '/users',
+                data=json.dumps(user_data),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+
+            response_data = json.loads(response.data.decode())
+            user = User.query.get(response_data['id'])
+
+            self.assertEqual(user.created_by, user_id)
+
     # TODO: Validar largos, tipo email, etc
 
 
@@ -760,6 +803,32 @@ class TestUpdateUser(BaseTestCase, LoginMixin):
 
             self.assertTrue(user.updated >= init_time)
             self.assertTrue(user.updated <= end_time)
+
+    def test_update_user_updated_by(self):
+        """Ensure user has correct updated_by value"""
+        old_data = self.__get_random_user_data()
+        new_data = self.__get_random_user_data()
+
+        user = self.__add_user(**old_data)
+
+        self.assertEqual(user.first_name, old_data['first_name'])
+        self.assertEqual(user.last_name, old_data['last_name'])
+        self.assertEqual(user.email, old_data['email'])
+
+        token = self.add_and_login()
+        user_id = TokenSerializer.decode(token)['sub']
+
+        with self.client:
+            response = self.client.put(
+                '/users/{}'.format(user.id),
+                data=json.dumps(new_data),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+            response_data = json.loads(response.data.decode())
+
+            user = User.query.get(response_data['id'])
+            self.assertEqual(user.updated_by, user_id)
 
 
 class TestDeleteUser(BaseTestCase, LoginMixin):

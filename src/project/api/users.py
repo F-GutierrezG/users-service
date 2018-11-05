@@ -34,6 +34,7 @@ def get(user, id):
 @authenticate
 def create(user):
     user_data = request.get_json()
+    user_data['created_by'] = user.id
 
     try:
         user = UserLogics().create(user_data)
@@ -52,6 +53,7 @@ def create(user):
 @authenticate
 def update(user, id):
     user_data = request.get_json()
+    user_data['updated_by'] = user.id
 
     try:
         user = UserLogics().update(user_data, id)
