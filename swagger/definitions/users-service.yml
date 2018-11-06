@@ -408,7 +408,6 @@ components:
             updated_by:
               type: integer
               description: User id who updates this
-
     Health:
       properties:
         message:
