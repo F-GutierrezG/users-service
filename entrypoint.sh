@@ -3,8 +3,10 @@
 echo "Waiting for postgres..."
 
 while ! nc -z users-db 5432; do
-  sleep 0.5
+  sleep 0.1
 done
+
+sleep 1
 
 echo "PostgreSQL started"
 
