@@ -31,7 +31,7 @@ stages:
 #    - docker-compose -f docker-compose-dev.yml run users flake8 project
 #    - docker-compose -f docker-compose-dev.yml run users python manage.py cov
 
-registry_devel:
+registry_user_devel:
   stage: registry
   script:
     - docker login -u gitlab-ci-token -p 4JbtWjshp1KHwdPzb2CK registry.gitlab.com
@@ -40,9 +40,19 @@ registry_devel:
     - docker tag $USERS:$COMMIT $REGISTRY_REPO/$USERS:$TAG
     - docker push $REGISTRY_REPO/$USERS:$TAG
 
+registry_user_db_devel:
+  stage: registry
+  script:
+    - docker login -u gitlab-ci-token -p 4JbtWjshp1KHwdPzb2CK registry.gitlab.com
+
     - docker build $USERS_DB_REPO -t $USERS_DB:$COMMIT -f Dockerfile
     - docker tag $USERS_DB:$COMMIT $REGISTRY_REPO/$USERS_DB:$TAG
     - docker push $REGISTRY_REPO/$USERS_DB:$TAG
+
+registry_swagger_devel:
+  stage: registry
+  script:
+    - docker login -u gitlab-ci-token -p 4JbtWjshp1KHwdPzb2CK registry.gitlab.com
 
     - docker build $SWAGGER_REPO -t $SWAGGER:$COMMIT -f Dockerfile
     - docker tag $SWAGGER:$COMMIT $REGISTRY_REPO/$SWAGGER:$TAG
