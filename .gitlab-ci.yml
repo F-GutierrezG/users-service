@@ -44,5 +44,5 @@ registry_devel:
     - echo ${SWAGGER_REPO}
     - docker login -u gitlab-ci-token -p 4JbtWjshp1KHwdPzb2CK registry.gitlab.com
     - docker build $USERS_REPO -t $USERS:$COMMIT -f Dockerfile-dev
-    - docker tag $USERS:$COMMIT $REPO/$USERS:$TAG
+    - docker tag $USERS:$COMMIT $REGISTRY_REPO/$USERS:$TAG
     - docker push $REGISTRY_REPO/$USERS:$TAG
