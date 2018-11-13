@@ -12,7 +12,7 @@ stages:
 #  - unit_test
 #  - registry
 #  - cleanup
-#  - devel
+  - devel
 
 #unit_test:
 #  stage: unit_test
