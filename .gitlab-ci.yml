@@ -66,5 +66,5 @@ registry_swagger_devel:
 cleanup:
   stage: cleanup
   script:
-    - docker image rm $(docker image ls -q)
+    - docker image rm -f $(docker image ls -q)
     - docker volume rm -f $(docker volume ls -q)
