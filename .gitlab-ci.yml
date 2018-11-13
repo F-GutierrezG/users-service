@@ -7,7 +7,6 @@ variables:
 
   COMMIT: ${CI_COMMIT_SHA}
   TAG: ${CI_COMMIT_REF_NAME}
-  MAIN_REPO: "https://${GITLAB_USER}:${GITLAB_PASSWORD}@gitlab.com/gusisoft/OneLike/client/users-service.git"
   REGISTRY_REPO: registry.gitlab.com/gusisoft/onelike/client/users-service
   USERS: users
   USERS_REPO: ${MAIN_REPO}#${CI_COMMIT_REF_NAME}
@@ -23,7 +22,7 @@ stages:
   - cleanup
 
 before_script:
-  - export MAIN_REPO=https://${GITLAB_USER}:${GITLAB_PASSWORD}@gitlab.com/gusisoft/OneLike/client/users-service.git
+  - export MAIN_REPO="https://${GITLAB_USER}:${GITLAB_PASSWORD}@gitlab.com/gusisoft/OneLike/client/users-service.git"
 #  - apk update
 #  - apk upgrade
 #  - apk add python python-dev py-pip build-base
