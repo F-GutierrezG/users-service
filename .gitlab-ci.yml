@@ -34,15 +34,16 @@ stages:
 registry_devel:
   stage: registry
   script:
-    - echo ${COMMIT}
-    - echo ${MAIN_REPO}
-    - echo ${USERS}
-    - echo ${USERS_REPO}
-    - echo ${USERS_DB}
-    - echo ${USERS_DB_REPO}
-    - echo ${SWAGGER}
-    - echo ${SWAGGER_REPO}
     - docker login -u gitlab-ci-token -p 4JbtWjshp1KHwdPzb2CK registry.gitlab.com
+
     - docker build $USERS_REPO -t $USERS:$COMMIT -f Dockerfile-dev
     - docker tag $USERS:$COMMIT $REGISTRY_REPO/$USERS:$TAG
     - docker push $REGISTRY_REPO/$USERS:$TAG
+
+    - docker build $USERS_DB_REPO -t $USERS_DB:$COMMIT -f Dockerfile
+    - docker tag $USERS_DB:$COMMIT $REGISTRY_REPO/$USERS_DB:$TAG
+    - docker push $REGISTRY_REPO/$USERS_DB:$TAG
+
+    - docker build $SWAGGER_REPO -t $SWAGGER:$COMMIT -f Dockerfile
+    - docker tag $SWAGGER:$COMMIT $REGISTRY_REPO/$SWAGGER:$TAG
+    - docker push $REGISTRY_REPO/$SWAGGER:$TAG
