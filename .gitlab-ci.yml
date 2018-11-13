@@ -1,10 +1,6 @@
 image: alpine
 
 variables:
-  DOCKER_TOKEN: 4JbtWjshp1KHwdPzb2CK
-  GITLAB_USER: gitlab+deploy-token-25488
-  GITLAB_PASSWORD: zkcGJFdvCN6KCfmWtnAU
-
   COMMIT: ${CI_COMMIT_SHA}
   TAG: ${CI_COMMIT_REF_NAME}
   REGISTRY_REPO: registry.gitlab.com/gusisoft/onelike/client/users-service
@@ -16,7 +12,7 @@ stages:
 #  - unit_test
   - registry
   - cleanup
-  - deploy_devel
+  - devel
 
 #unit_test:
 #  stage: unit_test
@@ -65,6 +61,11 @@ Cleaning:
     - docker image rm -f $(docker image ls -q)
 
 Devel:
-  stage: deploy_devel
-  script:
+  stage: devel
+  before_script:
     - mkdir -p ~/.ssh
+    - echo -e "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+  script:
+    - bash ./devel-deploy.sh
