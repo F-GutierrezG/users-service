@@ -9,12 +9,8 @@ variables:
   TAG: ${CI_COMMIT_REF_NAME}
   REGISTRY_REPO: registry.gitlab.com/gusisoft/onelike/client/users-service
   USERS: users
-  USERS_REPO: ${MAIN_REPO}#${CI_COMMIT_REF_NAME}
   USERS_DB: users-db
-  USERS_DB_REPO: ${MAIN_REPO}#${CI_COMMIT_REF_NAME}:db
   SWAGGER: swagger
-  SWAGGER_REPO: ${MAIN_REPO}#${CI_COMMIT_REF_NAME}:swagger
-
 
 stages:
 #  - unit_test
@@ -23,10 +19,9 @@ stages:
 
 before_script:
   - export MAIN_REPO="https://${GITLAB_USER}:${GITLAB_PASSWORD}@gitlab.com/gusisoft/OneLike/client/users-service.git"
-#  - apk update
-#  - apk upgrade
-#  - apk add python python-dev py-pip build-base
-#  - pip install docker-compose
+  - export USERS_REPO="${MAIN_REPO}#${CI_COMMIT_REF_NAME}"
+  - export USERS_DB_REPO="${MAIN_REPO}#${CI_COMMIT_REF_NAME}:db"
+  - export SWAGGER_REPO="${MAIN_REPO}#${CI_COMMIT_REF_NAME}:swagger"
 
 #unit_test:
 #  stage: unit_test
