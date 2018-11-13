@@ -1,3 +1,4 @@
 # !/bin/bash
 
-ssh ubuntu@${DEVEL_SERVER} "echo 'Entre'"
+cat ~/.ssh/id_rsa
+#ssh ubuntu@${DEVEL_SERVER} "echo 'Entre'"
