@@ -6,7 +6,7 @@ variables:
   MAIN_REPO: https://gitlab+deploy-token-25488:zkcGJFdvCN6KCfmWtnAU@gitlab.com/gusisoft/OneLike/client/users-service.git
   REGISTRY_REPO: registry.gitlab.com/gusisoft/onelike/client/users-service
   USERS: users
-  USERS_REPO: ${MAIN_REPO}#${CI_COMMIT_REF_NAME}:src
+  USERS_REPO: ${MAIN_REPO}#${CI_COMMIT_REF_NAME}
   USERS_DB: users-db
   USERS_DB_REPO: ${MAIN_REPO}#${CI_COMMIT_REF_NAME}:db
   SWAGGER: swagger
