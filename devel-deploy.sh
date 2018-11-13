@@ -2,4 +2,4 @@
 
 cat ~/.ssh/id_rsa
 echo ${DEVEL_SERVER}
-ssh ubuntu@${DEVEL_SERVER} "echo 'Entre'"
+ssh -o StrictHostKeyChecking=no ubuntu@${DEVEL_SERVER} uptime
