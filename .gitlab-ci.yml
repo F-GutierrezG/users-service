@@ -1,9 +1,13 @@
 image: alpine
 
 variables:
+  DOCKER_TOKEN: 4JbtWjshp1KHwdPzb2CK
+  GITLAB_USER: gitlab+deploy-token-25488
+  GITLAB_PASSWORD: zkcGJFdvCN6KCfmWtnAU
+
   COMMIT: ${CI_COMMIT_SHA}
   TAG: ${CI_COMMIT_REF_NAME}
-  MAIN_REPO: https://gitlab+deploy-token-25488:zkcGJFdvCN6KCfmWtnAU@gitlab.com/gusisoft/OneLike/client/users-service.git
+  MAIN_REPO: https://${GITLAB_USER}:${GITLAB_PASSWORD}@gitlab.com/gusisoft/OneLike/client/users-service.git
   REGISTRY_REPO: registry.gitlab.com/gusisoft/onelike/client/users-service
   USERS: users
   USERS_REPO: ${MAIN_REPO}#${CI_COMMIT_REF_NAME}
@@ -16,6 +20,7 @@ variables:
 stages:
 #  - unit_test
   - registry
+  - cleanup
 
 #before_script:
 #  - apk update
@@ -34,7 +39,7 @@ stages:
 registry_user_devel:
   stage: registry
   script:
-    - docker login -u gitlab-ci-token -p 4JbtWjshp1KHwdPzb2CK registry.gitlab.com
+    - docker login -u gitlab-ci-token -p $DOCKER_TOKEN registry.gitlab.com
 
     - docker build $USERS_REPO -t $USERS:$COMMIT -f Dockerfile-dev
     - docker tag $USERS:$COMMIT $REGISTRY_REPO/$USERS:$TAG
@@ -43,7 +48,7 @@ registry_user_devel:
 registry_user_db_devel:
   stage: registry
   script:
-    - docker login -u gitlab-ci-token -p 4JbtWjshp1KHwdPzb2CK registry.gitlab.com
+    - docker login -u gitlab-ci-token -p $DOCKER_TOKEN registry.gitlab.com
 
     - docker build $USERS_DB_REPO -t $USERS_DB:$COMMIT -f Dockerfile
     - docker tag $USERS_DB:$COMMIT $REGISTRY_REPO/$USERS_DB:$TAG
@@ -52,8 +57,14 @@ registry_user_db_devel:
 registry_swagger_devel:
   stage: registry
   script:
-    - docker login -u gitlab-ci-token -p 4JbtWjshp1KHwdPzb2CK registry.gitlab.com
+    - docker login -u gitlab-ci-token -p $DOCKER_TOKEN registry.gitlab.com
 
     - docker build $SWAGGER_REPO -t $SWAGGER:$COMMIT -f Dockerfile
     - docker tag $SWAGGER:$COMMIT $REGISTRY_REPO/$SWAGGER:$TAG
     - docker push $REGISTRY_REPO/$SWAGGER:$TAG
+
+cleanup:
+  stage: cleanup
+  script:
+    - docker image rm $(docker image ls -q)
+    - docker volume rm -f $(docker volume ls -q)
