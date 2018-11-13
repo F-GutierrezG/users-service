@@ -5,7 +5,9 @@ services:
 
 variables:
   COMMIT: ${CI_COMMIT_SHA}
+  TAG: ${CI_COMMIT_REF_NAME}
   MAIN_REPO: https://gitlab+deploy-token-25488:zkcGJFdvCN6KCfmWtnAU@gitlab.com/gusisoft/OneLike/client/users-service.git
+  REGISTRY_REPO: registry.gitlab.com/gusisoft/onelike/client/users-service
   USERS: users
   USERS_REPO: ${MAIN_REPO}#${CI_COMMIT_REF_NAME}:src
   USERS_DB: users-db
@@ -39,9 +41,11 @@ registry_devel:
     - echo ${MAIN_REPO}
     - echo ${USERS}
     - echo ${USERS_REPO}
-    - echo ${USERS_REPO}
     - echo ${USERS_DB}
     - echo ${USERS_DB_REPO}
     - echo ${SWAGGER}
     - echo ${SWAGGER_REPO}
-    #- docker-compose -f docker-compose-dev.yml build --no-cache
+    - docker login -u gitlab-ci-token -p 4JbtWjshp1KHwdPzb2CK registry.gitlab.com
+    - docker build $USERS_REPO -t $USERS:$COMMIT -f Dockerfile-dev
+    - docker tag $USERS:$COMMIT $REPO/$USERS:$TAG
+    - docker push $REGISTRY_REPO/$USERS:$TAG
