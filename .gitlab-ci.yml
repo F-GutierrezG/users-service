@@ -3,6 +3,17 @@ image: docker
 services:
   - docker:dind
 
+variables:
+  COMMIT: ${CI_COMMIT_SHA}
+  MAIN_REPO: https://gitlab+deploy-token-25488:zkcGJFdvCN6KCfmWtnAU@gitlab.com/gusisoft/OneLike/client/users-service.git
+  USERS: users
+  USERS_REPO: ${MAIN_REPO}#${CI_COMMIT_REF_NAME}:src
+  USERS_DB: users-db
+  USERS_DB_REPO: ${MAIN_REPO}#${CI_COMMIT_REF_NAME}:db
+  SWAGGER: swagger
+  SWAGGER_REPO: ${MAIN_REPO}#${CI_COMMIT_REF_NAME}:swagger
+
+
 stages:
 #  - unit_test
   - registry
@@ -24,5 +35,13 @@ before_script:
 registry_devel:
   stage: registry
   script:
-    - echo $CI_COMMIT_REF_NAME
-    - docker-compose -f docker-compose-dev.yml build --no-cache
+    - echo ${COMMIT}
+    - echo ${MAIN_REPO}
+    - echo ${USERS}
+    - echo ${USERS_REPO}
+    - echo ${USERS_REPO}
+    - echo ${USERS_DB}
+    - echo ${USERS_DB_REPO}
+    - echo ${SWAGGER}
+    - echo ${SWAGGER_REPO}
+    #- docker-compose -f docker-compose-dev.yml build --no-cache
