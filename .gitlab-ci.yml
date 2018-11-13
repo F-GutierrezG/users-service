@@ -4,7 +4,8 @@ services:
   - docker:dind
 
 stages:
-  - unit_test
+#  - unit_test
+  - registry
 
 before_script:
   - apk update
@@ -12,10 +13,16 @@ before_script:
   - apk add python python-dev py-pip build-base
   - pip install docker-compose
 
-unit_test:
-  stage: unit_test
+#unit_test:
+#  stage: unit_test
+#  script:
+#    - docker-compose -f docker-compose-dev.yml up -d --build
+#    - docker-compose -f docker-compose-dev.yml run users python manage.py recreate-db
+#    - docker-compose -f docker-compose-dev.yml run users flake8 project
+#    - docker-compose -f docker-compose-dev.yml run users python manage.py cov
+
+registry_devel:
+  stage: registry
   script:
-    - docker-compose -f docker-compose-dev.yml up -d --build
-    - docker-compose -f docker-compose-dev.yml run users python manage.py recreate-db
-    - docker-compose -f docker-compose-dev.yml run users flake8 project
-    - docker-compose -f docker-compose-dev.yml run users python manage.py cov
+    - echo $CI_COMMIT_REF_NAME
+    - docker-compose -f docker-compose-dev.yml build --no-cache
