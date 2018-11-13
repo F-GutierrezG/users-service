@@ -18,12 +18,6 @@ stages:
   - cleanup
   - deploy_devel
 
-before_script:
-  - export MAIN_REPO="https://${GITLAB_USER}:${GITLAB_PASSWORD}@gitlab.com/gusisoft/OneLike/client/users-service.git"
-  - export USERS_REPO="${MAIN_REPO}#${CI_COMMIT_REF_NAME}"
-  - export USERS_DB_REPO="${MAIN_REPO}#${CI_COMMIT_REF_NAME}:db"
-  - export SWAGGER_REPO="${MAIN_REPO}#${CI_COMMIT_REF_NAME}:swagger"
-
 #unit_test:
 #  stage: unit_test
 #  script:
@@ -32,28 +26,34 @@ before_script:
 #    - docker-compose -f docker-compose-dev.yml run users flake8 project
 #    - docker-compose -f docker-compose-dev.yml run users python manage.py cov
 
-Registering Users Service:
+Users Service:
   stage: registry
   before_script:
     - docker login -u gitlab-ci-token -p $DOCKER_TOKEN registry.gitlab.com
+    - export MAIN_REPO="https://${GITLAB_USER}:${GITLAB_PASSWORD}@gitlab.com/gusisoft/OneLike/client/users-service.git"
+    - export USERS_REPO="${MAIN_REPO}#${CI_COMMIT_REF_NAME}"
   script:
     - docker build $USERS_REPO -t $USERS:$COMMIT -f Dockerfile-dev
     - docker tag $USERS:$COMMIT $REGISTRY_REPO/$USERS:$TAG
     - docker push $REGISTRY_REPO/$USERS:$TAG
 
-Registering Users DB:
+Users DB:
   stage: registry
   before_script:
     - docker login -u gitlab-ci-token -p $DOCKER_TOKEN registry.gitlab.com
+    - export MAIN_REPO="https://${GITLAB_USER}:${GITLAB_PASSWORD}@gitlab.com/gusisoft/OneLike/client/users-service.git"
+    - export USERS_DB_REPO="${MAIN_REPO}#${CI_COMMIT_REF_NAME}:db"
   script:
     - docker build $USERS_DB_REPO -t $USERS_DB:$COMMIT -f Dockerfile
     - docker tag $USERS_DB:$COMMIT $REGISTRY_REPO/$USERS_DB:$TAG
     - docker push $REGISTRY_REPO/$USERS_DB:$TAG
 
-Registering Users Swagger:
+Users Swagger:
   stage: registry
   before_script:
     - docker login -u gitlab-ci-token -p $DOCKER_TOKEN registry.gitlab.com
+    - export MAIN_REPO="https://${GITLAB_USER}:${GITLAB_PASSWORD}@gitlab.com/gusisoft/OneLike/client/users-service.git"
+    - export SWAGGER_REPO="${MAIN_REPO}#${CI_COMMIT_REF_NAME}:swagger"
   script:
     - docker build $SWAGGER_REPO -t $SWAGGER:$COMMIT -f Dockerfile
     - docker tag $SWAGGER:$COMMIT $REGISTRY_REPO/$SWAGGER:$TAG
@@ -64,7 +64,7 @@ Cleaning:
   script:
     - docker image rm -f $(docker image ls -q)
 
-Deploy Devel:
+Devel:
   stage: deploy_devel
   script:
     - mkdir -p ~/.ssh
