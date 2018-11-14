@@ -12,7 +12,7 @@ stages:
   - tests
   - registry
   - cleanup
-  - devel
+  - deploy
 
 Testing:
   stage: tests
@@ -65,7 +65,7 @@ Cleaning:
     - docker image rm -f $(docker image ls -q)
 
 Devel:
-  stage: devel
+  stage: deploy
   only:
     - devel
   before_script:
