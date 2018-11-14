@@ -25,7 +25,7 @@ Testing:
     - docker-compose -f docker-compose-dev.yml down
     - docker image rm -f $(docker image ls -q)
 
-Cleaning:
+BuildingClean:
   stage: build_cleaning
   script:
     - sudo rm -rf /home/gitlab-runner/builds
