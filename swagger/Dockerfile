@@ -1,6 +1,19 @@
-FROM swaggerapi/swagger-ui:v3.19.4
+FROM nginx:1.15.6-perl
 
-RUN mkdir -p /usr/share/nginx/html/definitions
+ENV SWAGGER_UI_VERSION 3.19.4
+ENV URL **None**
 
-EXPOSE 8080
-COPY definitions /usr/share/nginx/html/definitions
+RUN apt-get update \
+    && apt-get install -y curl \
+    && curl -L https://github.com/swagger-api/swagger-ui/archive/v${SWAGGER_UI_VERSION}.tar.gz | tar -zxv -C /tmp \
+    && cp -R /tmp/swagger-ui-${SWAGGER_UI_VERSION}/dist/* /usr/share/nginx/html \
+    && rm -rf /tmp/*
+
+RUN rm /etc/nginx/conf.d/default.conf
+COPY /nginx.conf /etc/nginx/conf.d
+
+COPY definitions/users-service.yml /usr/share/nginx/html/swagger.yml
+COPY start.sh /start.sh
+
+RUN ["chmod", "+x", "/start.sh"]
+CMD ["/start.sh"]
