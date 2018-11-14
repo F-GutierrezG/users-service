@@ -6,7 +6,7 @@ variables:
   REGISTRY_REPO: registry.gitlab.com/gusisoft/onelike/client/users-service
   USERS: users
   USERS_DB: users-db
-  SWAGGER: swagger
+  SWAGGER: users-swagger
 
 stages:
   - tests

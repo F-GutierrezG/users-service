@@ -29,7 +29,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
 
-  swagger:
+  users-swagger:
     build:
       context: ./swagger
       dockerfile: Dockerfile-dev
