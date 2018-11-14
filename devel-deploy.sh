@@ -1,8 +1,5 @@
 # !/bin/bash
 
-echo $SSH_PRIVATE_KEY
-echo $DEVEL_SERVER
-
 ssh -o StrictHostKeyChecking=no ubuntu@${DEVEL_SERVER} 'docker login -u gitlab-ci-token -p $DOCKER_TOKEN registry.gitlab.com'
 ssh -o StrictHostKeyChecking=no ubuntu@${DEVEL_SERVER} 'docker network create users-service-network'
 ssh -o StrictHostKeyChecking=no ubuntu@${DEVEL_SERVER} 'docker container stop users users-db users-swagger'
