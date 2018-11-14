@@ -1,7 +1,6 @@
 FROM nginx:1.15.6-perl
 
 ENV SWAGGER_UI_VERSION 3.19.4
-ENV URL **None**
 
 RUN apt-get update \
     && apt-get install -y curl \
@@ -13,7 +12,5 @@ RUN rm /etc/nginx/conf.d/default.conf
 COPY /nginx.conf /etc/nginx/conf.d
 
 COPY definitions/users-service.yml /usr/share/nginx/html/swagger.yml
-COPY start.sh /start.sh
 
-RUN ["chmod", "+x", "/start.sh"]
-CMD ["/start.sh"]
+CMD nginx -g 'daemon off;'

@@ -32,7 +32,7 @@ services:
   users-swagger:
     build:
       context: ./swagger
-      dockerfile: Dockerfile-dev
+      dockerfile: Dockerfile
     ports:
       - 8081:8080
     volumes:
