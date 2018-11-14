@@ -21,6 +21,9 @@ Testing:
     - docker-compose -f docker-compose-dev.yml run users python manage.py recreate-db
     - docker-compose -f docker-compose-dev.yml run users flake8 project
     - docker-compose -f docker-compose-dev.yml run users python manage.py cov
+    - docker-compose -f docker-compose-dev.yml down
+    - docker container rm -f $(docker container ls -q)
+    - docker image rm -f $(docker image ls -q)
 
 Users Service:
   stage: registry
