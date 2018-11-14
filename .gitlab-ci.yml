@@ -66,6 +66,8 @@ Cleaning:
 
 Devel:
   stage: devel
+  only:
+    - devel
   before_script:
     - rm -rf ~/.ssh
     - mkdir -p ~/.ssh
