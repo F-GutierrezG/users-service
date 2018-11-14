@@ -11,7 +11,7 @@ class TestUserServiceHealth(BaseTestCase):
         response = self.client.get('/users-service/health')
         data = json.loads(response.data.decode())
         self.assertEqual(response.status_code, 200)
-        self.assertIn('healthy', data['message'])
+        self.assertIn('ok', data['message'])
 
 
 if __name__ == '__main__':
