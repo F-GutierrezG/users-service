@@ -9,18 +9,18 @@ variables:
   SWAGGER: swagger
 
 stages:
-#  - unit_test
+  - tests
   - registry
   - cleanup
   - devel
 
-#unit_test:
-#  stage: unit_test
-#  script:
-#    - docker-compose -f docker-compose-dev.yml up -d --build
-#    - docker-compose -f docker-compose-dev.yml run users python manage.py recreate-db
-#    - docker-compose -f docker-compose-dev.yml run users flake8 project
-#    - docker-compose -f docker-compose-dev.yml run users python manage.py cov
+Testing:
+  stage: tests
+  script:
+    - docker-compose -f docker-compose-dev.yml up -d --build
+    - docker-compose -f docker-compose-dev.yml run users python manage.py recreate-db
+    - docker-compose -f docker-compose-dev.yml run users flake8 project
+    - docker-compose -f docker-compose-dev.yml run users python manage.py cov
 
 Users Service:
   stage: registry
