@@ -46,7 +46,7 @@ services:
     volumes:
       - './swagger/definitions:/usr/share/nginx/html/definitions'
     environment:
-      - API_URL=definitions/users-service.yml
+      - API_URL=definitions/swagger.yml
     networks:
       - users-service-network
       - client-network
