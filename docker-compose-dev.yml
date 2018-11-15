@@ -2,6 +2,7 @@ version: '3.6'
 
 services:
   users:
+    container_name: users
     build:
       context: ./
       dockerfile: Dockerfile-dev
@@ -18,8 +19,12 @@ services:
       - SECRET_KEY=secret_key
     depends_on:
       - users-db
+    networks:
+      - users-service-network
+      - client-network
 
   users-db:
+    container_name: users-db
     build:
       context: ./db
       dockerfile: Dockerfile
@@ -28,8 +33,11 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+    networks:
+      - users-service-network
 
   users-swagger:
+    container_name: users-swagger
     build:
       context: ./swagger
       dockerfile: Dockerfile
@@ -39,3 +47,12 @@ services:
       - './swagger/definitions:/usr/share/nginx/html/definitions'
     environment:
       - API_URL=definitions/users-service.yml
+    networks:
+      - users-service-network
+      - client-network
+
+networks:
+  users-service-network:
+    name: users-service-network
+  client-network:
+    name: client-network
