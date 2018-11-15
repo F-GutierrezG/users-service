@@ -76,6 +76,9 @@ Cleaning:
 
 Stage:
   stage: deploy
+  environment:
+    name: stage
+    url: http://stage.onelike.gusisoft.cl
   only:
     - stage
   before_script:
