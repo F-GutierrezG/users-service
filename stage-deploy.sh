@@ -22,3 +22,6 @@ ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} 'docker run -d -e "FLASK_
 
 ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} 'docker network connect client-network users'
 ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} 'docker network connect client-network users-swagger'
+
+ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} 'docker container exec users python manage.py recreate-db'
+ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} 'docker container exec users python manage.py seed-db'

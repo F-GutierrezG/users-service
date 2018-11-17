@@ -32,18 +32,16 @@ def recreate_db():
 @cli.command()
 def seed_db():
     """Seeds the database."""
-    from project.models import User, Company
+    from project.models import User
 
-    company = Company(name='Test Company')
     user = User(
         first_name='Francisco',
         last_name='Gutiérrez',
-        email='gute20@gmail.com',
-        password='12345678',
+        email='valid@test.com',
+        password='123',
     )
 
-    company.users.append(user)
-    db.session.add(company)
+    db.session.add(user)
     db.session.commit()
 
 
