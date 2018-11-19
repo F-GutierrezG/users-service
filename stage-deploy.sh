@@ -12,10 +12,9 @@ ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} 'docker container rm user
 ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} 'docker container rm users-db'
 ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} 'docker container rm users-swagger'
 
-ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} "echo $REGISTRY_REPO/$SWAGGER"
-ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} "docker image rm $(docker images $REGISTRY_REPO/$SWAGGER -q)"
-ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} "docker image rm $(docker images $REGISTRY_REPO/$USERS_DB -q)"
-ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} "docker image rm $(docker images $REGISTRY_REPO/$USERS -q)"
+ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} 'docker image rm $(docker images registry.gitlab.com/gusisoft/onelike/client/users-service/users-swagger -q)'
+ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} 'docker image rm $(docker images registry.gitlab.com/gusisoft/onelike/client/users-service/users-db -q)'
+ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} 'docker image rm $(docker images registry.gitlab.com/gusisoft/onelike/client/users-service/users -q)'
 ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} "docker image rm $(docker images -f "dangling=true" -q)"
 
 ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} "docker run -d -e 'POSTGRES_USER=postgres' -e 'POSTGRES_PASSWORD=postgres' -p 5433:5432 --name users-db --network users-service-network $REGISTRY_REPO/$USERS_DB:$TAG"
