@@ -17,7 +17,7 @@ ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} "docker image rm $REGISTR
 
 ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} "docker run -d -e 'POSTGRES_USER=postgres' -e 'POSTGRES_PASSWORD=postgres' -p 5433:5432 --name users-db --network users-service-network $REGISTRY_REPO/$USERS:$TAG"
 ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} "docker run -d -e 'API_URL=definitions/swagger.yml' -p 8081:8080 --name users-swagger --network users-service-network $REGISTRY_REPO/$USERS:$TAG"
-ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} "docker run -d -e 'FLASK_ENV=development' -e 'FLASK_APP=manage.py' -e 'APP_SETTINGS=project.config.DevelopmentConfig' -e 'DATABASE_URL=postgres://postgres:postgres@users-db:5432/users' -e 'DATABASE_TEST_URL=postgres://postgres:postgres@users-db:5432/users_test' -e 'SECRET_KEY=secret_key' -p 5001:5000 --name users --network users-service-network $REGISTRY_REPO/$USERS"
+ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} "docker run -d -e 'FLASK_ENV=development' -e 'FLASK_APP=manage.py' -e 'APP_SETTINGS=project.config.DevelopmentConfig' -e 'DATABASE_URL=postgres://postgres:postgres@users-db:5432/users' -e 'DATABASE_TEST_URL=postgres://postgres:postgres@users-db:5432/users_test' -e 'SECRET_KEY=secret_key' -p 5001:5000 --name users --network users-service-network $REGISTRY_REPO/$USERS:$TAG"
 
 ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} 'docker network connect client-network users'
 ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} 'docker network connect client-network users-swagger'
