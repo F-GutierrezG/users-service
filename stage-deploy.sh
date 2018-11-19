@@ -11,9 +11,9 @@ ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} 'docker container rm user
 ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} 'docker container rm users-db'
 ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} 'docker container rm users-swagger'
 
-ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} "docker image rm $REGISTRY_REPO/$USERS"
-ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} "docker image rm $REGISTRY_REPO/$USERS_DB"
-ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} "docker image rm $REGISTRY_REPO/$SWAGGER"
+ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} "docker image rm $(docker container ls --format '{{.Image}}' --filter 'name=users-swagger')"
+ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} "docker image rm $(docker container ls --format '{{.Image}}' --filter 'name=users-db')"
+ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} "docker image rm $(docker container ls --format '{{.Image}}' --filter 'name=users')"
 
 ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} "docker run -d -e 'POSTGRES_USER=postgres' -e 'POSTGRES_PASSWORD=postgres' -p 5433:5432 --name users-db --network users-service-network $REGISTRY_REPO/$USERS:$TAG"
 ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} "docker run -d -e 'API_URL=definitions/swagger.yml' -p 8081:8080 --name users-swagger --network users-service-network $REGISTRY_REPO/$USERS:$TAG"
