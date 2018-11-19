@@ -104,11 +104,9 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  data:
-                    type: string
-                    description: 'Auth Bearer Token'
+                type: string
+                description: 'Auth Bearer Token'
+
         '400':
           description: Invalid request.
           content:
