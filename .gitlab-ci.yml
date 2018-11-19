@@ -17,7 +17,8 @@ stages:
 Testing:
   stage: tests
   before_script:
-    - export DATETIME=`date '+%Y-%m-%d %H:%M:%S'`
+    - export DATETIME=`date '+%Y_%m_%d_%H_%M_%S'`
+    - export TAG=${CI_COMMIT_REF_NAME}_$DATETIME
     - sudo git clean -ffdx
   script:
     - echo $DATETIME
