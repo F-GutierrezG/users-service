@@ -19,7 +19,6 @@ Testing:
   before_script:
     - sudo git clean -ffdx
   script:
-    - echo $DATETIME
     - docker-compose -f docker-compose-dev.yml up -d --build
     - docker-compose -f docker-compose-dev.yml run users python manage.py recreate-db
     - docker-compose -f docker-compose-dev.yml run users flake8 project
@@ -39,7 +38,6 @@ Users Service:
     - export MAIN_REPO="https://${GITLAB_USER}:${GITLAB_PASSWORD}@gitlab.com/gusisoft/OneLike/client/users-service.git"
     - export USERS_REPO="${MAIN_REPO}#${CI_COMMIT_REF_NAME}"
   script:
-    - echo $DATETIME
     - docker build $USERS_REPO -t $USERS:$COMMIT -f Dockerfile-stage
     - docker tag $USERS:$COMMIT $REGISTRY_REPO/$USERS:$TAG
     - docker push $REGISTRY_REPO/$USERS:$TAG
@@ -55,7 +53,6 @@ Users DB:
     - export MAIN_REPO="https://${GITLAB_USER}:${GITLAB_PASSWORD}@gitlab.com/gusisoft/OneLike/client/users-service.git"
     - export USERS_DB_REPO="${MAIN_REPO}#${CI_COMMIT_REF_NAME}:db"
   script:
-    - echo $DATETIME
     - docker build $USERS_DB_REPO -t $USERS_DB:$COMMIT -f Dockerfile
     - docker tag $USERS_DB:$COMMIT $REGISTRY_REPO/$USERS_DB:$TAG
     - docker push $REGISTRY_REPO/$USERS_DB:$TAG
@@ -71,7 +68,6 @@ Users Swagger:
     - export MAIN_REPO="https://${GITLAB_USER}:${GITLAB_PASSWORD}@gitlab.com/gusisoft/OneLike/client/users-service.git"
     - export SWAGGER_REPO="${MAIN_REPO}#${CI_COMMIT_REF_NAME}:swagger"
   script:
-    - echo $DATETIME
     - docker build $SWAGGER_REPO -t $SWAGGER:$COMMIT -f Dockerfile
     - docker tag $SWAGGER:$COMMIT $REGISTRY_REPO/$SWAGGER:$TAG
     - docker push $REGISTRY_REPO/$SWAGGER:$TAG
