@@ -2,7 +2,6 @@ image: alpine
 
 variables:
   COMMIT: ${CI_COMMIT_SHA}
-  TAG: ${CI_COMMIT_REF_NAME}
   REGISTRY_REPO: registry.gitlab.com/gusisoft/onelike/client/users-service
   USERS: users
   USERS_DB: users-db
