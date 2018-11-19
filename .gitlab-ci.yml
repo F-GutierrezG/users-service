@@ -24,7 +24,7 @@ Testing:
     - docker-compose -f docker-compose-dev.yml run users flake8 project
     - docker-compose -f docker-compose-dev.yml run users python manage.py cov
   after_script:
-    - docker-compose -f docker-compose-dev.yml down
+    #- docker-compose -f docker-compose-dev.yml down
     - sudo git clean -ffdx
 
 Users Service:
