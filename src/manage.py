@@ -1,3 +1,4 @@
+import sys
 import click
 import unittest
 import coverage
@@ -58,8 +59,8 @@ def test(file):
 
     result = unittest.TextTestRunner(verbosity=2).run(tests)
     if result.wasSuccessful():
-        return 0
-    return 1
+        sys.exit(0)
+    sys.exit(1)
 
 
 @cli.command()
@@ -74,8 +75,8 @@ def cov():
         COV.report()
         COV.html_report()
         COV.erase()
-        return 0
-    return 1
+        sys.exit(0)
+    sys.exit(1)
 
 
 if __name__ == '__main__':
