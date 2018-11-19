@@ -12,6 +12,7 @@ ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} 'docker container rm user
 ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} 'docker container rm users-db'
 ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} 'docker container rm users-swagger'
 
+ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} "echo $REGISTRY_REPO/$SWAGGER"
 ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} "docker image rm $(docker images $REGISTRY_REPO/$SWAGGER -q)"
 ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} "docker image rm $(docker images $REGISTRY_REPO/$USERS_DB -q)"
 ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} "docker image rm $(docker images $REGISTRY_REPO/$USERS -q)"
