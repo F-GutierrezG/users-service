@@ -5,6 +5,7 @@ info:
   description: Users Service API documentation
 servers:
   - url: http://localhost:5001
+  - url: http://stage.onelike.gusisoft.cl
 tags:
   - name: Authenticate
     description: Authenticate Operations
