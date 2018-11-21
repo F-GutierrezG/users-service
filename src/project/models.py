@@ -9,6 +9,7 @@ class User(db.Model):
     LAST_NAME_MAX_LENGTH = 128
 
     __tablename__ = 'users'
+    __table_args__ = {'schema': 'users'}
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     first_name = db.Column(db.String(FIRST_NAME_MAX_LENGTH), nullable=False)
