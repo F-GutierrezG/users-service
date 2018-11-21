@@ -159,6 +159,37 @@ paths:
             application/json:
               schema:
                 $ref: "#components/responses/Forbidden"
+  /users/byIds/{ids}:
+    get:
+      tags:
+        - Users
+      summary: List Users filtered by id
+      description: List Users filtered by ids
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: ids
+          in: path
+          description: Comma separated users ids (eg. 1,2,3,4)
+          required: true
+          schema:
+            type: string
+            format: int64
+      responses:
+        '200':
+          description: Users list.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#components/schemas/User"
+        '403':
+          description: Forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/Forbidden"
   /users/{id}:
     get:
       tags:

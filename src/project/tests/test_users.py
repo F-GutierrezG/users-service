@@ -1134,5 +1134,84 @@ class TestViewUser(BaseTestCase, LoginMixin):
             self.assertEqual(User.query.count(), 2)
 
 
+class TestFilterUsersById(BaseTestCase, LoginMixin):
+    """Tests for filter users by id"""
+
+    def __get_random_user_data(self):
+        return {
+            'first_name': random_string(32),
+            'last_name': random_string(32),
+            'email': '{}@test.com'.format(random_string(16))
+        }
+
+    def __add_user(self, first_name, last_name, email):
+        user = User(
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            password=random_string(32))
+        db.session.add(user)
+        db.session.commit()
+        return user
+
+    def test_filter_by_one_id(self):
+        """Ensure filter users with one id behaves correctly"""
+        user1 = self.__add_user(**self.__get_random_user_data())
+        self.__add_user(**self.__get_random_user_data())
+        self.__add_user(**self.__get_random_user_data())
+
+        token = self.add_and_login()
+
+        with self.client:
+            response = self.client.get(
+                '/users/byIds/{}'.format(user1.id),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+            response_data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(User.query.all()), 4)
+            self.assertEqual(len(response_data), 1)
+
+    def test_filter_by_more_ids(self):
+        """Ensure filter users with more ids behaves correctly"""
+        user1 = self.__add_user(**self.__get_random_user_data())
+        user2 = self.__add_user(**self.__get_random_user_data())
+        user3 = self.__add_user(**self.__get_random_user_data())
+
+        token = self.add_and_login()
+
+        with self.client:
+            response = self.client.get(
+                '/users/byIds/{},{},{}'.format(user1.id, user2.id, user3.id),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+            response_data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(User.query.all()), 4)
+            self.assertEqual(len(response_data), 3)
+
+    def test_filter_with_inexsisting_ids(self):
+        """Ensure filter users with more ids behaves correctly"""
+        user1 = self.__add_user(**self.__get_random_user_data())
+        user2 = self.__add_user(**self.__get_random_user_data())
+        user3 = self.__add_user(**self.__get_random_user_data())
+
+        token = self.add_and_login()
+
+        with self.client:
+            response = self.client.get(
+                '/users/byIds/{},{},{}'.format(
+                    user1.id, user2.id, user3.id + 1000),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+            response_data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(User.query.all()), 4)
+            self.assertEqual(len(response_data), 2)
+
+
 if __name__ == '__main__':
     unittest.main()

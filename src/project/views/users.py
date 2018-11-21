@@ -80,3 +80,12 @@ def delete(user, id):
 
     except DoesNotExist:
         return failed_response(message='not found.', status_code=404)
+
+
+@users_blueprint.route('/users/byIds/<ids>', methods=['GET'])
+@authenticate
+def filter_by_ids(user, ids):
+    users = UserLogics().filter_by_ids(ids.split(','))
+    return success_response(
+        data=users,
+        status_code=200)

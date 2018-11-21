@@ -49,6 +49,11 @@ class UserLogics:
         })
         db.session.commit()
 
+    def filter_by_ids(self, ids):
+        users = User.query.filter(User.id.in_(ids)).filter_by(active=True)
+
+        return UserSerializer.to_array(users)
+
 
 class AuthLogics:
     @validate(LoginValidator)
