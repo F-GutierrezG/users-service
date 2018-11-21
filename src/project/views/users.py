@@ -3,7 +3,7 @@ from sqlalchemy import exc
 from project.auth import authenticate
 from project.logics import UserLogics, DoesNotExist
 from project.validators.exceptions import ValidatorException
-from project.api.utils import success_response, failed_response
+from project.views.utils import success_response, failed_response
 
 
 users_blueprint = Blueprint('users', __name__)

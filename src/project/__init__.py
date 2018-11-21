@@ -12,9 +12,9 @@ bcrypt = Bcrypt()
 
 
 def register_blueprints(app):
-    from project.api.health import health_blueprint
-    from project.api.users import users_blueprint
-    from project.api.auth import auth_blueprint
+    from project.views.health import health_blueprint
+    from project.views.users import users_blueprint
+    from project.views.auth import auth_blueprint
 
     app.register_blueprint(health_blueprint)
     app.register_blueprint(users_blueprint)

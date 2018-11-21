@@ -1,7 +1,7 @@
 from flask import Blueprint, request
 from project.auth import authenticate
 from project.logics import AuthLogics, DoesNotExist
-from project.api.utils import success_response, failed_response
+from project.views.utils import success_response, failed_response
 from project.validators.exceptions import ValidatorException
 
 
