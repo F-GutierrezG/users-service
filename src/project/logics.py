@@ -1,11 +1,8 @@
-from sqlalchemy.sql.expression import true
-
 from project.validators.decorators import validate
-from project.serializers import (
-    UserSerializer, CompanySerializer, TokenSerializer)
+from project.serializers import UserSerializer, TokenSerializer
 from project.validations import (
     CreateUserValidator, UpdateUserValidator, LoginValidator)
-from project.models import User, Company
+from project.models import User
 from project import db, bcrypt
 
 
@@ -69,23 +66,3 @@ class AuthLogics:
 
     def get_status(self, user):
         return UserSerializer.to_dict(user)
-
-
-class CompanyLogics:
-    def list(self, user):
-        companies = Company.query.filter(
-            Company.active == true(),
-            Company.users.any(User.id == user.id))
-
-        return CompanySerializer.to_array(companies)
-
-    def get(self, user, id):
-        company = Company.query.filter(
-            Company.id == id,
-            Company.active == true(),
-            Company.users.any(User.id == user.id)).first()
-
-        if not company:
-            raise DoesNotExist
-
-        return CompanySerializer.to_dict(company)
