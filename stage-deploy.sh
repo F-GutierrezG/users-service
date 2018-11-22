@@ -20,7 +20,7 @@ ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} "docker run -d -e 'API_UR
 ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} "docker run -d -e 'FLASK_ENV=development' -e 'FLASK_APP=manage.py' -e 'APP_SETTINGS=project.config.DevelopmentConfig' -e 'DATABASE_URL=postgres://postgres:postgres@users-db:5432/users' -e 'DATABASE_TEST_URL=postgres://postgres:postgres@users-db:5432/users_test' -e 'SECRET_KEY=secret_key' -p 5001:5000 --name users --network users-service-network --ip 172.20.0.2 $REGISTRY_REPO/$USERS:$TAG"
 
 ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} 'docker network connect client-network --ip 172.18.0.6 users'
-ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} 'docker network connect client-network --ip 172.18.0.8 users-swagger'
+ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} 'docker network connect client-network --ip 172.18.0.7 users-swagger'
 
 ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} 'docker container exec users python manage.py recreate-db'
 ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} 'docker container exec users python manage.py seed-db'
