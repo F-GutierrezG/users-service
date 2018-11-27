@@ -1,5 +1,5 @@
 # !/bin/bash
-ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} "docker login -u $GITLAB_USER -p $GITLAB_PASSWORD registry.gitlab.com"
+ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} "docker login -u gitlab-ci-token -p $DOCKER_TOKEN registry.gitlab.com"
 
 ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} 'docker network create --subnet=172.20.0.0/16 users-service-network'
 
