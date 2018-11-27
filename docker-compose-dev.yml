@@ -21,7 +21,7 @@ services:
       - users-db
     networks:
       - users-service-network
-      - client-network
+      - onelike-network
 
   users-db:
     container_name: users-db
@@ -49,10 +49,10 @@ services:
       - API_URL=definitions/swagger.yml
     networks:
       - users-service-network
-      - client-network
+      - onelike-network
 
 networks:
   users-service-network:
     name: users-service-network
-  client-network:
-    name: client-network
+  onelike-network:
+    name: onelike-network

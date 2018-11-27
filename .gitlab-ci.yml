@@ -2,7 +2,7 @@ image: alpine
 
 variables:
   COMMIT: ${CI_COMMIT_SHA}
-  REGISTRY_REPO: registry.gitlab.com/gusisoft/onelike/client/users-service
+  REGISTRY_REPO: registry.gitlab.com/gusisoft/onelike/users-service
   USERS: users
   USERS_DB: users-db
   SWAGGER: users-swagger
@@ -36,7 +36,7 @@ Users Service:
     - export COMMIT_TIME=$(git show -s --format=%ct $CI_COMMIT_SHA)
     - export TAG=${CI_COMMIT_REF_NAME}_$COMMIT_TIME
     - docker login -u gitlab-ci-token -p $DOCKER_TOKEN registry.gitlab.com
-    - export MAIN_REPO="https://${GITLAB_USER}:${GITLAB_PASSWORD}@gitlab.com/gusisoft/OneLike/client/users-service.git"
+    - export MAIN_REPO="https://${GITLAB_USER}:${GITLAB_PASSWORD}@gitlab.com/gusisoft/OneLike/users-service.git"
     - export USERS_REPO="${MAIN_REPO}#${CI_COMMIT_REF_NAME}"
   script:
     - docker build $USERS_REPO -t $USERS:$COMMIT -f Dockerfile-stage
@@ -51,7 +51,7 @@ Users DB:
     - export COMMIT_TIME=$(git show -s --format=%ct $CI_COMMIT_SHA)
     - export TAG=${CI_COMMIT_REF_NAME}_$COMMIT_TIME
     - docker login -u gitlab-ci-token -p $DOCKER_TOKEN registry.gitlab.com
-    - export MAIN_REPO="https://${GITLAB_USER}:${GITLAB_PASSWORD}@gitlab.com/gusisoft/OneLike/client/users-service.git"
+    - export MAIN_REPO="https://${GITLAB_USER}:${GITLAB_PASSWORD}@gitlab.com/gusisoft/OneLike/users-service.git"
     - export USERS_DB_REPO="${MAIN_REPO}#${CI_COMMIT_REF_NAME}:db"
   script:
     - docker build $USERS_DB_REPO -t $USERS_DB:$COMMIT -f Dockerfile
@@ -66,7 +66,7 @@ Users Swagger:
     - export COMMIT_TIME=$(git show -s --format=%ct $CI_COMMIT_SHA)
     - export TAG=${CI_COMMIT_REF_NAME}_$COMMIT_TIME
     - docker login -u gitlab-ci-token -p $DOCKER_TOKEN registry.gitlab.com
-    - export MAIN_REPO="https://${GITLAB_USER}:${GITLAB_PASSWORD}@gitlab.com/gusisoft/OneLike/client/users-service.git"
+    - export MAIN_REPO="https://${GITLAB_USER}:${GITLAB_PASSWORD}@gitlab.com/gusisoft/OneLike/users-service.git"
     - export SWAGGER_REPO="${MAIN_REPO}#${CI_COMMIT_REF_NAME}:swagger"
   script:
     - docker build $SWAGGER_REPO -t $SWAGGER:$COMMIT -f Dockerfile
