@@ -10,7 +10,7 @@ sleep 1
 
 echo "PostgreSQL started"
 
-python manage.py recreate-db
+python manage.py db upgrade
 python manage.py seed-db
 
 flask run --host=0.0.0.0

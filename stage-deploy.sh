@@ -22,5 +22,5 @@ ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} "docker run -d -e 'FLASK_
 ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} 'docker network connect onelike-network --ip 172.18.0.6 users'
 ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} 'docker network connect onelike-network --ip 172.18.0.7 users-swagger'
 
-ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} 'docker container exec users python manage.py recreate-db'
+ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} 'docker container exec users python manage.py db upgrade'
 ssh -o StrictHostKeyChecking=no ubuntu@${STAGE_SERVER} 'docker container exec users python manage.py seed-db'
