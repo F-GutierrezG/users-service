@@ -16,6 +16,7 @@ class UserSerializer:
             'created_by': user.created_by,
             'updated': str(user.updated),
             'updated_by': user.updated_by,
+            'hash': user.hash
         }
 
     @staticmethod

@@ -1,3 +1,5 @@
+import uuid
+
 from flask import current_app
 from sqlalchemy.sql import func
 
@@ -21,6 +23,7 @@ class User(db.Model):
     created_by = db.Column(db.Integer, default=0, nullable=False)
     updated = db.Column(db.DateTime, onupdate=func.now(), nullable=True)
     updated_by = db.Column(db.Integer)
+    hash = db.Column(db.String(32), default=uuid.uuid4().hex, nullable=False)
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)

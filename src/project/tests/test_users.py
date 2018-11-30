@@ -1089,6 +1089,7 @@ class TestViewUser(BaseTestCase, LoginMixin):
             self.assertEqual(data['created_by'], user.created_by)
             self.assertEqual(data['updated'], str(user.updated))
             self.assertEqual(data['updated_by'], user.updated_by)
+            self.assertIsNotNone(data['hash'])
 
     def test_view_with_non_existing_user(self):
         """Ensure view behaves correctly when user doesn't exist"""
