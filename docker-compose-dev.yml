@@ -17,6 +17,7 @@ services:
       - DATABASE_URL=postgres://postgres:postgres@users-db:5432/users
       - DATABASE_TEST_URL=postgres://postgres:postgres@users-db:5432/users_test
       - SECRET_KEY=secret_key
+    restart: always
     depends_on:
       - users-db
     networks:
@@ -33,6 +34,7 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+    restart: always
     networks:
       - users-service-network
 
@@ -47,6 +49,7 @@ services:
       - './swagger/definitions:/usr/share/nginx/html/definitions'
     environment:
       - API_URL=definitions/swagger.yml
+    restart: always
     networks:
       - users-service-network
       - onelike-network
