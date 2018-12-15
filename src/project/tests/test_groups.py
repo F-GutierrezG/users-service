@@ -1,30 +1,10 @@
 import json
 import random
 
-from project import db
-from project.models import Group, User
+from project.models import Group
 
-from project.tests.utils import random_string
 from project.tests.base import BaseTestCase
-
-
-def add_group():
-    group = Group(name=random_string())
-    db.session.add(group)
-    db.session.commit()
-
-    return group
-
-
-def add_user():
-    user = User(
-        first_name=random_string(),
-        last_name=random_string(),
-        email="{}@test.com".format(random_string()),
-        password=random_string(32))
-    db.session.add(user)
-    db.session.commit()
-    return user
+from project.tests.utils import random_string, add_user, add_group
 
 
 class TestListGroups(BaseTestCase):

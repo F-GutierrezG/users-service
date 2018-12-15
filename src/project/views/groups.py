@@ -70,3 +70,33 @@ def delete_user(id, user_id):
     return success_response(
         data=users,
         status_code=200)
+
+
+@groups_blueprint.route('/auth/groups/<id>/permissions', methods=['GET'])
+def permissions(id):
+    permissions = GroupLogics().permissions(id)
+
+    return success_response(
+        data=permissions,
+        status_code=200)
+
+
+@groups_blueprint.route('/auth/groups/<id>/permissions', methods=['POST'])
+def add_permission(id):
+    data = request.get_json()
+
+    permissions = GroupLogics().add_permission(data, id)
+
+    return success_response(
+        data=permissions,
+        status_code=200)
+
+
+@groups_blueprint.route(
+    '/auth/groups/<id>/permissions/<permission_id>', methods=['DELETE'])
+def delete_permission(id, permission_id):
+    permissions = GroupLogics().delete_permission(permission_id, id)
+
+    return success_response(
+        data=permissions,
+        status_code=200)

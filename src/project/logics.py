@@ -117,6 +117,33 @@ class GroupLogics:
 
         return UserSerializer.to_array(group.users)
 
+    def permissions(self, id):
+        permissions = Group.query.filter_by(id=id).first().permissions
+
+        return PermissionSerializer.to_array(permissions)
+
+    def add_permission(self, data, id):
+        group = Group.query.filter_by(id=id).first()
+        permission = Permission.query.filter_by(id=data['id']).first()
+
+        group.permissions.append(permission)
+
+        db.session.add(group)
+        db.session.commit()
+
+        return PermissionSerializer.to_array(group.permissions)
+
+    def delete_permission(self, permission_id, id):
+        group = Group.query.filter_by(id=id).first()
+        permission = Permission.query.filter_by(id=permission_id).first()
+
+        group.permissions.remove(permission)
+
+        db.session.add(group)
+        db.session.commit()
+
+        return PermissionSerializer.to_array(group.permissions)
+
 
 class PermissionLogics:
     def list(self):

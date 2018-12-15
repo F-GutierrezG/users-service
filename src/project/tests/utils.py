@@ -2,7 +2,37 @@ import json
 import random
 import string
 
+from project import db
 from project.logics import UserLogics
+
+from project.models import User, Group, Permission
+
+
+def add_permission():
+    permission = Permission(code=random_string(), name=random_string())
+    db.session.add(permission)
+    db.session.commit()
+
+    return permission
+
+
+def add_group():
+    group = Group(name=random_string())
+    db.session.add(group)
+    db.session.commit()
+
+    return group
+
+
+def add_user():
+    user = User(
+        first_name=random_string(),
+        last_name=random_string(),
+        email="{}@test.com".format(random_string()),
+        password=random_string(32))
+    db.session.add(user)
+    db.session.commit()
+    return user
 
 
 def random_string(length=32):

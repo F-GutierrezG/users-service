@@ -25,6 +25,22 @@ group_users = db.Table(
 )
 
 
+group_permissions = db.Table(
+    'group_permissions',
+    metadata,
+    db.Column(
+        'group_id',
+        db.Integer,
+        db.ForeignKey('users.groups.id'),
+        primary_key=True),
+    db.Column(
+        'permission_id',
+        db.Integer,
+        db.ForeignKey('users.permissions.id'),
+        primary_key=True)
+)
+
+
 class User(db.Model):
     FIRST_NAME_MAX_LENGTH = 128
     LAST_NAME_MAX_LENGTH = 128
@@ -58,17 +74,6 @@ class User(db.Model):
             current_app.config.get('BCRYPT_LOG_ROUNDS')).decode()
 
 
-class Group(db.Model):
-    NAME_MAX_LENGTH = 128
-
-    __tablename__ = 'groups'
-    __table_args__ = {'schema': 'users'}
-
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(NAME_MAX_LENGTH), nullable=False)
-    users = db.relationship(User, secondary=group_users)
-
-
 class Permission(db.Model):
     CODE_MAX_LENGTH = 128
     NAME_MAX_LENGTH = 128
@@ -79,3 +84,16 @@ class Permission(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     code = db.Column(db.String(CODE_MAX_LENGTH), nullable=False)
     name = db.Column(db.String(NAME_MAX_LENGTH), nullable=False)
+    groups = db.relationship('Group', secondary=group_permissions)
+
+
+class Group(db.Model):
+    NAME_MAX_LENGTH = 128
+
+    __tablename__ = 'groups'
+    __table_args__ = {'schema': 'users'}
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(NAME_MAX_LENGTH), nullable=False)
+    users = db.relationship(User, secondary=group_users)
+    permissions = db.relationship(Permission, secondary=group_permissions)
