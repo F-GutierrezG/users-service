@@ -124,14 +124,6 @@ class PermissionLogics:
 
         return PermissionSerializer.to_array(permissions)
 
-    def create(self, data):
-        permission = Permission(**data)
-
-        db.session.add(permission)
-        db.session.commit()
-
-        return PermissionSerializer.to_dict(permission)
-
 
 class AuthLogics:
     @validate(LoginValidator)
