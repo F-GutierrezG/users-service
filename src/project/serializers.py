@@ -21,12 +21,37 @@ class UserSerializer:
 
     @staticmethod
     def to_array(users):
-        users_list = []
+        return list(map(lambda user: UserSerializer.to_dict(user), users))
 
-        for user in users:
-            users_list.append(UserSerializer.to_dict(user))
 
-        return users_list
+class GroupSerializer:
+    @staticmethod
+    def to_dict(group):
+        return {
+            'id': group.id,
+            'name': group.name
+        }
+
+    @staticmethod
+    def to_array(groups):
+        return list(map(lambda group: GroupSerializer.to_dict(group), groups))
+
+
+class PermissionSerializer:
+    @staticmethod
+    def to_dict(permission):
+        return {
+            'id': permission.id,
+            'code': permission.code,
+            'name': permission.name
+        }
+
+    @staticmethod
+    def to_array(permissions):
+        return list(
+            map(
+                lambda permission: PermissionSerializer.to_dict(permission),
+                permissions))
 
 
 class InvalidToken(Exception):

@@ -1,8 +1,9 @@
 from project.validators.decorators import validate
-from project.serializers import UserSerializer, TokenSerializer
+from project.serializers import (
+    UserSerializer, GroupSerializer, PermissionSerializer, TokenSerializer)
 from project.validations import (
     CreateUserValidator, UpdateUserValidator, LoginValidator)
-from project.models import User
+from project.models import User, Group, Permission
 from project import db, bcrypt
 
 
@@ -53,6 +54,83 @@ class UserLogics:
         users = User.query.filter(User.id.in_(ids)).filter_by(active=True)
 
         return UserSerializer.to_array(users)
+
+
+class GroupLogics:
+    def get(self, id):
+        group = Group.query.filter_by(id=id).first()
+
+        if not group:
+            raise DoesNotExist
+
+        return GroupSerializer.to_dict(group)
+
+    def list(self):
+        groups = Group.query.all()
+
+        return GroupSerializer.to_array(groups)
+
+    def create(self, data):
+        group = Group(**data)
+
+        db.session.add(group)
+        db.session.commit()
+
+        return GroupSerializer.to_dict(group)
+
+    def update(self, data, id):
+        Group.query.filter_by(id=id).update(data)
+        db.session.commit()
+
+        return self.get(id)
+
+    def delete(self, id):
+        group = Group.query.filter_by(id=id).first()
+
+        db.session.delete(group)
+        db.session.commit()
+
+    def users(self, id):
+        users = Group.query.filter_by(id=id).first().users
+
+        return UserSerializer.to_array(users)
+
+    def add_user(self, data, id):
+        group = Group.query.filter_by(id=id).first()
+        user = User.query.filter_by(id=data['id']).first()
+
+        group.users.append(user)
+
+        db.session.add(group)
+        db.session.commit()
+
+        return UserSerializer.to_array(group.users)
+
+    def delete_user(self, user_id, id):
+        group = Group.query.filter_by(id=id).first()
+        user = User.query.filter_by(id=user_id).first()
+
+        group.users.remove(user)
+
+        db.session.add(group)
+        db.session.commit()
+
+        return UserSerializer.to_array(group.users)
+
+
+class PermissionLogics:
+    def list(self):
+        permissions = Permission.query.all()
+
+        return PermissionSerializer.to_array(permissions)
+
+    def create(self, data):
+        permission = Permission(**data)
+
+        db.session.add(permission)
+        db.session.commit()
+
+        return PermissionSerializer.to_dict(permission)
 
 
 class AuthLogics:
