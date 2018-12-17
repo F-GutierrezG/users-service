@@ -40,6 +40,7 @@ def seed_db():
         last_name='Gutiérrez',
         email='valid@test.com',
         password='123',
+        admin=True,
     )
 
     db.session.add(user)

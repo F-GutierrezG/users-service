@@ -1,15 +1,16 @@
-import json
 import random
 import string
 
 from project import db
-from project.logics import UserLogics
 
 from project.models import User, Group, Permission
+from project.serializers import TokenSerializer
 
 
-def add_permission():
-    permission = Permission(code=random_string(), name=random_string())
+def add_permission(code=None):
+    if code is None:
+        code = random_string()
+    permission = Permission(code=code, name=random_string())
     db.session.add(permission)
     db.session.commit()
 
@@ -24,15 +25,24 @@ def add_group():
     return group
 
 
-def add_user():
+def add_user(admin=False):
     user = User(
         first_name=random_string(),
         last_name=random_string(),
         email="{}@test.com".format(random_string()),
-        password=random_string(32))
+        password=random_string(32),
+        admin=admin)
     db.session.add(user)
     db.session.commit()
     return user
+
+
+def add_admin():
+    return add_user(admin=True)
+
+
+def login_user(user):
+    return TokenSerializer.encode(user).decode()
 
 
 def add_permission_to_group(permission, group):
@@ -47,41 +57,17 @@ def add_user_to_group(user, group):
     db.session.commit()
 
 
+def add_permissions(user, permissions):
+    group = add_group()
+    for permission in permissions:
+        permission = add_permission(code=permission)
+        add_permission_to_group(permission, group)
+    add_user_to_group(user, group)
+
+
 def random_string(length=32):
     return ''.join(
         [random.choice(
             string.ascii_letters + string.digits
         ) for n in range(length)]
     )
-
-
-class LoginMixin:
-    def add(self, email, password):
-        return UserLogics().create({
-            'first_name': random_string(32),
-            'last_name': random_string(32),
-            'email': email,
-            'password': password
-        })
-
-    def login(self, email, password):
-        with self.client:
-            response = self.client.post(
-                '/auth/login',
-                data=json.dumps({
-                    'email': email,
-                    'password': password
-                }),
-                content_type='application/json'
-            )
-            return json.loads(response.data.decode())
-
-    def add_and_login(self, email=None, password=None):
-        if email is None:
-            email = '{}@test.com'.format(random_string(16))
-
-        if password is None:
-            password = random_string(32)
-
-        self.add(email=email, password=password)
-        return self.login(email=email, password=password)

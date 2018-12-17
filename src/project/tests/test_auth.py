@@ -7,7 +7,7 @@ from flask import current_app
 
 from project.tests.utils import (
     random_string, add_group, add_permission, add_permission_to_group,
-    add_user_to_group, LoginMixin)
+    add_user_to_group, add_admin, login_user)
 
 from project import db
 from project.tests.base import BaseTestCase
@@ -170,7 +170,7 @@ class TestToken(BaseTestCase):
             TokenSerializer.decode(token)
 
 
-class TestLogout(BaseTestCase, LoginMixin):
+class TestLogout(BaseTestCase):
     """Tests for logout"""
 
     def do_logout(self, token):
@@ -183,9 +183,8 @@ class TestLogout(BaseTestCase, LoginMixin):
 
     def test_logout(self):
         """Ensure logout behaves correctly"""
-        email, password = get_login_data()
-
-        token = self.add_and_login(email=email, password=password)
+        admin = add_admin()
+        token = login_user(admin)
         response = self.do_logout(token)
         self.assertEqual(response.status_code, 204)
 
@@ -196,15 +195,16 @@ class TestLogout(BaseTestCase, LoginMixin):
                 '/auth/logout',
                 content_type='application/json'
             )
-            self.assertEqual(response.status_code, 403)
+            self.assertEqual(response.status_code, 401)
 
 
-class TestStatus(BaseTestCase, LoginMixin):
+class TestStatus(BaseTestCase):
     """Tests for auth status"""
 
     def test_status(self):
         """Ensure status behaves correctly"""
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         with self.client:
             response = self.client.get(
@@ -223,7 +223,7 @@ class TestStatus(BaseTestCase, LoginMixin):
                     random_string(16))},
                 content_type='application/json'
             )
-            self.assertEqual(response.status_code, 403)
+            self.assertEqual(response.status_code, 401)
 
     def test_status_without_token(self):
         """Ensure status without token behaves correctly"""
@@ -232,12 +232,13 @@ class TestStatus(BaseTestCase, LoginMixin):
                 '/auth/status',
                 content_type='application/json'
             )
-            self.assertEqual(response.status_code, 403)
+            self.assertEqual(response.status_code, 401)
 
     def test_status_list_user_permissions(self):
         """Ensure status list user permissions"""
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
         user = User.query.filter_by(
             id=TokenSerializer.decode(token)['sub']).first()
         total_permissions = 0
@@ -262,13 +263,30 @@ class TestStatus(BaseTestCase, LoginMixin):
             self.assertEqual(
                 len(response_data['permissions']), total_permissions)
 
+    def test_status_return_admin_property(self):
+        """Ensure status return admin property correctly"""
+        admin = add_admin()
+        token = login_user(admin)
 
-class TestAuthenticate(BaseTestCase, LoginMixin):
+        with self.client:
+            response = self.client.get(
+                '/auth/status',
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+            response_data = json.loads(response.data.decode())
+
+            self.assertEqual(response.status_code, 200)
+            self.assertIn('admin', response_data)
+
+
+class TestAuthenticate(BaseTestCase):
     """Tests for authenticate decorator"""
 
     def test_valid_token(self):
         """Test authenticate behaves correctly"""
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         with self.client:
             response = self.client.get(
@@ -285,7 +303,7 @@ class TestAuthenticate(BaseTestCase, LoginMixin):
                 '/auth/status',
                 content_type='application/json'
             )
-            self.assertEqual(response.status_code, 403)
+            self.assertEqual(response.status_code, 401)
 
     def test_wrong_format_auth_header(self):
         """Test authenticate with wrong format auth header behaves correcty"""
@@ -295,7 +313,7 @@ class TestAuthenticate(BaseTestCase, LoginMixin):
                 headers={'Authorization': 'no_space'},
                 content_type='application/json'
             )
-            self.assertEqual(response.status_code, 403)
+            self.assertEqual(response.status_code, 401)
 
     def test_no_existing_user(self):
         """Test authenticate with no existing user behaves correcty"""
@@ -309,7 +327,7 @@ class TestAuthenticate(BaseTestCase, LoginMixin):
                 headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
-            self.assertEqual(response.status_code, 403)
+            self.assertEqual(response.status_code, 401)
 
     def test_invalid_token(self):
         """Test authenticate with invalid token behaves correcty"""
@@ -319,12 +337,13 @@ class TestAuthenticate(BaseTestCase, LoginMixin):
                 headers={'Authorization': 'Bearer {}'.format('invalid')},
                 content_type='application/json'
             )
-            self.assertEqual(response.status_code, 403)
+            self.assertEqual(response.status_code, 401)
 
     def test_expired_token(self):
         current_app.config['TOKEN_EXPIRATION_SECONDS'] = -1
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         with self.client:
             response = self.client.get(
@@ -333,13 +352,14 @@ class TestAuthenticate(BaseTestCase, LoginMixin):
                 content_type='application/json'
             )
             response_data = json.loads(response.data.decode())
-            self.assertEqual(response.status_code, 403)
+            self.assertEqual(response.status_code, 401)
             self.assertEqual(response_data['message'], 'expired token.')
 
     def test_token_expiration_date_token(self):
         init_date = datetime.datetime.utcnow()
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
         expiration_date = datetime.datetime.fromtimestamp(
             TokenSerializer.decode(token)['exp'])
 

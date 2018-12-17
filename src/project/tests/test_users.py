@@ -2,7 +2,8 @@ import json
 import datetime
 import unittest
 
-from project.tests.utils import random_string, LoginMixin
+from project.tests.utils import (
+    random_string, add_user, login_user, add_admin, add_permissions)
 
 from project import db, bcrypt
 from project.tests.base import BaseTestCase
@@ -10,7 +11,7 @@ from project.serializers import TokenSerializer
 from project.models import User
 
 
-class TestListUsers(BaseTestCase, LoginMixin):
+class TestListUsers(BaseTestCase):
     """Tests for list users"""
 
     def __get_random_user_data(self):
@@ -36,7 +37,8 @@ class TestListUsers(BaseTestCase, LoginMixin):
         self.__add_user(**self.__get_random_user_data())
         self.__add_user(**self.__get_random_user_data())
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         with self.client:
             response = self.client.get(
@@ -64,7 +66,8 @@ class TestListUsers(BaseTestCase, LoginMixin):
         db.session.add(user)
         db.session.commit()
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         with self.client:
             response = self.client.get(
@@ -77,8 +80,53 @@ class TestListUsers(BaseTestCase, LoginMixin):
             self.assertEqual(User.query.count(), 4)
             self.assertEqual(len(response_data), 3)
 
+    def test_list_users_without_permission(self):
+        user = add_user()
+        token = login_user(user)
 
-class TestAddUser(BaseTestCase, LoginMixin):
+        with self.client:
+            response = self.client.get(
+                '/users',
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, 403)
+
+    def test_list_users_with_admin_permissions(self):
+        user = add_admin()
+        token = login_user(user)
+
+        with self.client:
+            response = self.client.get(
+                '/users',
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, 200)
+
+    def test_list_users_without_login(self):
+        with self.client:
+            response = self.client.get(
+                '/users',
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, 401)
+
+    def test_list_users_with_permission(self):
+        user = add_user()
+        add_permissions(user, ['LIST_USERS'])
+        token = login_user(user)
+
+        with self.client:
+            response = self.client.get(
+                '/users',
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, 200)
+
+
+class TestAddUser(BaseTestCase):
     """Tests for add User"""
 
     def test_add_user(self):
@@ -90,7 +138,8 @@ class TestAddUser(BaseTestCase, LoginMixin):
             'password': '12345678'
         }
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         with self.client:
             response = self.client.post(
@@ -122,7 +171,8 @@ class TestAddUser(BaseTestCase, LoginMixin):
             'password': '12345678'
         }
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         with self.client:
             response = self.client.post(
@@ -145,7 +195,8 @@ class TestAddUser(BaseTestCase, LoginMixin):
             'password': '12345678'
         }
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         with self.client:
             response = self.client.post(
@@ -170,7 +221,8 @@ class TestAddUser(BaseTestCase, LoginMixin):
 
         self.assertEqual(User.query.count(), 0)
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         with self.client:
             self.client.post(
@@ -197,7 +249,8 @@ class TestAddUser(BaseTestCase, LoginMixin):
             'password': '1234567890'
         }
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         with self.client:
             response = self.client.post(
@@ -226,7 +279,8 @@ class TestAddUser(BaseTestCase, LoginMixin):
             'password': '12345678'
         }
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         with self.client:
             response = self.client.post(
@@ -251,7 +305,8 @@ class TestAddUser(BaseTestCase, LoginMixin):
             'password': '12345678'
         }
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         with self.client:
             response = self.client.post(
@@ -276,7 +331,8 @@ class TestAddUser(BaseTestCase, LoginMixin):
             'password': '12345678'
         }
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         with self.client:
             response = self.client.post(
@@ -301,7 +357,8 @@ class TestAddUser(BaseTestCase, LoginMixin):
             'email': 'fgutierrez@prueba.cl',
         }
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         with self.client:
             response = self.client.post(
@@ -322,7 +379,8 @@ class TestAddUser(BaseTestCase, LoginMixin):
         """Ensure create user route behaves correctly with blank payload"""
         user_data = {}
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         with self.client:
             response = self.client.post(
@@ -355,7 +413,8 @@ class TestAddUser(BaseTestCase, LoginMixin):
             'password': '12345678'
         }
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         with self.client:
             response = self.client.post(
@@ -376,7 +435,8 @@ class TestAddUser(BaseTestCase, LoginMixin):
             'password': '12345678'
         }
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         with self.client:
             response = self.client.post(
@@ -402,7 +462,8 @@ class TestAddUser(BaseTestCase, LoginMixin):
             'password': '12345678'
         }
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         with self.client:
             response = self.client.post(
@@ -423,7 +484,8 @@ class TestAddUser(BaseTestCase, LoginMixin):
             'password': '12345678'
         }
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         with self.client:
             response = self.client.post(
@@ -449,7 +511,8 @@ class TestAddUser(BaseTestCase, LoginMixin):
         }
 
         init_time = datetime.datetime.utcnow()
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         with self.client:
             response = self.client.post(
@@ -493,7 +556,8 @@ class TestAddUser(BaseTestCase, LoginMixin):
             'password': random_string(16)
         }
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
         user_id = TokenSerializer.decode(token)['sub']
 
         with self.client:
@@ -518,7 +582,8 @@ class TestAddUser(BaseTestCase, LoginMixin):
             'password': '12345678'
         }
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         with self.client:
             response = self.client.post(
@@ -533,10 +598,91 @@ class TestAddUser(BaseTestCase, LoginMixin):
             self.assertIsNone(user.updated)
             self.assertIsNone(user.updated_by)
 
+    def test_add_user_with_admin_permission(self):
+        """Ensure create user route behaves correctly"""
+        user_data = {
+            'first_name': 'Francisco',
+            'last_name': 'Gutiérrez',
+            'email': 'fgutierrez@prueba.cl',
+            'password': '12345678'
+        }
+
+        admin = add_admin()
+        token = login_user(admin)
+
+        with self.client:
+            response = self.client.post(
+                '/users',
+                data=json.dumps(user_data),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, 201)
+
+    def test_add_user_with_permission(self):
+        """Ensure create user route behaves correctly"""
+        user_data = {
+            'first_name': 'Francisco',
+            'last_name': 'Gutiérrez',
+            'email': 'fgutierrez@prueba.cl',
+            'password': '12345678'
+        }
+
+        user = add_user()
+        add_permissions(user, ['ADD_USER'])
+        token = login_user(user)
+
+        with self.client:
+            response = self.client.post(
+                '/users',
+                data=json.dumps(user_data),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, 201)
+
+    def test_add_user_without_login(self):
+        """Ensure create user route behaves correctly"""
+        user_data = {
+            'first_name': 'Francisco',
+            'last_name': 'Gutiérrez',
+            'email': 'fgutierrez@prueba.cl',
+            'password': '12345678'
+        }
+
+        with self.client:
+            response = self.client.post(
+                '/users',
+                data=json.dumps(user_data),
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, 401)
+
+    def test_add_user_without_permission(self):
+        """Ensure create user route behaves correctly"""
+        user_data = {
+            'first_name': 'Francisco',
+            'last_name': 'Gutiérrez',
+            'email': 'fgutierrez@prueba.cl',
+            'password': '12345678'
+        }
+
+        user = add_user()
+        token = login_user(user)
+
+        with self.client:
+            response = self.client.post(
+                '/users',
+                data=json.dumps(user_data),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, 403)
+
     # TODO: Validar largos, tipo email, etc
 
 
-class TestUpdateUser(BaseTestCase, LoginMixin):
+class TestUpdateUser(BaseTestCase):
     """Tests for update User"""
 
     def __get_random_user_data(self):
@@ -567,7 +713,8 @@ class TestUpdateUser(BaseTestCase, LoginMixin):
         self.assertEqual(user.last_name, old_data['last_name'])
         self.assertEqual(user.email, old_data['email'])
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         with self.client:
             response = self.client.put(
@@ -599,7 +746,8 @@ class TestUpdateUser(BaseTestCase, LoginMixin):
         self.assertEqual(old_user.last_name, old_data['last_name'])
         self.assertEqual(old_user.email, old_data['email'])
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         with self.client:
             self.client.put(
@@ -628,7 +776,8 @@ class TestUpdateUser(BaseTestCase, LoginMixin):
         db.session.add(user)
         db.session.commit()
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         self.assertEqual(User.query.count(), 2)
 
@@ -658,7 +807,8 @@ class TestUpdateUser(BaseTestCase, LoginMixin):
 
         self.assertEqual(User.query.count(), 1)
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         with self.client:
             response = self.client.put(
@@ -685,7 +835,8 @@ class TestUpdateUser(BaseTestCase, LoginMixin):
 
         user = self.__add_user(**old_data)
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         with self.client:
             response = self.client.put(
@@ -707,7 +858,8 @@ class TestUpdateUser(BaseTestCase, LoginMixin):
 
         user = self.__add_user(**old_data)
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         with self.client:
             response = self.client.put(
@@ -729,7 +881,8 @@ class TestUpdateUser(BaseTestCase, LoginMixin):
 
         user = self.__add_user(**old_data)
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         with self.client:
             response = self.client.put(
@@ -748,7 +901,8 @@ class TestUpdateUser(BaseTestCase, LoginMixin):
 
         user = self.__add_user(**old_data)
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         with self.client:
             response = self.client.put(
@@ -771,7 +925,8 @@ class TestUpdateUser(BaseTestCase, LoginMixin):
         new_data = self.__get_random_user_data()
         new_data['email'] = old_data2['email']
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         with self.client:
             response = self.client.put(
@@ -789,7 +944,8 @@ class TestUpdateUser(BaseTestCase, LoginMixin):
         """Ensure update user behaves correctly with not existing user"""
         new_data = self.__get_random_user_data()
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         with self.client:
             response = self.client.put(
@@ -811,7 +967,8 @@ class TestUpdateUser(BaseTestCase, LoginMixin):
         new_data = self.__get_random_user_data()
 
         user = self.__add_user(**old_data)
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         with self.client:
             response = self.client.put(
@@ -839,7 +996,8 @@ class TestUpdateUser(BaseTestCase, LoginMixin):
         self.assertEqual(user.last_name, old_data['last_name'])
         self.assertEqual(user.email, old_data['email'])
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
         user_id = TokenSerializer.decode(token)['sub']
 
         with self.client:
@@ -865,7 +1023,8 @@ class TestUpdateUser(BaseTestCase, LoginMixin):
         self.assertEqual(user.last_name, old_data['last_name'])
         self.assertEqual(user.email, old_data['email'])
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         with self.client:
             response = self.client.put(
@@ -880,8 +1039,97 @@ class TestUpdateUser(BaseTestCase, LoginMixin):
             self.assertIsNotNone(user.updated)
             self.assertIsNotNone(user.updated_by)
 
+    def test_update_with_admin_permissions(self):
+        """Ensure update user returns the updated data"""
+        old_data = self.__get_random_user_data()
+        new_data = self.__get_random_user_data()
 
-class TestDeleteUser(BaseTestCase, LoginMixin):
+        user = self.__add_user(**old_data)
+
+        self.assertEqual(user.first_name, old_data['first_name'])
+        self.assertEqual(user.last_name, old_data['last_name'])
+        self.assertEqual(user.email, old_data['email'])
+
+        admin = add_admin()
+        token = login_user(admin)
+
+        with self.client:
+            response = self.client.put(
+                '/users/{}'.format(user.id),
+                data=json.dumps(new_data),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, 200)
+
+    def test_update_with_permission(self):
+        """Ensure update user returns the updated data"""
+        old_data = self.__get_random_user_data()
+        new_data = self.__get_random_user_data()
+
+        user = self.__add_user(**old_data)
+
+        self.assertEqual(user.first_name, old_data['first_name'])
+        self.assertEqual(user.last_name, old_data['last_name'])
+        self.assertEqual(user.email, old_data['email'])
+
+        user = add_user()
+        add_permissions(user, ['UPDATE_USER'])
+        token = login_user(user)
+
+        with self.client:
+            response = self.client.put(
+                '/users/{}'.format(user.id),
+                data=json.dumps(new_data),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, 200)
+
+    def test_update_without_login(self):
+        """Ensure update user returns the updated data"""
+        old_data = self.__get_random_user_data()
+        new_data = self.__get_random_user_data()
+
+        user = self.__add_user(**old_data)
+
+        self.assertEqual(user.first_name, old_data['first_name'])
+        self.assertEqual(user.last_name, old_data['last_name'])
+        self.assertEqual(user.email, old_data['email'])
+
+        with self.client:
+            response = self.client.put(
+                '/users/{}'.format(user.id),
+                data=json.dumps(new_data),
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, 401)
+
+    def test_update_without_permission(self):
+        """Ensure update user returns the updated data"""
+        old_data = self.__get_random_user_data()
+        new_data = self.__get_random_user_data()
+
+        user = self.__add_user(**old_data)
+
+        self.assertEqual(user.first_name, old_data['first_name'])
+        self.assertEqual(user.last_name, old_data['last_name'])
+        self.assertEqual(user.email, old_data['email'])
+
+        user = add_user()
+        token = login_user(user)
+
+        with self.client:
+            response = self.client.put(
+                '/users/{}'.format(user.id),
+                data=json.dumps(new_data),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, 403)
+
+
+class TestDeleteUser(BaseTestCase):
     """Tests for delete User"""
 
     def __get_random_user_data(self):
@@ -906,7 +1154,8 @@ class TestDeleteUser(BaseTestCase, LoginMixin):
         user_data = self.__get_random_user_data()
         user = self.__add_user(**user_data)
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         with self.client:
             response = self.client.delete(
@@ -922,7 +1171,8 @@ class TestDeleteUser(BaseTestCase, LoginMixin):
         user_data = self.__get_random_user_data()
         user = self.__add_user(**user_data)
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         self.assertEqual(User.query.count(), 2)
         self.assertTrue(User.query.first().active)
@@ -940,7 +1190,8 @@ class TestDeleteUser(BaseTestCase, LoginMixin):
 
     def test_delete_with_not_existing_user(self):
         """Ensure delete behaves correctly when user doesn't exist"""
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         self.assertEqual(User.query.count(), 1)
 
@@ -966,7 +1217,8 @@ class TestDeleteUser(BaseTestCase, LoginMixin):
         db.session.add(user)
         db.session.commit()
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         self.assertEqual(User.query.count(), 2)
 
@@ -992,7 +1244,8 @@ class TestDeleteUser(BaseTestCase, LoginMixin):
         db.session.add(user)
         db.session.commit()
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         self.assertEqual(User.query.count(), 2)
 
@@ -1011,7 +1264,8 @@ class TestDeleteUser(BaseTestCase, LoginMixin):
         user_data = self.__get_random_user_data()
         user = self.__add_user(**user_data)
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
         user_id = TokenSerializer.decode(token)['sub']
         with self.client:
             self.client.delete(
@@ -1029,7 +1283,8 @@ class TestDeleteUser(BaseTestCase, LoginMixin):
 
         init_time = datetime.datetime.utcnow()
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         with self.client:
             self.client.delete(
@@ -1044,8 +1299,73 @@ class TestDeleteUser(BaseTestCase, LoginMixin):
             self.assertTrue(user.updated >= init_time)
             self.assertTrue(user.updated <= end_time)
 
+    def test_delete_user_with_admin_permissions(self):
+        """Ensure delete user behaves correctly"""
+        user_data = self.__get_random_user_data()
+        user = self.__add_user(**user_data)
 
-class TestViewUser(BaseTestCase, LoginMixin):
+        admin = add_admin()
+        token = login_user(admin)
+
+        with self.client:
+            response = self.client.delete(
+                '/users/{}'.format(user.id),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+
+            self.assertEqual(response.status_code, 204)
+
+    def test_delete_user_with_permissions(self):
+        """Ensure delete user behaves correctly"""
+        user_data = self.__get_random_user_data()
+        user = self.__add_user(**user_data)
+
+        user = add_user()
+        add_permissions(user, ['DELETE_USER'])
+        token = login_user(user)
+
+        with self.client:
+            response = self.client.delete(
+                '/users/{}'.format(user.id),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+
+            self.assertEqual(response.status_code, 204)
+
+    def test_delete_user_without_login(self):
+        """Ensure delete user behaves correctly"""
+        user_data = self.__get_random_user_data()
+        user = self.__add_user(**user_data)
+
+        with self.client:
+            response = self.client.delete(
+                '/users/{}'.format(user.id),
+                content_type='application/json'
+            )
+
+            self.assertEqual(response.status_code, 401)
+
+    def test_delete_user_without_permission(self):
+        """Ensure delete user behaves correctly"""
+        user_data = self.__get_random_user_data()
+        user = self.__add_user(**user_data)
+
+        user = add_user()
+        token = login_user(user)
+
+        with self.client:
+            response = self.client.delete(
+                '/users/{}'.format(user.id),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+
+            self.assertEqual(response.status_code, 403)
+
+
+class TestViewUser(BaseTestCase):
     """Test for view User"""
 
     def __get_random_user_data(self):
@@ -1069,7 +1389,8 @@ class TestViewUser(BaseTestCase, LoginMixin):
         """Ensure user is visible"""
         user_data = self.__get_random_user_data()
         user = self.__add_user(**user_data)
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         with self.client:
             response = self.client.get(
@@ -1093,7 +1414,8 @@ class TestViewUser(BaseTestCase, LoginMixin):
 
     def test_view_with_non_existing_user(self):
         """Ensure view behaves correctly when user doesn't exist"""
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         with self.client:
             response = self.client.get(
@@ -1119,7 +1441,8 @@ class TestViewUser(BaseTestCase, LoginMixin):
         db.session.add(user)
         db.session.commit()
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         with self.client:
             response = self.client.get(
@@ -1134,8 +1457,73 @@ class TestViewUser(BaseTestCase, LoginMixin):
             self.assertEqual(response_data['message'], 'not found.')
             self.assertEqual(User.query.count(), 2)
 
+    def test_view_user_with_admin_permissions(self):
+        """Ensure user is visible"""
+        user_data = self.__get_random_user_data()
+        user = self.__add_user(**user_data)
 
-class TestFilterUsersById(BaseTestCase, LoginMixin):
+        admin = add_admin()
+        token = login_user(admin)
+
+        with self.client:
+            response = self.client.get(
+                '/users/{}'.format(user.id),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+
+            self.assertEqual(response.status_code, 200)
+
+    def test_view_user_with_permission(self):
+        """Ensure user is visible"""
+        user_data = self.__get_random_user_data()
+        user = self.__add_user(**user_data)
+
+        user = add_user()
+        add_permissions(user, ['VIEW_USER'])
+        token = login_user(user)
+
+        with self.client:
+            response = self.client.get(
+                '/users/{}'.format(user.id),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+
+            self.assertEqual(response.status_code, 200)
+
+    def test_view_user_without_login(self):
+        """Ensure user is visible"""
+        user_data = self.__get_random_user_data()
+        user = self.__add_user(**user_data)
+
+        with self.client:
+            response = self.client.get(
+                '/users/{}'.format(user.id),
+                content_type='application/json'
+            )
+
+            self.assertEqual(response.status_code, 401)
+
+    def test_view_user_without_permission(self):
+        """Ensure user is visible"""
+        user_data = self.__get_random_user_data()
+        user = self.__add_user(**user_data)
+
+        user = add_user()
+        token = login_user(user)
+
+        with self.client:
+            response = self.client.get(
+                '/users/{}'.format(user.id),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+
+            self.assertEqual(response.status_code, 403)
+
+
+class TestFilterUsersById(BaseTestCase):
     """Tests for filter users by id"""
 
     def __get_random_user_data(self):
@@ -1161,7 +1549,8 @@ class TestFilterUsersById(BaseTestCase, LoginMixin):
         self.__add_user(**self.__get_random_user_data())
         self.__add_user(**self.__get_random_user_data())
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         with self.client:
             response = self.client.get(
@@ -1180,7 +1569,8 @@ class TestFilterUsersById(BaseTestCase, LoginMixin):
         user2 = self.__add_user(**self.__get_random_user_data())
         user3 = self.__add_user(**self.__get_random_user_data())
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         with self.client:
             response = self.client.get(
@@ -1199,7 +1589,8 @@ class TestFilterUsersById(BaseTestCase, LoginMixin):
         user2 = self.__add_user(**self.__get_random_user_data())
         user3 = self.__add_user(**self.__get_random_user_data())
 
-        token = self.add_and_login()
+        admin = add_admin()
+        token = login_user(admin)
 
         with self.client:
             response = self.client.get(

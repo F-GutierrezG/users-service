@@ -16,7 +16,8 @@ class UserSerializer:
             'created_by': user.created_by,
             'updated': str(user.updated),
             'updated_by': user.updated_by,
-            'hash': user.hash
+            'hash': user.hash,
+            'admin': user.admin
         }
 
     @staticmethod
@@ -71,7 +72,8 @@ class TokenSerializer:
                 seconds=current_app.config.get('TOKEN_EXPIRATION_SECONDS')
             ),
             'iat': datetime.datetime.utcnow(),
-            'sub': user.id
+            'sub': user.id,
+            'admin': user.admin
         }
         return jwt.encode(payload, secret, algorithm='HS256')
 

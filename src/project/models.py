@@ -59,6 +59,7 @@ class User(db.Model):
     updated = db.Column(db.DateTime, onupdate=func.now(), nullable=True)
     updated_by = db.Column(db.Integer)
     hash = db.Column(db.String(32), default=uuid.uuid4().hex, nullable=False)
+    admin = db.Column(db.Boolean, default=False, nullable=False)
     groups = db.relationship('Group', secondary=group_users)
 
     def __init__(self, **kwargs):
@@ -80,6 +81,15 @@ class User(db.Model):
             for permission in group.permissions:
                 permissions.add(permission.code)
         return list(permissions)
+
+    def is_authorized(self, required_permissions):
+        if self.admin:
+            return True
+
+        for permission in required_permissions:
+            if permission not in self.permissions:
+                return False
+        return True
 
 
 class Permission(db.Model):

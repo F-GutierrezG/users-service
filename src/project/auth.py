@@ -4,6 +4,10 @@ from project.models import User
 from project.serializers import TokenSerializer, InvalidToken, ExpiredToken
 
 
+def unauthorized(message='unauthorized'):
+    return jsonify({'message': message}), 401
+
+
 def forbidden(message='forbidden'):
     return jsonify({'message': message}), 403
 
@@ -22,24 +26,45 @@ def parse_token(request):
     return token_parts[1]
 
 
+def do_authentication():
+    token = parse_token(request)
+
+    if token is False:
+        return unauthorized()
+
+    try:
+        payload = TokenSerializer.decode(token)
+        user = User.query.filter_by(id=payload['sub'], active=True).first()
+
+        if user:
+            return user
+    except InvalidToken:
+        return unauthorized('invalid token.')
+    except ExpiredToken:
+        return unauthorized('expired token.')
+
+    return unauthorized()
+
+
 def authenticate(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        token = parse_token(request)
-
-        if token is False:
-            return forbidden()
-
-        try:
-            payload = TokenSerializer.decode(token)
-            user = User.query.filter_by(id=payload['sub'], active=True).first()
-
-            if user:
-                return f(user, *args, **kwargs)
-        except InvalidToken:
-            return forbidden('invalid token.')
-        except ExpiredToken:
-            return forbidden('expired token.')
-
-        return forbidden()
+        response = do_authentication()
+        if isinstance(response, User):
+            return f(response, *args, **kwargs)
+        return response
     return decorated_function
+
+
+def authorize(required_permissions=[]):
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            response = do_authentication()
+            if isinstance(response, User):
+                if response.is_authorized(required_permissions):
+                    return f(response, *args, **kwargs)
+                return forbidden()
+            return response
+        return decorated_function
+    return decorator

@@ -1,6 +1,6 @@
 from flask import Blueprint, request
 from sqlalchemy import exc
-from project.auth import authenticate
+from project.auth import authenticate, authorize
 from project.logics import UserLogics, DoesNotExist
 from project.validators.exceptions import ValidatorException
 from project.views.utils import success_response, failed_response
@@ -10,7 +10,7 @@ users_blueprint = Blueprint('users', __name__)
 
 
 @users_blueprint.route('/users', methods=['GET'])
-@authenticate
+@authorize(['LIST_USERS'])
 def list(user):
     users = UserLogics().list()
     return success_response(
@@ -19,7 +19,7 @@ def list(user):
 
 
 @users_blueprint.route('/users/<id>', methods=['GET'])
-@authenticate
+@authorize(['VIEW_USER'])
 def get(user, id):
     try:
         user = UserLogics().get(id)
@@ -31,7 +31,7 @@ def get(user, id):
 
 
 @users_blueprint.route('/users', methods=['POST'])
-@authenticate
+@authorize(['ADD_USER'])
 def create(user):
     user_data = request.get_json()
     user_data['created_by'] = user.id
@@ -50,7 +50,7 @@ def create(user):
 
 
 @users_blueprint.route('/users/<id>', methods=['PUT'])
-@authenticate
+@authorize(['UPDATE_USER'])
 def update(user, id):
     user_data = request.get_json()
     user_data['updated_by'] = user.id
@@ -72,7 +72,7 @@ def update(user, id):
 
 
 @users_blueprint.route('/users/<id>', methods=['DELETE'])
-@authenticate
+@authorize(['DELETE_USER'])
 def delete(user, id):
     try:
         UserLogics().delete(id, user)
