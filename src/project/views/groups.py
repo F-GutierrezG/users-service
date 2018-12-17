@@ -93,9 +93,9 @@ def add_permission(id):
 
 
 @groups_blueprint.route(
-    '/auth/groups/<id>/permissions/<permission_id>', methods=['DELETE'])
-def delete_permission(id, permission_id):
-    permissions = GroupLogics().delete_permission(permission_id, id)
+    '/auth/groups/<id>/permissions/<code>', methods=['DELETE'])
+def delete_permission(id, code):
+    permissions = GroupLogics().delete_permission(code, id)
 
     return success_response(
         data=permissions,

@@ -82,7 +82,7 @@ class Permission(db.Model):
     __table_args__ = {'schema': 'users'}
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    code = db.Column(db.String(CODE_MAX_LENGTH), nullable=False)
+    code = db.Column(db.String(CODE_MAX_LENGTH), nullable=False, unique=True)
     name = db.Column(db.String(NAME_MAX_LENGTH), nullable=False)
     groups = db.relationship('Group', secondary=group_permissions)
 

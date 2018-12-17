@@ -9,6 +9,10 @@ servers:
 tags:
   - name: Authenticate
     description: Authenticate Operations
+  - name: Permissions
+    description: Permission Operations
+  - name: Groups
+    description: Group Operations
   - name: Users
     description: User Operations
   - name: Service Health
@@ -103,6 +107,422 @@ paths:
             application/json:
               schema:
                 $ref: "#components/responses/Forbidden"
+  /auth/permissions:
+    get:
+      tags:
+        - Permissions
+      summary: List Permissions
+      description: List Permissions
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Permissions List.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#components/schemas/Permission"
+        '403':
+          description: Forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/Forbidden"
+  /auth/groups:
+    get:
+      tags:
+        - Groups
+      summary: List Groups
+      description: List Groups
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List Groups.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#components/schemas/Group"
+        '403':
+          description: Forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/Forbidden"
+    post:
+      tags:
+        - Groups
+      summary: Create Group
+      description: Creates a new Group
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Group data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/requestBodies/GroupBase'
+      responses:
+        '201':
+          description: Group successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/Group"
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/BadRequest"
+        '403':
+          description: Forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/Forbidden"
+  /groups/{id}:
+    get:
+      tags:
+        - Groups
+      summary: Get Group
+      description: Get an existing Group
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: Group id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Group succesfully retreived.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/Group"
+        '404':
+          description: Group not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/NotFound"
+        '403':
+          description: Forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/Forbidden"
+    put:
+      tags:
+        - Groups
+      summary: Update Group
+      description: Update an existing Group
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: Group id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Group data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/requestBodies/GroupBase'
+      responses:
+        '200':
+          description: Group successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/Group"
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/BadRequest"
+        '404':
+          description: Group not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/NotFound"
+        '403':
+          description: Forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/Forbidden"
+    delete:
+      tags:
+        - Groups
+      summary: Delete Group
+      description: Delete an existing Group
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: Group id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Group successfully deleted.
+        '404':
+          description: Group not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/NotFound"
+        '403':
+          description: Forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/Forbidden"
+  /auth/groups/{id}/users:
+    get:
+      tags:
+        - Groups
+      summary: List Users
+      description: List Users on a Group
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: Group id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Users List.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#components/schemas/User"
+        '404':
+          description: Group not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/NotFound"
+        '403':
+          description: Forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/Forbidden"
+    post:
+      tags:
+        - Groups
+      summary: Add User to a Group
+      description: Add a User to a Group
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: Group id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: User id
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/requestBodies/Id'
+      responses:
+        '200':
+          description: User added to a Group.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#components/schemas/User"
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/BadRequest"
+        '404':
+          description: Group not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/NotFound"
+        '403':
+          description: Forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/Forbidden"
+  /auth/groups/{groupId}/users/{userId}:
+    delete:
+      tags:
+        - Groups
+      summary: Delete User
+      description: Delete a User from a Group
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: groupId
+          in: path
+          description: Group id
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: userId
+          in: path
+          description: User id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: User deleted from a Group.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#components/schemas/User"
+        '404':
+          description: Group not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/NotFound"
+        '403':
+          description: Forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/Forbidden"
+  /auth/groups/{id}/permissions:
+    post:
+      tags:
+        - Groups
+      summary: Add Permission to a Group
+      description: Add Permission to a Group
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: Group id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Permission Code
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/requestBodies/PermissionCode'
+      responses:
+        '200':
+          description: Permissions List.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#components/schemas/Permission"
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/BadRequest"
+        '403':
+          description: Forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/Forbidden"
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/NotFound"
+  /auth/groups/{id}/permissions/{code}:
+    delete:
+      tags:
+        - Groups
+      summary: Delete Permission from a Group
+      description: Delete Permission from a Group
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: Group id
+          required: true
+          schema:
+            type: integer
+            format: int64
+            description: Group id
+        - name: code
+          in: path
+          description: Permission id
+          required: true
+          schema:
+            type: string
+            description: Permission code
+      responses:
+        '200':
+          description: Permissions List.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#components/schemas/Permission"
+        '403':
+          description: Forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/Forbidden"
+        '404':
+          description: Group or Permission not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/NotFound"
   /users:
     get:
       tags:
@@ -369,6 +789,37 @@ components:
             updated_by:
               type: integer
               description: User id who updates this
+    Group:
+      allOf:
+        - $ref: "#/components/requestBodies/GroupBase"
+        - required:
+          properties:
+            id:
+              type: integer
+              format: int64
+              description: User id
+            created:
+              type: string
+              format: date-time
+              description: Created datetime
+            created_by:
+              type: integer
+              description: User id who creates this
+            updated:
+              type: string
+              format: date-time
+              description: Updated datetime
+            updated_by:
+              type: integer
+              description: User id who updates this
+    Permission:
+      properties:
+        code:
+          type: string
+          description: Permission code
+        name:
+          type: string
+          description: Permission name
     Health:
       properties:
         message:
@@ -386,6 +837,22 @@ components:
         email:
           type: string
           description: User email
+    GroupBase:
+      properties:
+        name:
+          type: string
+          description: Group name
+    Id:
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Element Id
+    PermissionCode:
+      properties:
+        code:
+          type: string
+          description: Permission Code
   responses:
     BadRequest:
       properties:

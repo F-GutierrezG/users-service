@@ -124,7 +124,7 @@ class GroupLogics:
 
     def add_permission(self, data, id):
         group = Group.query.filter_by(id=id).first()
-        permission = Permission.query.filter_by(id=data['id']).first()
+        permission = Permission.query.filter_by(code=data['code']).first()
 
         group.permissions.append(permission)
 
@@ -133,9 +133,9 @@ class GroupLogics:
 
         return PermissionSerializer.to_array(group.permissions)
 
-    def delete_permission(self, permission_id, id):
+    def delete_permission(self, code, id):
         group = Group.query.filter_by(id=id).first()
-        permission = Permission.query.filter_by(id=permission_id).first()
+        permission = Permission.query.filter_by(code=code).first()
 
         group.permissions.remove(permission)
 

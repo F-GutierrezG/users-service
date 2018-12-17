@@ -41,7 +41,6 @@ class PermissionSerializer:
     @staticmethod
     def to_dict(permission):
         return {
-            'id': permission.id,
             'code': permission.code,
             'name': permission.name
         }

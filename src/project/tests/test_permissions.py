@@ -50,7 +50,7 @@ class TestAddPermissionToGroup(BaseTestCase):
 
             response = self.client.post(
                 '/auth/groups/{}/permissions'.format(group.id),
-                data=json.dumps({'id': permission.id}),
+                data=json.dumps({'code': permission.code}),
                 content_type='application/json'
             )
             self.assertEqual(response.status_code, 200)
@@ -68,7 +68,7 @@ class TestAddPermissionToGroup(BaseTestCase):
         with self.client:
             response = self.client.post(
                 '/auth/groups/{}/permissions'.format(group.id),
-                data=json.dumps({'id': permission.id}),
+                data=json.dumps({'code': permission.code}),
                 content_type='application/json'
             )
             self.assertEqual(response.status_code, 200)
@@ -80,7 +80,7 @@ class TestAddPermissionToGroup(BaseTestCase):
 
             response = self.client.delete(
                 '/auth/groups/{}/permissions/{}'.format(
-                    group.id, permission.id),
+                    group.id, permission.code),
                 content_type='application/json'
             )
             self.assertEqual(response.status_code, 200)
