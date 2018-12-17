@@ -186,7 +186,7 @@ paths:
             application/json:
               schema:
                 $ref: "#components/responses/Forbidden"
-  /groups/{id}:
+  /auth/groups/{id}:
     get:
       tags:
         - Groups
