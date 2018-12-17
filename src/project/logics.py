@@ -167,4 +167,9 @@ class AuthLogics:
         return TokenSerializer.encode(user).decode()
 
     def get_status(self, user):
-        return UserSerializer.to_dict(user)
+        serialized_user = UserSerializer.to_dict(user)
+        serialized_permissions = PermissionSerializer.to_array(
+            user.permissions)
+
+        serialized_user['permissions'] = serialized_permissions
+        return serialized_user

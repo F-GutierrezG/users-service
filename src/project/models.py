@@ -73,6 +73,14 @@ class User(db.Model):
             kwargs['password'],
             current_app.config.get('BCRYPT_LOG_ROUNDS')).decode()
 
+    @property
+    def permissions(self):
+        permissions = set()
+        for group in self.groups:
+            for permission in group.permissions:
+                permissions.add(permission.code)
+        return permissions
+
 
 class Permission(db.Model):
     CODE_MAX_LENGTH = 128

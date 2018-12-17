@@ -232,6 +232,20 @@ class TestStatus(BaseTestCase, LoginMixin):
             )
             self.assertEqual(response.status_code, 403)
 
+    def test_status_list_user_permissions(self):
+        """Ensure status list user permissions"""
+        token = self.add_and_login()
+
+        with self.client:
+            response = self.client.get(
+                '/auth/status',
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, 200)
+            response_data = json.loads(response.data.decode())
+            self.assertIn('permissions', response_data)
+
 
 class TestAuthenticate(BaseTestCase, LoginMixin):
     """Tests for authenticate decorator"""
