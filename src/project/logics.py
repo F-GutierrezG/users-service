@@ -168,8 +168,6 @@ class AuthLogics:
 
     def get_status(self, user):
         serialized_user = UserSerializer.to_dict(user)
-        serialized_permissions = PermissionSerializer.to_array(
-            user.permissions)
+        serialized_user['permissions'] = user.permissions
 
-        serialized_user['permissions'] = serialized_permissions
         return serialized_user

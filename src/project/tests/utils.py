@@ -35,6 +35,18 @@ def add_user():
     return user
 
 
+def add_permission_to_group(permission, group):
+    group.permissions.append(permission)
+    db.session.add(group)
+    db.session.commit()
+
+
+def add_user_to_group(user, group):
+    group.users.append(user)
+    db.session.add(group)
+    db.session.commit()
+
+
 def random_string(length=32):
     return ''.join(
         [random.choice(

@@ -79,7 +79,7 @@ class User(db.Model):
         for group in self.groups:
             for permission in group.permissions:
                 permissions.add(permission.code)
-        return permissions
+        return list(permissions)
 
 
 class Permission(db.Model):

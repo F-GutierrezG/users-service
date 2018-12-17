@@ -5,7 +5,9 @@ import unittest
 
 from flask import current_app
 
-from project.tests.utils import random_string, LoginMixin
+from project.tests.utils import (
+    random_string, add_group, add_permission, add_permission_to_group,
+    add_user_to_group, LoginMixin)
 
 from project import db
 from project.tests.base import BaseTestCase
@@ -234,7 +236,19 @@ class TestStatus(BaseTestCase, LoginMixin):
 
     def test_status_list_user_permissions(self):
         """Ensure status list user permissions"""
+
         token = self.add_and_login()
+        user = User.query.filter_by(
+            id=TokenSerializer.decode(token)['sub']).first()
+        total_permissions = 0
+
+        for i in range(0, random.randint(1, 5)):
+            group = add_group()
+            for j in range(0, random.randint(1, 5)):
+                permission = add_permission()
+                add_permission_to_group(permission, group)
+                total_permissions += 1
+            add_user_to_group(user, group)
 
         with self.client:
             response = self.client.get(
@@ -245,6 +259,8 @@ class TestStatus(BaseTestCase, LoginMixin):
             self.assertEqual(response.status_code, 200)
             response_data = json.loads(response.data.decode())
             self.assertIn('permissions', response_data)
+            self.assertEqual(
+                len(response_data['permissions']), total_permissions)
 
 
 class TestAuthenticate(BaseTestCase, LoginMixin):
