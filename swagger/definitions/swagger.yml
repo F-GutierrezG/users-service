@@ -75,6 +75,12 @@ paths:
       responses:
         '204':
           description: User logued out.
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/Unauthorized"
         '403':
           description: Forbidden.
           content:
@@ -101,6 +107,12 @@ paths:
                   data:
                     type: string
                     description: 'Authenticate Status'
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/Unauthorized"
         '403':
           description: Forbidden.
           content:
@@ -124,6 +136,12 @@ paths:
                 type: array
                 items:
                   $ref: "#components/schemas/Permission"
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/Unauthorized"
         '403':
           description: Forbidden.
           content:
@@ -147,6 +165,12 @@ paths:
                 type: array
                 items:
                   $ref: "#components/schemas/Group"
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/Unauthorized"
         '403':
           description: Forbidden.
           content:
@@ -180,6 +204,12 @@ paths:
             application/json:
               schema:
                 $ref: "#components/responses/BadRequest"
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/Unauthorized"
         '403':
           description: Forbidden.
           content:
@@ -209,18 +239,24 @@ paths:
             application/json:
               schema:
                 $ref: "#components/schemas/Group"
-        '404':
-          description: Group not found.
+        '401':
+          description: Unauthorized.
           content:
             application/json:
               schema:
-                $ref: "#components/responses/NotFound"
+                $ref: "#components/responses/Unauthorized"
         '403':
           description: Forbidden.
           content:
             application/json:
               schema:
                 $ref: "#components/responses/Forbidden"
+        '404':
+          description: Group not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/NotFound"
     put:
       tags:
         - Groups
@@ -256,18 +292,24 @@ paths:
             application/json:
               schema:
                 $ref: "#components/responses/BadRequest"
-        '404':
-          description: Group not found.
+        '401':
+          description: Unauthorized.
           content:
             application/json:
               schema:
-                $ref: "#components/responses/NotFound"
+                $ref: "#components/responses/Unauthorized"
         '403':
           description: Forbidden.
           content:
             application/json:
               schema:
                 $ref: "#components/responses/Forbidden"
+        '404':
+          description: Group not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/NotFound"
     delete:
       tags:
         - Groups
@@ -286,18 +328,24 @@ paths:
       responses:
         '204':
           description: Group successfully deleted.
-        '404':
-          description: Group not found.
-          content:
-            application/json:
-              schema:
-                $ref: "#components/responses/NotFound"
         '403':
           description: Forbidden.
           content:
             application/json:
               schema:
                 $ref: "#components/responses/Forbidden"
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/Unauthorized"
+        '404':
+          description: Group not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/NotFound"
   /auth/groups/{id}/users:
     get:
       tags:
@@ -323,18 +371,24 @@ paths:
                 type: array
                 items:
                   $ref: "#components/schemas/User"
-        '404':
-          description: Group not found.
+        '401':
+          description: Unauthorized.
           content:
             application/json:
               schema:
-                $ref: "#components/responses/NotFound"
+                $ref: "#components/responses/Unauthorized"
         '403':
           description: Forbidden.
           content:
             application/json:
               schema:
                 $ref: "#components/responses/Forbidden"
+        '404':
+          description: Group not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/NotFound"
     post:
       tags:
         - Groups
@@ -372,18 +426,24 @@ paths:
             application/json:
               schema:
                 $ref: "#components/responses/BadRequest"
-        '404':
-          description: Group not found.
+        '401':
+          description: Unauthorized.
           content:
             application/json:
               schema:
-                $ref: "#components/responses/NotFound"
+                $ref: "#components/responses/Unauthorized"
         '403':
           description: Forbidden.
           content:
             application/json:
               schema:
                 $ref: "#components/responses/Forbidden"
+        '404':
+          description: Group not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/NotFound"
   /auth/groups/{groupId}/users/{userId}:
     delete:
       tags:
@@ -416,18 +476,24 @@ paths:
                 type: array
                 items:
                   $ref: "#components/schemas/User"
-        '404':
-          description: Group not found.
+        '401':
+          description: Unauthorized.
           content:
             application/json:
               schema:
-                $ref: "#components/responses/NotFound"
+                $ref: "#components/responses/Unauthorized"
         '403':
           description: Forbidden.
           content:
             application/json:
               schema:
                 $ref: "#components/responses/Forbidden"
+        '404':
+          description: Group not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/NotFound"
   /auth/groups/{id}/permissions:
     post:
       tags:
@@ -466,6 +532,12 @@ paths:
             application/json:
               schema:
                 $ref: "#components/responses/BadRequest"
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/Unauthorized"
         '403':
           description: Forbidden.
           content:
@@ -511,6 +583,12 @@ paths:
                 type: array
                 items:
                   $ref: "#components/schemas/Permission"
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/Unauthorized"
         '403':
           description: Forbidden.
           content:
@@ -540,6 +618,12 @@ paths:
                 type: array
                 items:
                   $ref: "#components/schemas/User"
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/Unauthorized"
         '403':
           description: Forbidden.
           content:
@@ -573,6 +657,12 @@ paths:
             application/json:
               schema:
                 $ref: "#components/responses/BadRequest"
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/Unauthorized"
         '403':
           description: Forbidden.
           content:
@@ -604,6 +694,12 @@ paths:
                 type: array
                 items:
                   $ref: "#components/schemas/User"
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/Unauthorized"
         '403':
           description: Forbidden.
           content:
@@ -633,18 +729,24 @@ paths:
             application/json:
               schema:
                 $ref: "#components/schemas/User"
-        '404':
-          description: User not found.
+        '401':
+          description: Unauthorized.
           content:
             application/json:
               schema:
-                $ref: "#components/responses/NotFound"
+                $ref: "#components/responses/Unauthorized"
         '403':
           description: Forbidden.
           content:
             application/json:
               schema:
                 $ref: "#components/responses/Forbidden"
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/NotFound"
     put:
       tags:
         - Users
@@ -680,18 +782,24 @@ paths:
             application/json:
               schema:
                 $ref: "#components/responses/BadRequest"
-        '404':
-          description: User not found.
+        '401':
+          description: Unauthorized.
           content:
             application/json:
               schema:
-                $ref: "#components/responses/NotFound"
+                $ref: "#components/responses/Unauthorized"
         '403':
           description: Forbidden.
           content:
             application/json:
               schema:
                 $ref: "#components/responses/Forbidden"
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/NotFound"
     delete:
       tags:
         - Users
@@ -710,18 +818,24 @@ paths:
       responses:
         '204':
           description: User successfully deleted.
-        '404':
-          description: User not found.
+        '401':
+          description: Unauthorized.
           content:
             application/json:
               schema:
-                $ref: "#components/responses/NotFound"
+                $ref: "#components/responses/Unauthorized"
         '403':
           description: Forbidden.
           content:
             application/json:
               schema:
                 $ref: "#components/responses/Forbidden"
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/NotFound"
 components:
   schemas:
     Login:
@@ -859,12 +973,17 @@ components:
         message:
           type: string
           description: Error cause
-    NotFound:
+    Unauthorized:
       properties:
         message:
           type: string
           description: Error cause
     Forbidden:
+      properties:
+        message:
+          type: string
+          description: Error cause
+    NotFound:
       properties:
         message:
           type: string
