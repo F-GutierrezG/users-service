@@ -1725,6 +1725,88 @@ class TestViewUser(BaseTestCase):
             self.assertEqual(response_data['id'], user.id)
             self.assertEqual(User.query.count(), 2)
 
+    def test_view_expired(self):
+        """Ensure expired user is inactive"""
+        user_data = self.__get_random_user_data()
+        user = self.__add_user(**user_data)
+        admin = add_admin()
+        token = login_user(admin)
+
+        user.expiration = datetime.datetime.now() - datetime.timedelta(days=1)
+
+        db.session.add(user)
+        db.session.commit()
+
+        with self.client:
+            response = self.client.get(
+                '/users/{}'.format(user.id),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+
+            data = json.loads(response.data.decode())
+
+            user = User.query.filter_by(id=data['id']).first()
+
+            self.assertEqual(response.status_code, 200)
+            self.assertFalse(data['active'])
+            self.assertTrue(user.active)
+
+    def test_view_no_expired(self):
+        """Ensure no expired and active is active"""
+        user_data = self.__get_random_user_data()
+        user = self.__add_user(**user_data)
+        admin = add_admin()
+        token = login_user(admin)
+
+        user.expiration = datetime.datetime.now() + datetime.timedelta(days=1)
+
+        db.session.add(user)
+        db.session.commit()
+
+        with self.client:
+            response = self.client.get(
+                '/users/{}'.format(user.id),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+
+            data = json.loads(response.data.decode())
+
+            user = User.query.filter_by(id=data['id']).first()
+
+            self.assertEqual(response.status_code, 200)
+            self.assertTrue(data['active'])
+            self.assertTrue(user.active)
+
+    def test_view_no_expired_inactive(self):
+        """Ensure no expired and inactive is inactive"""
+        user_data = self.__get_random_user_data()
+        user = self.__add_user(**user_data)
+        admin = add_admin()
+        token = login_user(admin)
+
+        user.expiration = datetime.datetime.now() + datetime.timedelta(days=1)
+        user.active = False
+
+        db.session.add(user)
+        db.session.commit()
+
+        with self.client:
+            response = self.client.get(
+                '/users/{}'.format(user.id),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+
+            data = json.loads(response.data.decode())
+
+            user = User.query.filter_by(id=data['id']).first()
+
+            self.assertEqual(response.status_code, 200)
+            self.assertFalse(data['active'])
+            self.assertFalse(user.active)
+
     def test_view_user_with_admin_permissions(self):
         """Ensure user is visible"""
         user_data = self.__get_random_user_data()

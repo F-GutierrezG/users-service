@@ -1,4 +1,5 @@
 import uuid
+import datetime
 
 from flask import current_app
 from sqlalchemy.sql import func
@@ -85,7 +86,13 @@ class User(db.Model):
 
     @property
     def status(self):
-        return self.active
+        if self.active is False:
+            return False
+
+        if self.expiration is None:
+            return self.active
+
+        return datetime.datetime.now() < self.expiration
 
     @status.setter
     def status(self, value):
