@@ -18,6 +18,18 @@ def list(user):
         status_code=200)
 
 
+@users_blueprint.route('/users/admins', methods=['GET'])
+@authorize([])
+def admins(user):
+    if user.admin is not True:
+        return failed_response(message='forbidden', status_code=403)
+
+    users = UserLogics().list_admins()
+    return success_response(
+        data=users,
+        status_code=200)
+
+
 @users_blueprint.route('/users/<id>', methods=['GET'])
 @authorize(['VIEW_USER'])
 def get(user, id):

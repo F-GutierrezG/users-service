@@ -17,6 +17,11 @@ class UserLogics:
 
         return UserSerializer.to_array(users)
 
+    def list_admins(self):
+        users = User.query.filter_by(admin=True)
+
+        return UserSerializer.to_array(users)
+
     def get(self, id):
         user = User.query.filter_by(id=id).first()
 

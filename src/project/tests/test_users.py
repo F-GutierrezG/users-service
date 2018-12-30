@@ -126,6 +126,80 @@ class TestListUsers(BaseTestCase):
             self.assertEqual(response.status_code, 200)
 
 
+class TestListAdmins(BaseTestCase):
+    """Tests for list admins"""
+
+    def __get_random_user_data(self, admin):
+        return {
+            'first_name': random_string(32),
+            'last_name': random_string(32),
+            'email': '{}@test.com'.format(random_string(16)),
+            'admin': admin
+        }
+
+    def __add_user(self, first_name, last_name, email, admin):
+        user = User(
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            password=random_string(32),
+            admin=admin)
+        db.session.add(user)
+        db.session.commit()
+        return user
+
+    def test_list_admins(self):
+        """Ensure list users behaves correctly"""
+        self.__add_user(**self.__get_random_user_data(admin=True))
+        self.__add_user(**self.__get_random_user_data(admin=True))
+        self.__add_user(**self.__get_random_user_data(admin=False))
+
+        admin = add_admin()
+        token = login_user(admin)
+
+        with self.client:
+            response = self.client.get(
+                '/users/admins',
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+            response_data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(response_data), 3)
+
+    def test_list_users_without_permission(self):
+        user = add_user()
+        token = login_user(user)
+
+        with self.client:
+            response = self.client.get(
+                '/users/admins',
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, 403)
+
+    def test_list_users_with_admin_permissions(self):
+        user = add_admin()
+        token = login_user(user)
+
+        with self.client:
+            response = self.client.get(
+                '/users/admins',
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, 200)
+
+    def test_list_users_without_login(self):
+        with self.client:
+            response = self.client.get(
+                '/users/admins',
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, 401)
+
+
 class TestAddUser(BaseTestCase):
     """Tests for add User"""
 
