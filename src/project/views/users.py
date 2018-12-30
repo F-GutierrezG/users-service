@@ -71,12 +71,23 @@ def update(user, id):
         return failed_response('invalid payload.', 400, e.errors)
 
 
-@users_blueprint.route('/users/<id>', methods=['DELETE'])
-@authorize(['DELETE_USER'])
-def delete(user, id):
+@users_blueprint.route('/users/<id>/deactivate', methods=['PUT'])
+@authorize(['UPDATE_USER'])
+def deactivate(user, id):
     try:
-        UserLogics().delete(id, user)
-        return success_response(status_code=204)
+        user = UserLogics().deactivate(id, user)
+        return success_response(data=user, status_code=200)
+
+    except DoesNotExist:
+        return failed_response(message='not found.', status_code=404)
+
+
+@users_blueprint.route('/users/<id>/activate', methods=['PUT'])
+@authorize(['UPDATE_USER'])
+def activate(user, id):
+    try:
+        user = UserLogics().activate(id, user)
+        return success_response(data=user, status_code=200)
 
     except DoesNotExist:
         return failed_response(message='not found.', status_code=404)

@@ -54,6 +54,7 @@ class User(db.Model):
     email = db.Column(db.String(256), unique=True, nullable=False)
     password = db.Column(db.String(128), nullable=False)
     active = db.Column(db.Boolean, default=True, nullable=False)
+    expiration = db.Column(db.DateTime, nullable=True)
     created = db.Column(db.DateTime, default=func.now(), nullable=False)
     created_by = db.Column(db.Integer, default=0, nullable=False)
     updated = db.Column(db.DateTime, onupdate=func.now(), nullable=True)
@@ -81,6 +82,14 @@ class User(db.Model):
             for permission in group.permissions:
                 permissions.add(permission.code)
         return list(permissions)
+
+    @property
+    def status(self):
+        return self.active
+
+    @status.setter
+    def status(self, value):
+        self.active = value
 
     def is_authorized(self, required_permissions):
         if self.admin:

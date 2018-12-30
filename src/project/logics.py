@@ -13,12 +13,12 @@ class DoesNotExist(Exception):
 
 class UserLogics:
     def list(self):
-        users = User.query.filter_by(active=True)
+        users = User.query.all()
 
         return UserSerializer.to_array(users)
 
     def get(self, id):
-        user = User.query.filter_by(id=id, active=True).first()
+        user = User.query.filter_by(id=id).first()
 
         if not user:
             raise DoesNotExist
@@ -36,22 +36,31 @@ class UserLogics:
 
     @validate(UpdateUserValidator)
     def update(self, data, id):
-        User.query.filter_by(id=id, active=True).update(data)
+        User.query.filter_by(id=id).update(data)
         db.session.commit()
 
         return self.get(id)
 
-    def delete(self, id, deleted_by):
-        self.get(id)
-
-        User.query.filter_by(id=id, active=True).update({
+    def deactivate(self, id, updated_by):
+        User.query.filter_by(id=id).update({
             'active': False,
-            'updated_by': deleted_by.id
+            'updated_by': updated_by.id
         })
         db.session.commit()
 
+        return self.get(id)
+
+    def activate(self, id, updated_by):
+        User.query.filter_by(id=id).update({
+            'active': True,
+            'updated_by': updated_by.id
+        })
+        db.session.commit()
+
+        return self.get(id)
+
     def filter_by_ids(self, ids):
-        users = User.query.filter(User.id.in_(ids)).filter_by(active=True)
+        users = User.query.filter(User.id.in_(ids))
 
         return UserSerializer.to_array(users)
 

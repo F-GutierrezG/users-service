@@ -800,11 +800,12 @@ paths:
             application/json:
               schema:
                 $ref: "#components/responses/NotFound"
-    delete:
+  /users/{id}/deactivate:
+    put:
       tags:
         - Users
-      summary: Delete User
-      description: Delete an existing User
+      summary: Deactivate User
+      description: Deactivate an existing User
       security:
         - bearerAuth: []
       parameters:
@@ -816,8 +817,53 @@ paths:
             type: integer
             format: int64
       responses:
-        '204':
-          description: User successfully deleted.
+        '200':
+          description: User successfully deactivated.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/User"
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/Unauthorized"
+        '403':
+          description: Forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/Forbidden"
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/NotFound"
+  /users/{id}/activate:
+    put:
+      tags:
+        - Users
+      summary: Activate User
+      description: Activate an existing User
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: User id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: User successfully activated.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/User"
         '401':
           description: Unauthorized.
           content:
@@ -951,6 +997,10 @@ components:
         email:
           type: string
           description: User email
+        expiration:
+          type: string
+          format: date-time
+          description: Expiration datetime
     GroupBase:
       properties:
         name:

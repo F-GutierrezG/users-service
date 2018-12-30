@@ -52,7 +52,7 @@ class TestListUsers(BaseTestCase):
                 len(response_data),
                 User.query.count())
 
-    def test_list_only_active_users(self):
+    def test_list_active_and_inactive_users(self):
         """Ensure list only get active users"""
         self.__add_user(**self.__get_random_user_data())
         self.__add_user(**self.__get_random_user_data())
@@ -78,7 +78,7 @@ class TestListUsers(BaseTestCase):
             response_data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 200)
             self.assertEqual(User.query.count(), 4)
-            self.assertEqual(len(response_data), 3)
+            self.assertEqual(len(response_data), 4)
 
     def test_list_users_without_permission(self):
         user = add_user()
@@ -789,10 +789,10 @@ class TestUpdateUser(BaseTestCase):
                 content_type='application/json'
             )
 
-            self.assertEqual(response.status_code, 404)
+            self.assertEqual(response.status_code, 200)
             self.assertEqual(User.query.count(), 2)
 
-    def test_update_inactive_user_not_save_to_database(self):
+    def test_update_inactive_user_save_to_database(self):
         """Ensure update inactive user not save to database"""
         old_data = self.__get_random_user_data()
         old_data['password'] = random_string(32)
@@ -820,10 +820,11 @@ class TestUpdateUser(BaseTestCase):
 
             updated_user = User.query.first()
 
-            self.assertEqual(response.status_code, 404)
-            self.assertEqual(updated_user.first_name, old_data['first_name'])
-            self.assertEqual(updated_user.last_name, old_data['last_name'])
-            self.assertEqual(updated_user.email, old_data['email'])
+            self.assertEqual(response.status_code, 200)
+            self.assertNotEqual(
+                updated_user.first_name, old_data['first_name'])
+            self.assertNotEqual(updated_user.last_name, old_data['last_name'])
+            self.assertNotEqual(updated_user.email, old_data['email'])
 
     def test_update_user_without_first_name(self):
         """Ensure update user behaves correctly without first_name"""
@@ -1129,8 +1130,8 @@ class TestUpdateUser(BaseTestCase):
             self.assertEqual(response.status_code, 403)
 
 
-class TestDeleteUser(BaseTestCase):
-    """Tests for delete User"""
+class TestDeactivateUser(BaseTestCase):
+    """Tests for deactivate User"""
 
     def __get_random_user_data(self):
         return {
@@ -1149,8 +1150,8 @@ class TestDeleteUser(BaseTestCase):
         db.session.commit()
         return user
 
-    def test_delete_user(self):
-        """Ensure delete user behaves correctly"""
+    def test_deactivate_user(self):
+        """Ensure deactivate user behaves correctly"""
         user_data = self.__get_random_user_data()
         user = self.__add_user(**user_data)
 
@@ -1158,16 +1159,16 @@ class TestDeleteUser(BaseTestCase):
         token = login_user(admin)
 
         with self.client:
-            response = self.client.delete(
-                '/users/{}'.format(user.id),
+            response = self.client.put(
+                '/users/{}/deactivate'.format(user.id),
                 headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
 
-            self.assertEqual(response.status_code, 204)
+            self.assertEqual(response.status_code, 200)
 
-    def test_delete_user_update_the_database(self):
-        """Ensure delete user behaves correctly"""
+    def test_deactivate_user_update_the_database(self):
+        """Ensure deactivate user behaves correctly"""
         user_data = self.__get_random_user_data()
         user = self.__add_user(**user_data)
 
@@ -1178,26 +1179,26 @@ class TestDeleteUser(BaseTestCase):
         self.assertTrue(User.query.first().active)
 
         with self.client:
-            response = self.client.delete(
-                '/users/{}'.format(user.id),
+            response = self.client.put(
+                '/users/{}/deactivate'.format(user.id),
                 headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
 
-            self.assertEqual(response.status_code, 204)
+            self.assertEqual(response.status_code, 200)
             self.assertEqual(User.query.count(), 2)
             self.assertFalse(User.query.get(user.id).active)
 
-    def test_delete_with_not_existing_user(self):
-        """Ensure delete behaves correctly when user doesn't exist"""
+    def test_deactivate_with_not_existing_user(self):
+        """Ensure deactivate behaves correctly when user doesn't exist"""
         admin = add_admin()
         token = login_user(admin)
 
         self.assertEqual(User.query.count(), 1)
 
         with self.client:
-            response = self.client.delete(
-                '/users/{}'.format(3812739),
+            response = self.client.put(
+                '/users/{}/deactivate'.format(3812739),
                 headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
@@ -1205,8 +1206,8 @@ class TestDeleteUser(BaseTestCase):
             self.assertEqual(response.status_code, 404)
             self.assertEqual(User.query.count(), 1)
 
-    def test_delete_inactive_user(self):
-        """Ensure delete behaves correctly when user is inactive"""
+    def test_deactivate_inactive_user(self):
+        """Ensure deactivate behaves correctly when user is inactive"""
         user = User(
             first_name=random_string(32),
             last_name=random_string(32),
@@ -1223,44 +1224,17 @@ class TestDeleteUser(BaseTestCase):
         self.assertEqual(User.query.count(), 2)
 
         with self.client:
-            response = self.client.delete(
-                '/users/{}'.format(1),
+            response = self.client.put(
+                '/users/{}/deactivate'.format(1),
                 headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
 
-            self.assertEqual(response.status_code, 404)
+            self.assertEqual(response.status_code, 200)
             self.assertEqual(User.query.count(), 2)
 
-    def test_delete_inactive_user_doesnt_update_the_database(self):
-        """Ensure delete behaves inactive user doesn't update the database"""
-        user = User(
-            first_name=random_string(32),
-            last_name=random_string(32),
-            email=random_string(32),
-            password=random_string(32),
-            active=False)
-
-        db.session.add(user)
-        db.session.commit()
-
-        admin = add_admin()
-        token = login_user(admin)
-
-        self.assertEqual(User.query.count(), 2)
-
-        with self.client:
-            response = self.client.delete(
-                '/users/{}'.format(1),
-                headers={'Authorization': 'Bearer {}'.format(token)},
-                content_type='application/json'
-            )
-
-            self.assertEqual(response.status_code, 404)
-            self.assertEqual(User.query.count(), 2)
-
-    def test_delete_user_save_updated_by(self):
-        """Ensure delete user save updated_by"""
+    def test_deactivate_user_save_updated_by(self):
+        """Ensure deactivate user save updated_by"""
         user_data = self.__get_random_user_data()
         user = self.__add_user(**user_data)
 
@@ -1268,16 +1242,16 @@ class TestDeleteUser(BaseTestCase):
         token = login_user(admin)
         user_id = TokenSerializer.decode(token)['sub']
         with self.client:
-            self.client.delete(
-                '/users/{}'.format(user.id),
+            self.client.put(
+                '/users/{}/deactivate'.format(user.id),
                 headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
             user = User.query.get(user.id)
             self.assertEqual(user.updated_by, user_id)
 
-    def test_delete_user_save_updated_datetime(self):
-        """Ensure delete user save updated datetime"""
+    def test_deactivate_user_save_updated_datetime(self):
+        """Ensure deactivate user save updated datetime"""
         user_data = self.__get_random_user_data()
         user = self.__add_user(**user_data)
 
@@ -1287,8 +1261,8 @@ class TestDeleteUser(BaseTestCase):
         token = login_user(admin)
 
         with self.client:
-            self.client.delete(
-                '/users/{}'.format(user.id),
+            self.client.put(
+                '/users/{}/deactivate'.format(user.id),
                 headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
@@ -1299,8 +1273,8 @@ class TestDeleteUser(BaseTestCase):
             self.assertTrue(user.updated >= init_time)
             self.assertTrue(user.updated <= end_time)
 
-    def test_delete_user_with_admin_permissions(self):
-        """Ensure delete user behaves correctly"""
+    def test_deactivate_user_with_admin_permissions(self):
+        """Ensure deactivate user behaves correctly"""
         user_data = self.__get_random_user_data()
         user = self.__add_user(**user_data)
 
@@ -1308,47 +1282,47 @@ class TestDeleteUser(BaseTestCase):
         token = login_user(admin)
 
         with self.client:
-            response = self.client.delete(
-                '/users/{}'.format(user.id),
+            response = self.client.put(
+                '/users/{}/deactivate'.format(user.id),
                 headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
 
-            self.assertEqual(response.status_code, 204)
+            self.assertEqual(response.status_code, 200)
 
-    def test_delete_user_with_permissions(self):
-        """Ensure delete user behaves correctly"""
+    def test_deactivate_user_with_permissions(self):
+        """Ensure deactivate user behaves correctly"""
         user_data = self.__get_random_user_data()
         user = self.__add_user(**user_data)
 
         user = add_user()
-        add_permissions(user, ['DELETE_USER'])
+        add_permissions(user, ['UPDATE_USER'])
         token = login_user(user)
 
         with self.client:
-            response = self.client.delete(
-                '/users/{}'.format(user.id),
+            response = self.client.put(
+                '/users/{}/deactivate'.format(user.id),
                 headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
 
-            self.assertEqual(response.status_code, 204)
+            self.assertEqual(response.status_code, 200)
 
-    def test_delete_user_without_login(self):
-        """Ensure delete user behaves correctly"""
+    def test_deactivate_user_without_login(self):
+        """Ensure deactivate user behaves correctly"""
         user_data = self.__get_random_user_data()
         user = self.__add_user(**user_data)
 
         with self.client:
-            response = self.client.delete(
-                '/users/{}'.format(user.id),
+            response = self.client.put(
+                '/users/{}/deactivate'.format(user.id),
                 content_type='application/json'
             )
 
             self.assertEqual(response.status_code, 401)
 
-    def test_delete_user_without_permission(self):
-        """Ensure delete user behaves correctly"""
+    def test_deactivate_user_without_permission(self):
+        """Ensure deactivate user behaves correctly"""
         user_data = self.__get_random_user_data()
         user = self.__add_user(**user_data)
 
@@ -1356,8 +1330,227 @@ class TestDeleteUser(BaseTestCase):
         token = login_user(user)
 
         with self.client:
-            response = self.client.delete(
-                '/users/{}'.format(user.id),
+            response = self.client.put(
+                '/users/{}/deactivate'.format(user.id),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+
+            self.assertEqual(response.status_code, 403)
+
+
+class TestActivateUser(BaseTestCase):
+    """Tests for activate User"""
+
+    def __get_random_user_data(self):
+        return {
+            'first_name': random_string(32),
+            'last_name': random_string(32),
+            'email': '{}@test.com'.format(random_string(16))
+        }
+
+    def __add_user(self, first_name, last_name, email):
+        user = User(
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            password=random_string(32))
+        db.session.add(user)
+        db.session.commit()
+        return user
+
+    def test_activate_user(self):
+        """Ensure activate user behaves correctly"""
+        user_data = self.__get_random_user_data()
+        user = self.__add_user(**user_data)
+
+        admin = add_admin()
+        token = login_user(admin)
+
+        User.query.filter_by(id=user.id).update({
+            'active': False,
+        })
+        db.session.commit()
+
+        with self.client:
+            response = self.client.put(
+                '/users/{}/activate'.format(user.id),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+
+            self.assertEqual(response.status_code, 200)
+
+    def test_activate_user_update_the_database(self):
+        """Ensure activate user behaves correctly"""
+        user_data = self.__get_random_user_data()
+        user = self.__add_user(**user_data)
+
+        admin = add_admin()
+        token = login_user(admin)
+
+        User.query.filter_by(id=user.id).update({
+            'active': False,
+        })
+        db.session.commit()
+
+        self.assertEqual(User.query.count(), 2)
+        self.assertTrue(User.query.first().active)
+
+        with self.client:
+            response = self.client.put(
+                '/users/{}/activate'.format(user.id),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(User.query.count(), 2)
+            self.assertTrue(User.query.get(user.id).active)
+
+    def test_activate_with_not_existing_user(self):
+        """Ensure activate behaves correctly when user doesn't exist"""
+        admin = add_admin()
+        token = login_user(admin)
+
+        self.assertEqual(User.query.count(), 1)
+
+        with self.client:
+            response = self.client.put(
+                '/users/{}/activate'.format(3812739),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+
+            self.assertEqual(response.status_code, 404)
+            self.assertEqual(User.query.count(), 1)
+
+    def test_activate_active_user(self):
+        """Ensure activate behaves correctly when user is active"""
+        user = User(
+            first_name=random_string(32),
+            last_name=random_string(32),
+            email=random_string(32),
+            password=random_string(32),
+            active=True)
+
+        db.session.add(user)
+        db.session.commit()
+
+        admin = add_admin()
+        token = login_user(admin)
+
+        self.assertEqual(User.query.count(), 2)
+
+        with self.client:
+            response = self.client.put(
+                '/users/{}/activate'.format(1),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(User.query.count(), 2)
+
+    def test_activate_user_save_updated_by(self):
+        """Ensure activate user save updated_by"""
+        user_data = self.__get_random_user_data()
+        user = self.__add_user(**user_data)
+
+        admin = add_admin()
+        token = login_user(admin)
+        user_id = TokenSerializer.decode(token)['sub']
+        with self.client:
+            self.client.put(
+                '/users/{}/activate'.format(user.id),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+            user = User.query.get(user.id)
+            self.assertEqual(user.updated_by, user_id)
+
+    def test_activate_user_save_updated_datetime(self):
+        """Ensure activate user save updated datetime"""
+        user_data = self.__get_random_user_data()
+        user = self.__add_user(**user_data)
+
+        init_time = datetime.datetime.utcnow()
+
+        admin = add_admin()
+        token = login_user(admin)
+
+        with self.client:
+            self.client.put(
+                '/users/{}/activate'.format(user.id),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+            end_time = datetime.datetime.utcnow()
+
+            user = User.query.get(user.id)
+
+            self.assertTrue(user.updated >= init_time)
+            self.assertTrue(user.updated <= end_time)
+
+    def test_activate_user_with_admin_permissions(self):
+        """Ensure activate user behaves correctly"""
+        user_data = self.__get_random_user_data()
+        user = self.__add_user(**user_data)
+
+        admin = add_admin()
+        token = login_user(admin)
+
+        with self.client:
+            response = self.client.put(
+                '/users/{}/activate'.format(user.id),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+
+            self.assertEqual(response.status_code, 200)
+
+    def test_activate_user_with_permissions(self):
+        """Ensure activate user behaves correctly"""
+        user_data = self.__get_random_user_data()
+        user = self.__add_user(**user_data)
+
+        user = add_user()
+        add_permissions(user, ['UPDATE_USER'])
+        token = login_user(user)
+
+        with self.client:
+            response = self.client.put(
+                '/users/{}/activate'.format(user.id),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+
+            self.assertEqual(response.status_code, 200)
+
+    def test_activate_user_without_login(self):
+        """Ensure activate user behaves correctly"""
+        user_data = self.__get_random_user_data()
+        user = self.__add_user(**user_data)
+
+        with self.client:
+            response = self.client.put(
+                '/users/{}/activate'.format(user.id),
+                content_type='application/json'
+            )
+
+            self.assertEqual(response.status_code, 401)
+
+    def test_activate_user_without_permission(self):
+        """Ensure activate user behaves correctly"""
+        user_data = self.__get_random_user_data()
+        user = self.__add_user(**user_data)
+
+        user = add_user()
+        token = login_user(user)
+
+        with self.client:
+            response = self.client.put(
+                '/users/{}/activate'.format(user.id),
                 headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
@@ -1410,6 +1603,7 @@ class TestViewUser(BaseTestCase):
             self.assertEqual(data['created_by'], user.created_by)
             self.assertEqual(data['updated'], str(user.updated))
             self.assertEqual(data['updated_by'], user.updated_by)
+            self.assertEqual(data['expiration'], str(user.expiration))
             self.assertIsNotNone(data['hash'])
 
     def test_view_with_non_existing_user(self):
@@ -1430,7 +1624,7 @@ class TestViewUser(BaseTestCase):
             self.assertEqual(response_data['message'], 'not found.')
 
     def test_view_inactive_user(self):
-        """Ensure user is not visible when active is False"""
+        """Ensure user is visible when active is False"""
         user = User(
             first_name=random_string(32),
             last_name=random_string(32),
@@ -1453,8 +1647,8 @@ class TestViewUser(BaseTestCase):
 
             response_data = json.loads(response.data.decode())
 
-            self.assertEqual(response.status_code, 404)
-            self.assertEqual(response_data['message'], 'not found.')
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response_data['id'], user.id)
             self.assertEqual(User.query.count(), 2)
 
     def test_view_user_with_admin_permissions(self):
