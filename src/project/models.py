@@ -94,10 +94,6 @@ class User(db.Model):
 
         return datetime.datetime.now() < self.expiration
 
-    @status.setter
-    def status(self, value):
-        self.active = value
-
     def is_authorized(self, required_permissions):
         if self.admin:
             return True
