@@ -11,7 +11,7 @@ class UserSerializer:
             'first_name': user.first_name,
             'last_name': user.last_name,
             'email': user.email,
-            'active': user.active,
+            'active': user.status,
             'expiration': str(user.expiration),
             'created': str(user.created),
             'created_by': user.created_by,
