@@ -12,7 +12,7 @@ class UserSerializer:
             'last_name': user.last_name,
             'email': user.email,
             'active': user.status,
-            'expiration': str(user.expiration),
+            'expiration': str(user.expiration) if user.expiration else None,
             'created': str(user.created),
             'created_by': user.created_by,
             'updated': str(user.updated),
