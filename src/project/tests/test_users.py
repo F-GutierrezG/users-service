@@ -1677,7 +1677,7 @@ class TestViewUser(BaseTestCase):
             self.assertEqual(data['created_by'], user.created_by)
             self.assertEqual(data['updated'], str(user.updated))
             self.assertEqual(data['updated_by'], user.updated_by)
-            self.assertEqual(data['expiration'], str(user.expiration))
+            self.assertEqual(data['expiration'], user.expiration)
             self.assertIsNotNone(data['hash'])
 
     def test_view_with_non_existing_user(self):
