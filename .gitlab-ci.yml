@@ -80,7 +80,7 @@ Cleaning:
   script:
     - docker image rm -f $(docker image ls -q)
 
-Stage:
+Deploy:
   stage: deploy
   environment:
     name: stage
@@ -100,7 +100,7 @@ Stage:
 
 
 
-Users Service:
+Production Users Service:
   stage: registry
   only:
     - master
@@ -115,7 +115,7 @@ Users Service:
     - docker tag $USERS:$COMMIT $REGISTRY_REPO/$USERS:$TAG
     - docker push $REGISTRY_REPO/$USERS:$TAG
 
-Users Swagger:
+Production Users Swagger:
   stage: registry
   only:
     - master
@@ -137,7 +137,7 @@ Cleaning:
   script:
     - docker image rm -f $(docker image ls -q)
 
-Deploy:
+Production Deploy:
   stage: deploy
   environment:
     name: production
