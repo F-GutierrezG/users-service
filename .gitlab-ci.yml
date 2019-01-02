@@ -133,6 +133,7 @@ Production Users Swagger:
 Cleaning:
   stage: cleanup
   only:
+    - stage
     - master
   script:
     - docker image rm -f $(docker image ls -q)
@@ -143,7 +144,7 @@ Production Deploy:
     name: production
     url: http://onelike.gusisoft.cl
   only:
-    - stage
+    - master
   before_script:
     - export COMMIT_TIME=$(git show -s --format=%ct $CI_COMMIT_SHA)
     - export TAG=${CI_COMMIT_REF_NAME}_$COMMIT_TIME
