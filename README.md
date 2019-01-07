@@ -12,17 +12,17 @@ Service is now up on http://localhost:5001, you can check the service's health o
 
 ## Create Database
 ```
-docker-compose -f %docker-file% run users python manage.py recreate-db
+docker container exec users python manage.py recreate-db
 ```
 
 ## Lint
 ```
-docker-compose -f %docker-file% run users flake8 project
+docker container exec users flake8 project
 ```
 
 ## Run Test
 ```
-docker-compose -f %docker-file% run users python manage.py test
+docker container exec users python manage.py test
 ```
 or
 ```
@@ -36,30 +36,30 @@ or
 
 ## Run a specific test file
 ```
-docker-compose -f %docker-file% run users python manage.py test --file=health_test
+docker container exec users python manage.py test --file=health_test
 ```
 
 ## Run Code Coverage
 ```
-docker-compose -f %docker-file% run users python manage.py cov
+docker container exec users python manage.py cov
 ```
 
 ## Run Shell
 ```
-docker-compose -f %docker-file% run users python flask shell
+docker container exec users python flask shell
 ```
 
 ## Create new DB Migrations
 ```
-docker-compose -f %docker-file% run users python manage.py db migrate
+docker container exec users python manage.py db migrate
 ```
 
 ## Apply DB Migrations
 ```
-docker-compose -f %docker-file% run users python manage.py db upgrade
+docker container exec users python manage.py db upgrade
 ```
 
 ## Init DB Migrations (Only new projects)
 ```
-docker-compose -f %docker-file% run users python manage.py db init
+docker container exec users python manage.py db init
 ```
