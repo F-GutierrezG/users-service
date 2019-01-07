@@ -46,7 +46,7 @@ def seed_db():
     user = User(
         first_name='Carlos',
         last_name='Silva',
-        email='csilva@gusisoft.cl',
+        email='csilva@test.com',
         password='123',
         admin=False
     )
