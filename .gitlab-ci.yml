@@ -33,6 +33,7 @@ Users Service:
     - stage
     - master
   before_script:
+    - sudo git clean -ffdx
     - export COMMIT_TIME=$(git show -s --format=%ct $CI_COMMIT_SHA)
     - export TAG=${CI_COMMIT_REF_NAME}_$COMMIT_TIME
     - docker login -u gitlab-ci-token -p $DOCKER_TOKEN registry.gitlab.com
@@ -43,13 +44,15 @@ Users Service:
     - docker tag $USERS:$COMMIT $REGISTRY_REPO/$USERS:$TAG
     - docker push $REGISTRY_REPO/$USERS:$TAG
   after_script:
-    - docker image rm $REGISTRY_REPO/$USERS:$TAG
+    - docker image rm $TAG
+    - sudo git clean -ffdx
 
 Users DB:
   stage: registry
   only:
     - stage
   before_script:
+    - sudo git clean -ffdx
     - export COMMIT_TIME=$(git show -s --format=%ct $CI_COMMIT_SHA)
     - export TAG=${CI_COMMIT_REF_NAME}_$COMMIT_TIME
     - docker login -u gitlab-ci-token -p $DOCKER_TOKEN registry.gitlab.com
@@ -60,7 +63,8 @@ Users DB:
     - docker tag $USERS_DB:$COMMIT $REGISTRY_REPO/$USERS_DB:$TAG
     - docker push $REGISTRY_REPO/$USERS_DB:$TAG
   after_script:
-    - docker image rm $REGISTRY_REPO/$USERS_DB:$TAG
+    - docker image rm $TAG
+    - sudo git clean -ffdx
 
 Users Swagger:
   stage: registry
@@ -68,6 +72,7 @@ Users Swagger:
     - stage
     - master
   before_script:
+    - sudo git clean -ffdx
     - export COMMIT_TIME=$(git show -s --format=%ct $CI_COMMIT_SHA)
     - export TAG=${CI_COMMIT_REF_NAME}_$COMMIT_TIME
     - docker login -u gitlab-ci-token -p $DOCKER_TOKEN registry.gitlab.com
@@ -78,7 +83,8 @@ Users Swagger:
     - docker tag $SWAGGER:$COMMIT $REGISTRY_REPO/$SWAGGER:$TAG
     - docker push $REGISTRY_REPO/$SWAGGER:$TAG
   after_script:
-    - docker image rm $REGISTRY_REPO/$SWAGGER:$TAG
+    - docker image rm $TAG
+    - sudo git clean -ffdx
 
 Deploy Stage:
   stage: deploy
