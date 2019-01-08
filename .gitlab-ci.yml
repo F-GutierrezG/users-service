@@ -44,7 +44,7 @@ Users Service:
     - docker tag $USERS:$COMMIT $REGISTRY_REPO/$USERS:$TAG
     - docker push $REGISTRY_REPO/$USERS:$TAG
   after_script:
-    - docker image rm -f $(docker images ${REGISTRY_REPO})
+    - docker image rm -f $(docker images registry.gitlab.com/gusisoft/onelike/users-service)
     - sudo git clean -ffdx
 
 Users DB:
@@ -63,7 +63,7 @@ Users DB:
     - docker tag $USERS_DB:$COMMIT $REGISTRY_REPO/$USERS_DB:$TAG
     - docker push $REGISTRY_REPO/$USERS_DB:$TAG
   after_script:
-    - docker image rm -f $(docker images ${REGISTRY_REPO})
+    - docker image rm -f $(docker images registry.gitlab.com/gusisoft/onelike/users-service)
     - sudo git clean -ffdx
 
 Users Swagger:
@@ -83,7 +83,7 @@ Users Swagger:
     - docker tag $SWAGGER:$COMMIT $REGISTRY_REPO/$SWAGGER:$TAG
     - docker push $REGISTRY_REPO/$SWAGGER:$TAG
   after_script:
-    - docker image rm -f $(docker images ${REGISTRY_REPO})
+    - docker image rm -f $(docker images registry.gitlab.com/gusisoft/onelike/users-service)
     - sudo git clean -ffdx
 
 Deploy Stage:
