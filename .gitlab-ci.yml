@@ -25,6 +25,9 @@ Testing:
     - docker-compose -f docker-compose-dev.yml run users python manage.py cov
   after_script:
     - docker-compose -f docker-compose-dev.yml down
+    - docker image rm -f users-service_users
+    - docker image rm -f users-service_users-db
+    - docker image rm -f users-service_users-swagger
     - sudo git clean -ffdx
 
 Users Service:
