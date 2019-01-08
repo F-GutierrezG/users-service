@@ -43,8 +43,8 @@ Users Service:
     - docker build $USERS_REPO -t $USERS:$COMMIT -f Dockerfile-${CI_COMMIT_REF_NAME}
     - docker tag $USERS:$COMMIT $REGISTRY_REPO/$USERS:$TAG
     - docker push $REGISTRY_REPO/$USERS:$TAG
-    - docker image rm ${TAG}
   after_script:
+    - docker image rm -f $(docker images ${REGISTRY_REPO})
     - sudo git clean -ffdx
 
 Users DB:
@@ -62,8 +62,8 @@ Users DB:
     - docker build $USERS_DB_REPO -t $USERS_DB:$COMMIT -f Dockerfile
     - docker tag $USERS_DB:$COMMIT $REGISTRY_REPO/$USERS_DB:$TAG
     - docker push $REGISTRY_REPO/$USERS_DB:$TAG
-    - docker image rm ${TAG}
   after_script:
+    - docker image rm -f $(docker images ${REGISTRY_REPO})
     - sudo git clean -ffdx
 
 Users Swagger:
@@ -82,8 +82,8 @@ Users Swagger:
     - docker build $SWAGGER_REPO -t $SWAGGER:$COMMIT -f Dockerfile
     - docker tag $SWAGGER:$COMMIT $REGISTRY_REPO/$SWAGGER:$TAG
     - docker push $REGISTRY_REPO/$SWAGGER:$TAG
-    - docker image rm ${TAG}
   after_script:
+    - docker image rm -f $(docker images ${REGISTRY_REPO})
     - sudo git clean -ffdx
 
 Deploy Stage:
