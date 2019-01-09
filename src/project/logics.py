@@ -13,12 +13,12 @@ class DoesNotExist(Exception):
 
 class UserLogics:
     def list(self):
-        users = User.query.all()
+        users = User.query.order_by(User.id.asc()).all()
 
         return UserSerializer.to_array(users)
 
     def list_admins(self):
-        users = User.query.filter_by(admin=True)
+        users = User.query.filter_by(admin=True).order_by(User.id.asc())
 
         return UserSerializer.to_array(users)
 
@@ -65,7 +65,7 @@ class UserLogics:
         return self.get(id)
 
     def filter_by_ids(self, ids):
-        users = User.query.filter(User.id.in_(ids))
+        users = User.query.filter(User.id.in_(ids)).order_by(User.id.asc())
 
         return UserSerializer.to_array(users)
 
