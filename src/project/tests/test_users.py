@@ -753,6 +753,54 @@ class TestAddUser(BaseTestCase):
             )
             self.assertEqual(response.status_code, 403)
 
+    def test_add_admin_user_with_admin_permission(self):
+        """Ensure create user route behaves correctly"""
+        user_data = {
+            'first_name': 'Francisco',
+            'last_name': 'Gutiérrez',
+            'email': 'fgutierrez@prueba.cl',
+            'password': '12345678',
+            'admin': True,
+        }
+
+        admin = add_admin()
+        add_permissions(admin, ['ADD_USER'])
+        token = login_user(admin)
+
+        with self.client:
+            response = self.client.post(
+                '/users',
+                data=json.dumps(user_data),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+            response_data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 201)
+            self.assertEqual(response_data['admin'], True)
+
+    def test_add_admin_user_with_not_admin_permission(self):
+        """Ensure create user route behaves correctly"""
+        user_data = {
+            'first_name': 'Francisco',
+            'last_name': 'Gutiérrez',
+            'email': 'fgutierrez@prueba.cl',
+            'password': '12345678',
+            'admin': True,
+        }
+
+        user = add_user()
+        add_permissions(user, ['ADD_USER'])
+        token = login_user(user)
+
+        with self.client:
+            response = self.client.post(
+                '/users',
+                data=json.dumps(user_data),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, 401)
+
     # TODO: Validar largos, tipo email, etc
 
 

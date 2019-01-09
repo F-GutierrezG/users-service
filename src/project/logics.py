@@ -11,6 +11,10 @@ class DoesNotExist(Exception):
     pass
 
 
+class Unauthorized(Exception):
+    pass
+
+
 class UserLogics:
     def list(self):
         users = User.query.order_by(User.id.asc()).all()
@@ -31,7 +35,11 @@ class UserLogics:
         return UserSerializer.to_dict(user)
 
     @validate(CreateUserValidator)
-    def create(self, data):
+    def create(self, data, user):
+        if 'admin' in data and data['admin'] is True and user.admin is False:
+            raise Unauthorized
+
+        data['created_by'] = user.id
         user = User(**data)
 
         db.session.add(user)

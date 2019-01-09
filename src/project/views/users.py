@@ -1,7 +1,7 @@
 from flask import Blueprint, request
 from sqlalchemy import exc
 from project.auth import authenticate, authorize
-from project.logics import UserLogics, DoesNotExist
+from project.logics import UserLogics, DoesNotExist, Unauthorized
 from project.validators.exceptions import ValidatorException
 from project.views.utils import success_response, failed_response
 
@@ -46,10 +46,9 @@ def get(user, id):
 @authorize(['ADD_USER'])
 def create(user):
     user_data = request.get_json()
-    user_data['created_by'] = user.id
 
     try:
-        user = UserLogics().create(user_data)
+        user = UserLogics().create(user_data, user)
         return success_response(
             data=user,
             status_code=201)
@@ -59,6 +58,9 @@ def create(user):
 
     except ValidatorException as e:
         return failed_response('invalid payload.', 400, e.errors)
+
+    except Unauthorized:
+        return failed_response('unauthorized', 401)
 
 
 @users_blueprint.route('/users/<id>', methods=['PUT'])
