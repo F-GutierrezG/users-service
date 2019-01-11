@@ -327,7 +327,7 @@ class TestAuthenticate(BaseTestCase):
                 headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
-            self.assertEqual(response.status_code, 401)
+            self.assertEqual(response.status_code, 403)
 
     def test_invalid_token(self):
         """Test authenticate with invalid token behaves correcty"""

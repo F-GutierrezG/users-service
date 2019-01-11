@@ -34,7 +34,10 @@ def do_authentication():
 
     try:
         payload = TokenSerializer.decode(token)
-        user = User.query.filter_by(id=payload['sub'], active=True).first()
+        user = User.query.filter_by(id=payload['sub']).first()
+
+        if user is None or user.active is False:
+            return forbidden()
 
         if user:
             return user
