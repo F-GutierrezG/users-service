@@ -1,4 +1,4 @@
-FROM swaggerapi/swagger-ui:v3.19.4
+FROM swaggerapi/swagger-ui:v3.20.4
 
 RUN mkdir -p /usr/share/nginx/html/definitions
 

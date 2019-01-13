@@ -10,7 +10,6 @@ variables:
 stages:
   - tests
   - registry
-  - cleanup
   - deploy
 
 Testing:
@@ -26,28 +25,37 @@ Testing:
     - docker-compose -f docker-compose-dev.yml run users python manage.py cov
   after_script:
     - docker-compose -f docker-compose-dev.yml down
+    - docker image rm -f users-service_users
+    - docker image rm -f users-service_users-db
+    - docker image rm -f users-service_users-swagger
     - sudo git clean -ffdx
 
-Users Service Stage:
+Users Service:
   stage: registry
   only:
     - stage
+    - master
   before_script:
+    - sudo git clean -ffdx
     - export COMMIT_TIME=$(git show -s --format=%ct $CI_COMMIT_SHA)
     - export TAG=${CI_COMMIT_REF_NAME}_$COMMIT_TIME
     - docker login -u gitlab-ci-token -p $DOCKER_TOKEN registry.gitlab.com
     - export MAIN_REPO="https://${GITLAB_USER}:${GITLAB_PASSWORD}@gitlab.com/gusisoft/OneLike/users-service.git"
     - export USERS_REPO="${MAIN_REPO}#${CI_COMMIT_REF_NAME}"
   script:
-    - docker build $USERS_REPO -t $USERS:$COMMIT -f Dockerfile-stage
+    - docker build $USERS_REPO -t $USERS:$COMMIT -f Dockerfile-${CI_COMMIT_REF_NAME}
     - docker tag $USERS:$COMMIT $REGISTRY_REPO/$USERS:$TAG
     - docker push $REGISTRY_REPO/$USERS:$TAG
+  after_script:
+    - docker image rm -f $(docker images registry.gitlab.com/gusisoft/onelike/users-service/users -q)
+    - sudo git clean -ffdx
 
-Users DB Stage:
+Users DB:
   stage: registry
   only:
     - stage
   before_script:
+    - sudo git clean -ffdx
     - export COMMIT_TIME=$(git show -s --format=%ct $CI_COMMIT_SHA)
     - export TAG=${CI_COMMIT_REF_NAME}_$COMMIT_TIME
     - docker login -u gitlab-ci-token -p $DOCKER_TOKEN registry.gitlab.com
@@ -57,12 +65,17 @@ Users DB Stage:
     - docker build $USERS_DB_REPO -t $USERS_DB:$COMMIT -f Dockerfile
     - docker tag $USERS_DB:$COMMIT $REGISTRY_REPO/$USERS_DB:$TAG
     - docker push $REGISTRY_REPO/$USERS_DB:$TAG
+  after_script:
+    - docker image rm -f $(docker images registry.gitlab.com/gusisoft/onelike/users-service/users-db -q)
+    - sudo git clean -ffdx
 
-Users Swagger Stage:
+Users Swagger:
   stage: registry
   only:
     - stage
+    - master
   before_script:
+    - sudo git clean -ffdx
     - export COMMIT_TIME=$(git show -s --format=%ct $CI_COMMIT_SHA)
     - export TAG=${CI_COMMIT_REF_NAME}_$COMMIT_TIME
     - docker login -u gitlab-ci-token -p $DOCKER_TOKEN registry.gitlab.com
@@ -72,13 +85,9 @@ Users Swagger Stage:
     - docker build $SWAGGER_REPO -t $SWAGGER:$COMMIT -f Dockerfile
     - docker tag $SWAGGER:$COMMIT $REGISTRY_REPO/$SWAGGER:$TAG
     - docker push $REGISTRY_REPO/$SWAGGER:$TAG
-
-Cleaning:
-  stage: cleanup
-  only:
-    - stage
-  script:
-    - docker image rm -f $(docker image ls -q)
+  after_script:
+    - docker image rm -f $(docker images registry.gitlab.com/gusisoft/onelike/users-service/users-swagger -q)
+    - sudo git clean -ffdx
 
 Deploy Stage:
   stage: deploy
@@ -96,47 +105,7 @@ Deploy Stage:
     - chmod 600 ~/.ssh/id_rsa
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
   script:
-    - bash ./stage-deploy.sh
-
-
-
-Users Service Production:
-  stage: registry
-  only:
-    - master
-  before_script:
-    - export COMMIT_TIME=$(git show -s --format=%ct $CI_COMMIT_SHA)
-    - export TAG=${CI_COMMIT_REF_NAME}_$COMMIT_TIME
-    - docker login -u gitlab-ci-token -p $DOCKER_TOKEN registry.gitlab.com
-    - export MAIN_REPO="https://${GITLAB_USER}:${GITLAB_PASSWORD}@gitlab.com/gusisoft/OneLike/users-service.git"
-    - export USERS_REPO="${MAIN_REPO}#${CI_COMMIT_REF_NAME}"
-  script:
-    - docker build $USERS_REPO -t $USERS:$COMMIT -f Dockerfile
-    - docker tag $USERS:$COMMIT $REGISTRY_REPO/$USERS:$TAG
-    - docker push $REGISTRY_REPO/$USERS:$TAG
-
-Users Swagger Production:
-  stage: registry
-  only:
-    - master
-  before_script:
-    - export COMMIT_TIME=$(git show -s --format=%ct $CI_COMMIT_SHA)
-    - export TAG=${CI_COMMIT_REF_NAME}_$COMMIT_TIME
-    - docker login -u gitlab-ci-token -p $DOCKER_TOKEN registry.gitlab.com
-    - export MAIN_REPO="https://${GITLAB_USER}:${GITLAB_PASSWORD}@gitlab.com/gusisoft/OneLike/users-service.git"
-    - export SWAGGER_REPO="${MAIN_REPO}#${CI_COMMIT_REF_NAME}:swagger"
-  script:
-    - docker build $SWAGGER_REPO -t $SWAGGER:$COMMIT -f Dockerfile
-    - docker tag $SWAGGER:$COMMIT $REGISTRY_REPO/$SWAGGER:$TAG
-    - docker push $REGISTRY_REPO/$SWAGGER:$TAG
-
-Cleaning:
-  stage: cleanup
-  only:
-    - stage
-    - master
-  script:
-    - docker image rm -f $(docker image ls -q)
+    - bash ./${CI_COMMIT_REF_NAME}-deploy.sh
 
 Deploy Production:
   stage: deploy
@@ -154,4 +123,4 @@ Deploy Production:
     - chmod 600 ~/.ssh/id_rsa
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
   script:
-    - bash ./production-deploy.sh
+    - bash ./${CI_COMMIT_REF_NAME}-deploy.sh

@@ -33,9 +33,9 @@ def recreate_db():
 @cli.command()
 def seed_db():
     """Seeds the database."""
-    from project.models import User
+    from project.models import User, Group, Permission
 
-    user = User(
+    admin = User(
         first_name='Francisco',
         last_name='Gutiérrez',
         email='valid@test.com',
@@ -43,7 +43,23 @@ def seed_db():
         admin=True,
     )
 
+    user = User(
+        first_name='Carlos',
+        last_name='Silva',
+        email='csilva@test.com',
+        password='123',
+        admin=False
+    )
+
+    permission = Permission(code='LIST_USERS', name='Ver Empresas')
+
+    group = Group(name='Administradores')
+    group.users.append(user)
+    group.permissions.append(permission)
+
+    db.session.add(admin)
     db.session.add(user)
+    db.session.add(group)
     db.session.commit()
 
 
