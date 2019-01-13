@@ -51,15 +51,16 @@ docker-compose -f %docker-file% run users python flask shell
 
 ## Create new DB Migrations
 ```
-docker-compose -f %docker-file% run users python manage.py db migrate
+docker container exec users python manage.py db migrate
 ```
 
 ## Apply DB Migrations
 ```
-docker-compose -f %docker-file% run users python manage.py db upgrade
+docker container exec users python manage.py db upgrade
+
 ```
 
 ## Init DB Migrations (Only new projects)
 ```
-docker-compose -f %docker-file% run users python manage.py db init
+docker container exec users python manage.py db init
 ```

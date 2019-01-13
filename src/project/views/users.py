@@ -47,9 +47,10 @@ def get(user, id):
 def create(user):
     user_data = request.get_json()
     user_data['created_by'] = user.id
+    user_data['admin'] = True if 'admin' not in user_data else user_data['admin']
 
     try:
-        user = UserLogics().create(user_data)
+        user = UserLogics().create(user_data, user)
         return success_response(
             data=user,
             status_code=201)

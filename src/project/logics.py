@@ -31,7 +31,11 @@ class UserLogics:
         return UserSerializer.to_dict(user)
 
     @validate(CreateUserValidator)
-    def create(self, data):
+    def create(self, data, user):
+        data['created_by'] = user.id
+        if user.admin:
+            data['admin'] = True if 'admin' not in data else data['admin']
+
         user = User(**data)
 
         db.session.add(user)
