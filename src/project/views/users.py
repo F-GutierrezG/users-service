@@ -46,11 +46,6 @@ def get(user, id):
 @authorize(['ADD_USER'])
 def create(user):
     user_data = request.get_json()
-<<<<<<< HEAD
-    user_data['created_by'] = user.id
-    user_data['admin'] = True if 'admin' not in user_data else user_data['admin']
-=======
->>>>>>> 64e3587ca75739934a79d9820695d51aeafb72a6
 
     try:
         user = UserLogics().create(user_data, user)
