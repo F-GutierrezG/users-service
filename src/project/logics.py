@@ -36,9 +36,10 @@ class UserLogics:
 
     @validate(CreateUserValidator)
     def create(self, data, user):
+        if 'admin' in data and data['admin'] is True and user.admin is False:
+            raise Unauthorized
+
         data['created_by'] = user.id
-        if user.admin:
-            data['admin'] = True if 'admin' not in data else data['admin']
 
         user = User(**data)
 
