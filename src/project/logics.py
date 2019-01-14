@@ -7,7 +7,7 @@ from project.models import User, Group, Permission
 from project import db, bcrypt
 
 
-class DoesNotExist(Exception):
+class NotFound(Exception):
     pass
 
 
@@ -30,7 +30,7 @@ class UserLogics:
         user = User.query.filter_by(id=id).first()
 
         if not user:
-            raise DoesNotExist
+            raise NotFound
 
         return UserSerializer.to_dict(user)
 
@@ -78,13 +78,26 @@ class UserLogics:
 
         return UserSerializer.to_array(users)
 
+    def change_password(self, user_data, id, user):
+        user = User.query.filter_by(id=id).first()
+
+        if user is None:
+            raise NotFound()
+
+        user.updated_by = user.id
+        user.password = user.generate_password_hash(
+            password=user_data['password'])
+
+        db.session.add(user)
+        db.session.commit()
+
 
 class GroupLogics:
     def get(self, id):
         group = Group.query.filter_by(id=id).first()
 
         if not group:
-            raise DoesNotExist
+            raise NotFound
 
         return GroupSerializer.to_dict(group)
 
@@ -181,7 +194,7 @@ class AuthLogics:
         user = User.query.filter_by(email=data['email'], active=True).first()
 
         if not user:
-            raise DoesNotExist
+            raise NotFound
 
         password = data['password']
         if bcrypt.check_password_hash(user.password, password) is False:

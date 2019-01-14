@@ -1,7 +1,7 @@
 from flask import Blueprint, request
 from sqlalchemy import exc
 from project.auth import authenticate, authorize
-from project.logics import UserLogics, DoesNotExist, Unauthorized
+from project.logics import UserLogics, NotFound, Unauthorized
 from project.validators.exceptions import ValidatorException
 from project.views.utils import success_response, failed_response
 
@@ -38,7 +38,7 @@ def get(user, id):
         return success_response(
             data=user,
             status_code=200)
-    except DoesNotExist:
+    except NotFound:
         return failed_response(message='not found.', status_code=404)
 
 
@@ -75,7 +75,7 @@ def update(user, id):
             data=user,
             status_code=200)
 
-    except DoesNotExist:
+    except NotFound:
         return failed_response(message='not found.', status_code=404)
 
     except exc.IntegrityError:
@@ -92,7 +92,7 @@ def deactivate(user, id):
         user = UserLogics().deactivate(id, user)
         return success_response(data=user, status_code=200)
 
-    except DoesNotExist:
+    except NotFound:
         return failed_response(message='not found.', status_code=404)
 
 
@@ -103,7 +103,7 @@ def activate(user, id):
         user = UserLogics().activate(id, user)
         return success_response(data=user, status_code=200)
 
-    except DoesNotExist:
+    except NotFound:
         return failed_response(message='not found.', status_code=404)
 
 
@@ -114,3 +114,15 @@ def filter_by_ids(user, ids):
     return success_response(
         data=users,
         status_code=200)
+
+
+@users_blueprint.route('/users/<id>/password', methods=['PUT'])
+@authenticate
+def change_password(user, id):
+    user_data = request.get_json()
+    try:
+        UserLogics().change_password(user_data, id, user)
+    except NotFound:
+        return failed_response(message='not found.', status_code=404)
+
+    return success_response(status_code=204)

@@ -66,9 +66,9 @@ class User(db.Model):
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
-        self.password = self._generate_password_hash(**kwargs)
+        self.password = self.generate_password_hash(**kwargs)
 
-    def _generate_password_hash(self, **kwargs):
+    def generate_password_hash(self, **kwargs):
         if 'password' not in kwargs:
             return None
 

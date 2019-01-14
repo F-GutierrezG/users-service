@@ -911,6 +911,50 @@ paths:
             application/json:
               schema:
                 $ref: "#components/responses/NotFound"
+  /users/{id}/password:
+    put:
+      tags:
+        - Users
+      summary: Change User Password
+      description: Change User Password
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: User id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: User data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdatePassword'
+      responses:
+        '204':
+          description: User password successfully changed.
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/Unauthorized"
+        '403':
+          description: Forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/Forbidden"
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/responses/NotFound"
 components:
   schemas:
     Login:
@@ -943,6 +987,13 @@ components:
           - first_name
           - last_name
           - email
+    UserUpdatePassword:
+      required:
+        - password
+      properties:
+        password:
+          type: string
+          description: User password
     User:
       allOf:
         - $ref: "#/components/requestBodies/UserBase"

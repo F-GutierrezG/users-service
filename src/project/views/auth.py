@@ -1,6 +1,6 @@
 from flask import Blueprint, request
 from project.auth import authenticate
-from project.logics import AuthLogics, DoesNotExist
+from project.logics import AuthLogics, NotFound
 from project.views.utils import success_response, failed_response
 from project.validators.exceptions import ValidatorException
 
@@ -18,7 +18,7 @@ def login():
             return failed_response(
                 message='invalid login data.', status_code=400)
         return success_response(data=token, status_code=200)
-    except DoesNotExist:
+    except NotFound:
         return failed_response(message='not found.', status_code=404)
     except ValidatorException as e:
         return failed_response('invalid payload.', 400, e.errors)

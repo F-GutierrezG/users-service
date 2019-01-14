@@ -1,4 +1,5 @@
 import json
+import random
 import datetime
 import unittest
 
@@ -2001,6 +2002,89 @@ class TestFilterUsersById(BaseTestCase):
             self.assertEqual(response.status_code, 200)
             self.assertEqual(len(User.query.all()), 4)
             self.assertEqual(len(response_data), 2)
+
+
+class TestUpdatePassword(BaseTestCase):
+    """Tests for update user password"""
+
+    def test_update_password(self):
+        """Ensure update user password behaves correctly"""
+
+        user = add_user()
+        admin = add_admin()
+        token = login_user(admin)
+
+        data = {
+            'password': random_string()
+        }
+
+        old_password = User.query.filter_by(admin=False).first().password
+
+        with self.client:
+            response = self.client.put(
+                '/users/{}/password'.format(user.id),
+                data=json.dumps(data),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+            new_password = User.query.filter_by(admin=False).first().password
+
+            self.assertEqual(response.status_code, 204)
+            self.assertNotEqual(old_password, new_password)
+
+    def test_login_with_new_password(self):
+        """Ensure update user password behaves correctly"""
+
+        user = add_user()
+        admin = add_admin()
+        token = login_user(admin)
+
+        data = {
+            'password': random_string()
+        }
+
+        login_data = {
+            'email': user.email,
+            'password': data['password']
+        }
+
+        with self.client:
+            response = self.client.put(
+                '/users/{}/password'.format(user.id),
+                data=json.dumps(data),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+
+            self.assertEqual(response.status_code, 204)
+
+            response = self.client.post(
+                '/auth/login',
+                data=json.dumps(login_data),
+                content_type='application/json'
+            )
+
+            self.assertEqual(response.status_code, 200)
+
+    def test_update_no_existing_user_password(self):
+        """Ensure update user password behaves correctly"""
+
+        admin = add_admin()
+        token = login_user(admin)
+
+        data = {
+            'password': random_string()
+        }
+
+        with self.client:
+            response = self.client.put(
+                '/users/{}/password'.format(random.randint(100, 200)),
+                data=json.dumps(data),
+                headers={'Authorization': 'Bearer {}'.format(token)},
+                content_type='application/json'
+            )
+
+            self.assertEqual(response.status_code, 404)
 
 
 if __name__ == '__main__':
