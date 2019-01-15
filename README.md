@@ -57,10 +57,6 @@ docker container exec users python manage.py db migrate
 ## Apply DB Migrations
 ```
 docker container exec users python manage.py db upgrade
-<<<<<<< HEAD
-
-=======
->>>>>>> 64e3587ca75739934a79d9820695d51aeafb72a6
 ```
 
 ## Init DB Migrations (Only new projects)
