@@ -60,13 +60,14 @@ class User(db.Model):
     created_by = db.Column(db.Integer, default=0, nullable=False)
     updated = db.Column(db.DateTime, onupdate=func.now(), nullable=True)
     updated_by = db.Column(db.Integer)
-    hash = db.Column(db.String(32), default=uuid.uuid4().hex, nullable=False)
+    hash = db.Column(db.String(40), nullable=False)
     admin = db.Column(db.Boolean, default=False, nullable=False)
     groups = db.relationship('Group', secondary=group_users)
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
         self.password = self.generate_password_hash(**kwargs)
+        self.hash = str(uuid.uuid4())
 
     def generate_password_hash(self, **kwargs):
         if 'password' not in kwargs:
