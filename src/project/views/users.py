@@ -19,10 +19,10 @@ def list(user):
 
 
 @users_blueprint.route('/users/admins', methods=['GET'])
-@authorize([])
+@authenticate
 def admins(user):
     if user.admin is not True:
-        return failed_response(message='forbidden', status_code=403)
+        return failed_response(message='unauthorized', status_code=401)
 
     users = UserLogics().list_admins()
     return success_response(
