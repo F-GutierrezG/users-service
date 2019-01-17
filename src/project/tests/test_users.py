@@ -178,7 +178,7 @@ class TestListAdmins(BaseTestCase):
                 headers={'Authorization': 'Bearer {}'.format(token)},
                 content_type='application/json'
             )
-            self.assertEqual(response.status_code, 403)
+            self.assertEqual(response.status_code, 401)
 
     def test_list_users_with_admin_permissions(self):
         user = add_admin()
