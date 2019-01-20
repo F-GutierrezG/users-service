@@ -126,3 +126,24 @@ def change_password(user, id):
         return failed_response(message='not found.', status_code=404)
 
     return success_response(status_code=204)
+
+
+@users_blueprint.route('/users/admins', methods=['POST'])
+@authenticate
+def create_admin(user):
+    user_data = request.get_json()
+
+    try:
+        user = UserLogics().create_admin(user_data, user)
+        return success_response(
+            data=user,
+            status_code=201)
+
+    except exc.IntegrityError:
+        return failed_response('duplicate user.', 400)
+
+    except ValidatorException as e:
+        return failed_response('invalid payload.', 400, e.errors)
+
+    except Unauthorized:
+        return failed_response('unauthorized', 401)

@@ -48,7 +48,8 @@ def seed_db():
         last_name='Silva',
         email='csilva@test.com',
         password='123',
-        admin=False
+        admin=True,
+        expiration='2019-01-30'
     )
 
     permission = Permission(code='LIST_USERS', name='Ver Empresas')

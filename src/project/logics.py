@@ -48,6 +48,21 @@ class UserLogics:
 
         return UserSerializer.to_dict(user)
 
+    @validate(CreateUserValidator)
+    def create_admin(self, data, user):
+        if user.admin is False:
+            raise Unauthorized
+
+        data['created_by'] = user.id
+        data['admin'] = True
+
+        user = User(**data)
+
+        db.session.add(user)
+        db.session.commit()
+
+        return UserSerializer.to_dict(user)
+
     @validate(UpdateUserValidator)
     def update(self, data, id):
         User.query.filter_by(id=id).update(data)
