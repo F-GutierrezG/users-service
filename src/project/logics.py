@@ -65,6 +65,9 @@ class UserLogics:
 
     @validate(UpdateUserValidator)
     def update(self, data, id):
+        if 'expiration' in data and data['expiration'].strip() == '':
+            data['expiration'] = None
+
         User.query.filter_by(id=id).update(data)
         db.session.commit()
 
