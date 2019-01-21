@@ -35,3 +35,14 @@ def logout(user):
 def status(user):
     user = AuthLogics().get_status(user)
     return success_response(data=user, status_code=200)
+
+
+@auth_blueprint.route('/auth/recover-password', methods=['POST'])
+def recover_password():
+    try:
+        email = request.get_json()['email']
+        AuthLogics().recover_password(email)
+    except Exception as e:
+        print('********', e)
+    finally:
+        return success_response(status_code=200)

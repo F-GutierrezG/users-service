@@ -1,3 +1,4 @@
+import datetime
 from project.validators.decorators import validate
 from project.serializers import (
     UserSerializer, GroupSerializer, PermissionSerializer, TokenSerializer)
@@ -5,6 +6,7 @@ from project.validations import (
     CreateUserValidator, UpdateUserValidator, LoginValidator)
 from project.models import User, Group, Permission
 from project import db, bcrypt
+from mailer_service.factories import MailerServiceFactory
 
 
 class NotFound(Exception):
@@ -207,6 +209,9 @@ class PermissionLogics:
 
 
 class AuthLogics:
+    EMAIL_FROM = "recovery@onelike.cl"
+    EMAIL_SUBJECT = "Recuperación de contraseña"
+
     @validate(LoginValidator)
     def login(self, data):
         user = User.query.filter_by(email=data['email'], active=True).first()
@@ -225,3 +230,25 @@ class AuthLogics:
         serialized_user['permissions'] = user.permissions
 
         return serialized_user
+
+    def recover_password(self, email):
+        user = User.query.filter_by(email=email, active=True).first()
+
+        if not user or (
+                user.expiration and user.expiration <= datetime.date.today()):
+            raise NotFound
+
+        service = MailerServiceFactory.get_instance()
+        email_to = [email]
+        email_from = self.EMAIL_FROM
+        email_subject = self.EMAIL_SUBJECT
+        email_body = self.__create_recover_password_email(email)
+
+        service.send(
+            recipients=email_to,
+            sender=email_from,
+            subject=email_subject,
+            message=email_body)
+
+    def __create_recover_password_email(self, email):
+        return '<h1>{}</h1>'.format(email)

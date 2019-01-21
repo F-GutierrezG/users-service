@@ -7,11 +7,13 @@ class BaseConfig:
     DEBUG = True
     SECRET_KEY = os.environ.get('SECRET_KEY')
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
+    MAILER_SERVICE_URL = os.environ.get('MAILER_SERVICE_URL')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ECHO = False
     BCRYPT_LOG_ROUNDS = 13
     TOKEN_EXPIRATION_DAYS = 30
     TOKEN_EXPIRATION_SECONDS = 0
+    MAILER_SERVICE_MOCK = False
 
 
 class DevelopmentConfig(BaseConfig):
@@ -31,6 +33,7 @@ class TestingConfig(BaseConfig):
     BCRYPT_LOG_ROUNDS = 4
     TOKEN_EXPIRATION_DAYS = 0
     TOKEN_EXPIRATION_SECONDS = 3
+    MAILER_SERVICE_MOCK = True
 
 
 class StagingConfig(BaseConfig):
