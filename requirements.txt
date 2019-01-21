@@ -11,3 +11,4 @@ coverage==4.5.1
 flake8==3.6.0
 gunicorn==19.9.0
 pytest-watch
+git+ssh://git@gitlab.com/gusisoft/libs/mailer-service.git@v1.0.0

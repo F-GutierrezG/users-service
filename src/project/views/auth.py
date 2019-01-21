@@ -1,4 +1,4 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, current_app
 from project.auth import authenticate
 from project.logics import AuthLogics, NotFound
 from project.views.utils import success_response, failed_response
@@ -43,7 +43,8 @@ def recover_password():
         email = request.get_json()['email']
         AuthLogics().recover_password(email)
     except Exception as e:
-        print('********', e)
+        if current_app.config.get('TESTING') is False:
+            print('********', e)
     finally:
         return success_response(status_code=200)
 

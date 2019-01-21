@@ -5,9 +5,11 @@ import unittest
 
 from flask import current_app
 
+from mailer_service.factories import MailerServiceFactory
+
 from project.tests.utils import (
     random_string, add_group, add_permission, add_permission_to_group,
-    add_user_to_group, add_admin, login_user)
+    add_user_to_group, add_admin, login_user, add_user)
 
 from project import db
 from project.tests.base import BaseTestCase
@@ -364,6 +366,83 @@ class TestAuthenticate(BaseTestCase):
             TokenSerializer.decode(token)['exp'])
 
         self.assertTrue(init_date < expiration_date)
+
+
+class TestRecoverPassword(BaseTestCase):
+    """Tests for recover password"""
+
+    def test_recover_password(self):
+        user = add_user()
+
+        data = {
+            'email': user.email
+        }
+
+        with self.client:
+            response = self.client.post(
+                '/auth/recover-password',
+                data=json.dumps(data),
+                content_type='application/json'
+            )
+
+            self.assertEqual(response.status_code, 200)
+
+    def test_recover_password_call_mailer_service(self):
+        user = add_user()
+
+        data = {
+            'email': user.email
+        }
+
+        service = MailerServiceFactory.get_instance().clear()
+
+        with self.client:
+            self.client.post(
+                '/auth/recover-password',
+                data=json.dumps(data),
+                content_type='application/json'
+            )
+
+            self.assertEqual(service.send_called_times, 1)
+
+    def test_recover_password_call_mailer_service_with_email(self):
+        user = add_user()
+
+        data = {
+            'email': user.email
+        }
+
+        service = MailerServiceFactory.get_instance().clear()
+
+        with self.client:
+            self.client.post(
+                '/auth/recover-password',
+                data=json.dumps(data),
+                content_type='application/json'
+            )
+
+            self.assertEqual(
+                service.send_called_with['kwargs']['recipients'][0],
+                data['email'])
+
+    def test_recover_unexisting_user_password(self):
+        user = add_user()
+
+        data = {
+            'email': "unexisting-{}".format(user.email)
+        }
+
+        service = MailerServiceFactory.get_instance().clear()
+
+        with self.client:
+            response = self.client.post(
+                '/auth/recover-password',
+                data=json.dumps(data),
+                content_type='application/json'
+            )
+
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(service.send_called_times, 0)
 
 
 if __name__ == '__main__':
