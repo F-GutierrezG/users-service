@@ -46,3 +46,15 @@ def recover_password():
         print('********', e)
     finally:
         return success_response(status_code=200)
+
+
+@auth_blueprint.route('/auth/change-password', methods=['POST'])
+def change_password():
+    try:
+        data = request.get_json()
+        AuthLogics().change_password(data)
+
+    except Exception:
+        return failed_response(message="bad request", status_code=400)
+
+    return success_response(status_code=200)

@@ -1,4 +1,8 @@
+import jwt
 import datetime
+
+from flask import current_app
+
 from project.validators.decorators import validate
 from project.serializers import (
     UserSerializer, GroupSerializer, PermissionSerializer, TokenSerializer)
@@ -250,5 +254,38 @@ class AuthLogics:
             subject=email_subject,
             message=email_body)
 
+    def change_password(self, data):
+        token = data['token']
+        password = data['password']
+
+        token_data = TokenSerializer.decode(token)
+
+        email = token_data['sub']
+
+        user = User.query.filter_by(email=email, active=True).first()
+        user.password = user.generate_password_hash(
+            password=password)
+
+        db.session.add(user)
+        db.session.commit()
+
     def __create_recover_password_email(self, email):
-        return '<h1>{}</h1>'.format(email)
+        token = self.__generate_token(email)
+        recover_url = current_app.config.get('CHANGE_PASSWORD_URL')
+
+        html = 'Para modificar su contraseña presione el siguiente enlace:'
+        html += '<br />'
+        html += '<a href="{}?t={}">Recuperar Contraseña</a>'.format(
+            recover_url, token)
+        return html
+
+    def __generate_token(self, email):
+        secret = current_app.config.get('SECRET_KEY')
+        payload = {
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(
+                hours=current_app.config.get('RECOVER_TOKEN_EXPIRATION_HOURS'),
+            ),
+            'iat': datetime.datetime.utcnow(),
+            'sub': email,
+        }
+        return jwt.encode(payload, secret, algorithm='HS256').decode()

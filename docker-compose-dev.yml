@@ -18,6 +18,7 @@ services:
       - DATABASE_TEST_URL=postgres://postgres:postgres@users-db:5432/users_test
       - SECRET_KEY=secret_key
       - MAILER_SERVICE_URL=http://localhost/mailer
+      - CHANGE_PASSWORD_URL=http://localhost/pages/change-password
     restart: always
     depends_on:
       - users-db
