@@ -43,24 +43,18 @@ def seed_db():
         admin=True,
     )
 
-    user = User(
-        first_name='Carlos',
-        last_name='Silva',
-        email='csilva@test.com',
-        password='123',
-        admin=True,
-        expiration='2019-01-30'
-    )
-
-    permission = Permission(code='LIST_USERS', name='Ver Empresas')
+    permission1 = Permission(code='LIST_USERS', name='Ver Usuarios')
+    permission2 = Permission(code='LIST_COMPANIES', name='Ver Compañías')
 
     group = Group(name='Administradores')
-    group.users.append(user)
-    group.permissions.append(permission)
+    group.users.append(admin)
+    group.permissions.append(permission1)
+    group.permissions.append(permission2)
 
     db.session.add(admin)
-    db.session.add(user)
     db.session.add(group)
+    db.session.add(Group(name='Supervisores'))
+    db.session.add(Group(name='Planners'))
     db.session.commit()
 
 

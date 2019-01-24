@@ -96,9 +96,6 @@ class User(db.Model):
         return datetime.date.today() < self.expiration
 
     def is_authorized(self, required_permissions):
-        if self.admin:
-            return True
-
         for permission in required_permissions:
             if permission not in self.permissions:
                 return False

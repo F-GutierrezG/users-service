@@ -46,11 +46,16 @@ class UserLogics:
             raise Unauthorized
 
         data['created_by'] = user.id
+        group_id = data['group_id']
+
+        del data['group_id']
 
         user = User(**data)
 
         db.session.add(user)
         db.session.commit()
+
+        self.__add_user_to_group(user.id, group_id)
 
         return UserSerializer.to_dict(user)
 
@@ -74,6 +79,10 @@ class UserLogics:
         if 'expiration' in data and data['expiration'] is not None \
                 and data['expiration'].strip() == '':
             data['expiration'] = None
+
+        self.__add_user_to_group(id, data['group_id'])
+
+        del data['group_id']
 
         User.query.filter_by(id=id).update(data)
         db.session.commit()
@@ -112,6 +121,23 @@ class UserLogics:
         user.updated_by = user.id
         user.password = user.generate_password_hash(
             password=user_data['password'])
+
+        db.session.add(user)
+        db.session.commit()
+
+    def __add_user_to_group(self, user_id, group_id):
+        user = User.query.filter_by(id=user_id).first()
+        group = Group.query.filter_by(id=group_id).first()
+
+        if user is None:
+            raise NotFound("user not found")
+
+        if group is None:
+            raise NotFound("group not found")
+
+        user.groups.clear()
+
+        user.groups.append(group)
 
         db.session.add(user)
         db.session.commit()

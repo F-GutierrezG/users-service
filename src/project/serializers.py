@@ -18,7 +18,8 @@ class UserSerializer:
             'updated': str(user.updated),
             'updated_by': user.updated_by,
             'hash': user.hash,
-            'admin': user.admin
+            'admin': user.admin,
+            'group_id': user.groups[0].id if len(user.groups) > 0 else ""
         }
 
     @staticmethod

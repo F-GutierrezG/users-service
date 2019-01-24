@@ -19,10 +19,11 @@ class TestListUsers(BaseTestCase):
         return {
             'first_name': random_string(32),
             'last_name': random_string(32),
-            'email': '{}@test.com'.format(random_string(16))
+            'email': '{}@test.com'.format(random_string(16)),
+            'group_id': 1
         }
 
-    def __add_user(self, first_name, last_name, email):
+    def __add_user(self, first_name, last_name, email, group_id):
         user = User(
             first_name=first_name,
             last_name=last_name,
@@ -135,10 +136,11 @@ class TestListAdmins(BaseTestCase):
             'first_name': random_string(32),
             'last_name': random_string(32),
             'email': '{}@test.com'.format(random_string(16)),
-            'admin': admin
+            'admin': admin,
+            'group_id': 1
         }
 
-    def __add_user(self, first_name, last_name, email, admin):
+    def __add_user(self, first_name, last_name, email, group_id, admin):
         user = User(
             first_name=first_name,
             last_name=last_name,
@@ -170,6 +172,7 @@ class TestListAdmins(BaseTestCase):
 
     def test_list_users_without_permission(self):
         user = add_user()
+        add_permissions(user, ['LIST_USERS'])
         token = login_user(user)
 
         with self.client:
@@ -210,7 +213,8 @@ class TestAddUser(BaseTestCase):
             'first_name': 'Francisco',
             'last_name': 'Gutiérrez',
             'email': 'fgutierrez@prueba.cl',
-            'password': '12345678'
+            'password': '12345678',
+            'group_id': 1
         }
 
         admin = add_admin()
@@ -243,7 +247,8 @@ class TestAddUser(BaseTestCase):
             'first_name': 'Francisco',
             'last_name': 'Gutiérrez',
             'email': 'fgutierrez@prueba.cl',
-            'password': '12345678'
+            'password': '12345678',
+            'group_id': 1
         }
 
         admin = add_admin()
@@ -267,7 +272,8 @@ class TestAddUser(BaseTestCase):
             'first_name': 'Francisco',
             'last_name': 'Gutiérrez',
             'email': 'fgutierrez@prueba.cl',
-            'password': '12345678'
+            'password': '12345678',
+            'group_id': 1
         }
 
         admin = add_admin()
@@ -291,7 +297,8 @@ class TestAddUser(BaseTestCase):
             'first_name': 'Francisco',
             'last_name': 'Gutiérrez',
             'email': 'fgutierrez@prueba.cl',
-            'password': '12345678'
+            'password': '12345678',
+            'group_id': 1
         }
 
         self.assertEqual(User.query.count(), 0)
@@ -315,13 +322,15 @@ class TestAddUser(BaseTestCase):
             'first_name': 'Francisco',
             'last_name': 'Gutiérrez',
             'email': 'fgutierrez@prueba.cl',
-            'password': '12345678'
+            'password': '12345678',
+            'group_id': 1
         }
         user_data2 = {
             'first_name': 'Francisco2',
             'last_name': 'Gutiérrez2',
             'email': 'fgutierrez@prueba.cl',
-            'password': '1234567890'
+            'password': '1234567890',
+            'group_id': 1
         }
 
         admin = add_admin()
@@ -485,7 +494,8 @@ class TestAddUser(BaseTestCase):
                 length=User.FIRST_NAME_MAX_LENGTH),
             'last_name': 'Gutiérrez',
             'email': 'fgutierrez@prueba.cl',
-            'password': '12345678'
+            'password': '12345678',
+            'group_id': 1
         }
 
         admin = add_admin()
@@ -507,7 +517,8 @@ class TestAddUser(BaseTestCase):
                 length=User.FIRST_NAME_MAX_LENGTH + 1),
             'last_name': 'Gutiérrez',
             'email': 'fgutierrez@prueba.cl',
-            'password': '12345678'
+            'password': '12345678',
+            'group_id': 1
         }
 
         admin = add_admin()
@@ -534,7 +545,8 @@ class TestAddUser(BaseTestCase):
             'last_name': random_string(
                 length=User.LAST_NAME_MAX_LENGTH),
             'email': 'fgutierrez@prueba.cl',
-            'password': '12345678'
+            'password': '12345678',
+            'group_id': 1
         }
 
         admin = add_admin()
@@ -582,7 +594,8 @@ class TestAddUser(BaseTestCase):
             'first_name': random_string(16),
             'last_name': random_string(16),
             'email': '{}@test.com'.format(random_string(16)),
-            'password': random_string(16)
+            'password': random_string(16),
+            'group_id': 1
         }
 
         init_time = datetime.datetime.utcnow()
@@ -628,7 +641,8 @@ class TestAddUser(BaseTestCase):
             'first_name': random_string(16),
             'last_name': random_string(16),
             'email': '{}@test.com'.format(random_string(16)),
-            'password': random_string(16)
+            'password': random_string(16),
+            'group_id': 1
         }
 
         admin = add_admin()
@@ -654,7 +668,8 @@ class TestAddUser(BaseTestCase):
             'first_name': 'Francisco',
             'last_name': 'Gutiérrez',
             'email': 'fgutierrez@prueba.cl',
-            'password': '12345678'
+            'password': '12345678',
+            'group_id': 1
         }
 
         admin = add_admin()
@@ -679,7 +694,8 @@ class TestAddUser(BaseTestCase):
             'first_name': 'Francisco',
             'last_name': 'Gutiérrez',
             'email': 'fgutierrez@prueba.cl',
-            'password': '12345678'
+            'password': '12345678',
+            'group_id': 1
         }
 
         admin = add_admin()
@@ -700,11 +716,12 @@ class TestAddUser(BaseTestCase):
             'first_name': 'Francisco',
             'last_name': 'Gutiérrez',
             'email': 'fgutierrez@prueba.cl',
-            'password': '12345678'
+            'password': '12345678',
+            'group_id': 1
         }
 
         user = add_user()
-        add_permissions(user, ['ADD_USER'])
+        add_permissions(user, ['LIST_USERS'])
         token = login_user(user)
 
         with self.client:
@@ -762,10 +779,10 @@ class TestAddUser(BaseTestCase):
             'email': 'fgutierrez@prueba.cl',
             'password': '12345678',
             'admin': True,
+            'group_id': 1
         }
 
         admin = add_admin()
-        add_permissions(admin, ['ADD_USER'])
         token = login_user(admin)
 
         with self.client:
@@ -790,7 +807,7 @@ class TestAddUser(BaseTestCase):
         }
 
         user = add_user()
-        add_permissions(user, ['ADD_USER'])
+        add_permissions(user, ['LIST_USERS'])
         token = login_user(user)
 
         with self.client:
@@ -812,10 +829,11 @@ class TestUpdateUser(BaseTestCase):
         return {
             'first_name': random_string(32),
             'last_name': random_string(32),
-            'email': '{}@test.com'.format(random_string(16))
+            'email': '{}@test.com'.format(random_string(16)),
+            'group_id': 1
         }
 
-    def __add_user(self, first_name, last_name, email):
+    def __add_user(self, first_name, last_name, email, group_id):
         user = User(
             first_name=first_name,
             last_name=last_name,
@@ -920,6 +938,7 @@ class TestUpdateUser(BaseTestCase):
         old_data = self.__get_random_user_data()
         old_data['password'] = random_string(32)
         old_data['active'] = False
+        del old_data['group_id']
 
         new_data = self.__get_random_user_data()
 
@@ -1001,6 +1020,7 @@ class TestUpdateUser(BaseTestCase):
         new_data = {
             'first_name': random_string(32),
             'last_name': random_string(32),
+            'group_id': 1
         }
 
         user = self.__add_user(**old_data)
@@ -1198,7 +1218,7 @@ class TestUpdateUser(BaseTestCase):
         self.assertEqual(user.email, old_data['email'])
 
         user = add_user()
-        add_permissions(user, ['UPDATE_USER'])
+        add_permissions(user, ['LIST_USERS'])
         token = login_user(user)
 
         with self.client:
@@ -1260,10 +1280,11 @@ class TestDeactivateUser(BaseTestCase):
         return {
             'first_name': random_string(32),
             'last_name': random_string(32),
-            'email': '{}@test.com'.format(random_string(16))
+            'email': '{}@test.com'.format(random_string(16)),
+            'group_id': 1
         }
 
-    def __add_user(self, first_name, last_name, email):
+    def __add_user(self, first_name, last_name, email, group_id):
         user = User(
             first_name=first_name,
             last_name=last_name,
@@ -1419,7 +1440,7 @@ class TestDeactivateUser(BaseTestCase):
         user = self.__add_user(**user_data)
 
         user = add_user()
-        add_permissions(user, ['UPDATE_USER'])
+        add_permissions(user, ['LIST_USERS'])
         token = login_user(user)
 
         with self.client:
@@ -1469,10 +1490,11 @@ class TestActivateUser(BaseTestCase):
         return {
             'first_name': random_string(32),
             'last_name': random_string(32),
-            'email': '{}@test.com'.format(random_string(16))
+            'email': '{}@test.com'.format(random_string(16)),
+            'group_id': 1
         }
 
-    def __add_user(self, first_name, last_name, email):
+    def __add_user(self, first_name, last_name, email, group_id):
         user = User(
             first_name=first_name,
             last_name=last_name,
@@ -1638,7 +1660,7 @@ class TestActivateUser(BaseTestCase):
         user = self.__add_user(**user_data)
 
         user = add_user()
-        add_permissions(user, ['UPDATE_USER'])
+        add_permissions(user, ['LIST_USERS'])
         token = login_user(user)
 
         with self.client:
@@ -1688,10 +1710,11 @@ class TestViewUser(BaseTestCase):
         return {
             'first_name': random_string(32),
             'last_name': random_string(32),
-            'email': '{}@test.com'.format(random_string(16))
+            'email': '{}@test.com'.format(random_string(16)),
+            'group_id': 1
         }
 
-    def __add_user(self, first_name, last_name, email):
+    def __add_user(self, first_name, last_name, email, group_id):
         user = User(
             first_name=first_name,
             last_name=last_name,
@@ -1879,7 +1902,7 @@ class TestViewUser(BaseTestCase):
         user = self.__add_user(**user_data)
 
         user = add_user()
-        add_permissions(user, ['VIEW_USER'])
+        add_permissions(user, ['LIST_USERS'])
         token = login_user(user)
 
         with self.client:
@@ -1929,10 +1952,11 @@ class TestFilterUsersById(BaseTestCase):
         return {
             'first_name': random_string(32),
             'last_name': random_string(32),
-            'email': '{}@test.com'.format(random_string(16))
+            'email': '{}@test.com'.format(random_string(16)),
+            'group_id': 1
         }
 
-    def __add_user(self, first_name, last_name, email):
+    def __add_user(self, first_name, last_name, email, group_id):
         user = User(
             first_name=first_name,
             last_name=last_name,

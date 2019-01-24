@@ -1,6 +1,6 @@
 from flask import Blueprint, request
 from sqlalchemy import exc
-from project.auth import authenticate, authorize
+from project.auth import authorize
 from project.logics import UserLogics, NotFound, Unauthorized
 from project.validators.exceptions import ValidatorException
 from project.views.utils import success_response, failed_response
@@ -19,7 +19,7 @@ def list(user):
 
 
 @users_blueprint.route('/users/admins', methods=['GET'])
-@authenticate
+@authorize(['LIST_USERS'])
 def admins(user):
     if user.admin is not True:
         return failed_response(message='unauthorized', status_code=401)
@@ -31,7 +31,7 @@ def admins(user):
 
 
 @users_blueprint.route('/users/<id>', methods=['GET'])
-@authorize(['VIEW_USER'])
+@authorize(['LIST_USERS'])
 def get(user, id):
     try:
         user = UserLogics().get(id)
@@ -43,7 +43,7 @@ def get(user, id):
 
 
 @users_blueprint.route('/users', methods=['POST'])
-@authorize(['ADD_USER'])
+@authorize(['LIST_USERS'])
 def create(user):
     user_data = request.get_json()
 
@@ -64,7 +64,7 @@ def create(user):
 
 
 @users_blueprint.route('/users/<id>', methods=['PUT'])
-@authorize(['UPDATE_USER'])
+@authorize(['LIST_USERS'])
 def update(user, id):
     user_data = request.get_json()
     user_data['updated_by'] = user.id
@@ -86,7 +86,7 @@ def update(user, id):
 
 
 @users_blueprint.route('/users/<id>/deactivate', methods=['PUT'])
-@authorize(['UPDATE_USER'])
+@authorize(['LIST_USERS'])
 def deactivate(user, id):
     try:
         user = UserLogics().deactivate(id, user)
@@ -97,7 +97,7 @@ def deactivate(user, id):
 
 
 @users_blueprint.route('/users/<id>/activate', methods=['PUT'])
-@authorize(['UPDATE_USER'])
+@authorize(['LIST_USERS'])
 def activate(user, id):
     try:
         user = UserLogics().activate(id, user)
@@ -108,7 +108,7 @@ def activate(user, id):
 
 
 @users_blueprint.route('/users/byIds/<ids>', methods=['GET'])
-@authenticate
+@authorize(['LIST_USERS'])
 def filter_by_ids(user, ids):
     users = UserLogics().filter_by_ids(ids.split(','))
     return success_response(
@@ -117,7 +117,7 @@ def filter_by_ids(user, ids):
 
 
 @users_blueprint.route('/users/<id>/password', methods=['PUT'])
-@authenticate
+@authorize(['LIST_USERS'])
 def change_password(user, id):
     user_data = request.get_json()
     try:
@@ -129,7 +129,7 @@ def change_password(user, id):
 
 
 @users_blueprint.route('/users/admins', methods=['POST'])
-@authenticate
+@authorize(['LIST_USERS'])
 def create_admin(user):
     user_data = request.get_json()
 

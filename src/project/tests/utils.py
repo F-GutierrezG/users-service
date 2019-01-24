@@ -38,7 +38,9 @@ def add_user(admin=False):
 
 
 def add_admin():
-    return add_user(admin=True)
+    admin = add_user(admin=True)
+    add_permissions(admin, ['LIST_USERS'])
+    return admin
 
 
 def login_user(user):

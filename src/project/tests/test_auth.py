@@ -263,7 +263,7 @@ class TestStatus(BaseTestCase):
             response_data = json.loads(response.data.decode())
             self.assertIn('permissions', response_data)
             self.assertEqual(
-                len(response_data['permissions']), total_permissions)
+                len(response_data['permissions']), total_permissions + 1)
 
     def test_status_return_admin_property(self):
         """Ensure status return admin property correctly"""
