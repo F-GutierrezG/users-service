@@ -1,6 +1,6 @@
 from flask import Blueprint, request
 from sqlalchemy import exc
-from project.auth import authorize
+from project.auth import authorize, authenticate
 from project.logics import UserLogics, NotFound, Unauthorized
 from project.validators.exceptions import ValidatorException
 from project.views.utils import success_response, failed_response
@@ -108,7 +108,7 @@ def activate(user, id):
 
 
 @users_blueprint.route('/users/byIds/<ids>', methods=['GET'])
-@authorize(['LIST_USERS'])
+@authenticate
 def filter_by_ids(user, ids):
     users = UserLogics().filter_by_ids(ids.split(','))
     return success_response(

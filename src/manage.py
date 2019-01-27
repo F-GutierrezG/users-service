@@ -43,18 +43,43 @@ def seed_db():
         admin=True,
     )
 
+    planner = User(
+        first_name='Usuario',
+        last_name='Planner',
+        email='planner@test.com',
+        password='123',
+        admin=False
+    )
+
+    supervisor = User(
+        first_name='Usuario',
+        last_name='Supervisor',
+        email='supervisor@test.com',
+        password='123',
+        admin=False
+    )
+
     permission1 = Permission(code='LIST_USERS', name='Ver Usuarios')
     permission2 = Permission(code='LIST_COMPANIES', name='Ver Compañías')
+    permission3 = Permission(
+        code='EDIT_PUBLICATION', name='Editar Publicación')
 
-    group = Group(name='Administradores')
-    group.users.append(admin)
-    group.permissions.append(permission1)
-    group.permissions.append(permission2)
+    administrators = Group(name='Administradores')
+    administrators.users.append(admin)
+    administrators.permissions.append(permission1)
+    administrators.permissions.append(permission2)
+    administrators.permissions.append(permission3)
 
-    db.session.add(admin)
-    db.session.add(group)
-    db.session.add(Group(name='Supervisores'))
-    db.session.add(Group(name='Planners'))
+    supervisors = Group(name='Supervisores')
+    supervisors.users.append(supervisor)
+    supervisors.permissions.append(permission3)
+
+    planners = Group(name='Planner')
+    planners.users.append(planner)
+
+    db.session.add(administrators)
+    db.session.add(supervisors)
+    db.session.add(planners)
     db.session.commit()
 
 
