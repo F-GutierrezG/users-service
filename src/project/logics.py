@@ -46,6 +46,7 @@ class UserLogics:
             raise Unauthorized
 
         data['created_by'] = user.id
+        data['email'] = data['email'].lower()
         group_id = data['group_id']
 
         del data['group_id']
@@ -66,6 +67,7 @@ class UserLogics:
 
         data['created_by'] = user.id
         data['admin'] = True
+        data['email'] = data['email'].lower()
         group_id = data['group_id']
 
         del data['group_id']
@@ -87,6 +89,7 @@ class UserLogics:
 
         self.__add_user_to_group(id, data['group_id'])
 
+        data['email'] = data['email'].lower()
         del data['group_id']
 
         User.query.filter_by(id=id).update(data)
@@ -250,7 +253,8 @@ class AuthLogics:
 
     @validate(LoginValidator)
     def login(self, data):
-        user = User.query.filter_by(email=data['email'], active=True).first()
+        user = User.query.filter_by(
+            email=data['email'].lower(), active=True).first()
 
         if not user:
             raise NotFound
