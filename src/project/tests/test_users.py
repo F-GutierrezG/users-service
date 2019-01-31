@@ -829,7 +829,7 @@ class TestUpdateUser(BaseTestCase):
         return {
             'first_name': random_string(32),
             'last_name': random_string(32),
-            'email': '{}@test.com'.format(random_string(16)),
+            'email': '{}@test.com'.format(random_string(16)).lower(),
             'group_id': 1
         }
 
@@ -872,7 +872,7 @@ class TestUpdateUser(BaseTestCase):
             self.assertEqual(
                 response_data['last_name'], new_data['last_name'])
             self.assertEqual(
-                response_data['email'], new_data['email'])
+                response_data['email'], new_data['email'].lower())
 
     def test_update_user_save_data_to_database(self):
         """Ensure update user update the database"""
@@ -902,7 +902,7 @@ class TestUpdateUser(BaseTestCase):
 
             self.assertEqual(new_user.first_name, new_data['first_name'])
             self.assertEqual(new_user.last_name, new_data['last_name'])
-            self.assertEqual(new_user.email, new_data['email'])
+            self.assertEqual(new_user.email, new_data['email'].lower())
 
     def test_update_inactive_user(self):
         """Ensure update behaves correctly when user is inactive"""
@@ -1280,7 +1280,7 @@ class TestDeactivateUser(BaseTestCase):
         return {
             'first_name': random_string(32),
             'last_name': random_string(32),
-            'email': '{}@test.com'.format(random_string(16)),
+            'email': '{}@test.com'.format(random_string(16)).lower(),
             'group_id': 1
         }
 

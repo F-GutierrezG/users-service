@@ -29,7 +29,7 @@ def add_user(admin=False):
     user = User(
         first_name=random_string(),
         last_name=random_string(),
-        email="{}@test.com".format(random_string()),
+        email="{}@test.com".format(random_string()).lower(),
         password=random_string(32),
         admin=admin)
     db.session.add(user)

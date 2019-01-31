@@ -18,7 +18,7 @@ from project.serializers import TokenSerializer, InvalidToken
 
 
 def get_login_data():
-    email = '{}@test.com'.format(random_string(16))
+    email = '{}@test.com'.format(random_string(16)).lower()
     password = random_string(16)
 
     return email, password
