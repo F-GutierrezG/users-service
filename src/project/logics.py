@@ -66,11 +66,16 @@ class UserLogics:
 
         data['created_by'] = user.id
         data['admin'] = True
+        group_id = data['group_id']
+
+        del data['group_id']
 
         user = User(**data)
 
         db.session.add(user)
         db.session.commit()
+
+        self.__add_user_to_group(user.id, group_id)
 
         return UserSerializer.to_dict(user)
 
