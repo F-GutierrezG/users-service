@@ -95,6 +95,10 @@ class User(db.Model):
 
         return datetime.date.today() < self.expiration
 
+    @property
+    def full_name(self):
+        return '{} {}'.format(self.first_name, self.last_name)
+
     def is_authorized(self, required_permissions):
         for permission in required_permissions:
             if permission not in self.permissions:
