@@ -1,3 +1,4 @@
+import os
 import jwt
 import datetime
 
@@ -281,7 +282,8 @@ class AuthLogics:
         email_to = [email]
         email_from = self.EMAIL_FROM
         email_subject = self.EMAIL_SUBJECT
-        email_body = self.__create_recover_password_email(email, user.full_name)
+        email_body = self.__create_recover_password_email(
+            email, user.full_name)
 
         service.send(
             recipients=email_to,
@@ -308,180 +310,11 @@ class AuthLogics:
         token = self.__generate_token(email)
         recover_url = current_app.config.get('CHANGE_PASSWORD_URL')
 
-
-        html="""
-         <html xmlns="http://www.w3.org/1999/xhtml">
-
-            <head>
-
-                <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-
-                <title>Tienes una nueva publicación por aprobar!</title>
-
-                <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-            </head>
-
-            <body style="margin: 0; padding: 0;">
-
-            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="padding-top: 150px">
-
-                <tr>
-
-                    <td>
-
-                        <table align="center" border="0" cellpadding="0" cellspacing="0" width="50%"
-                               style="border-collapse: collapse; background-color: #7F7F7F">
-
-                            <tr>
-
-                                <td align="center" width="100%" style="padding: 15px 0">
-
-                                    <img src="https://onelike-prod.s3.us-east-2.amazonaws.com/email-images/logo.png" width="250">
-
-                                </td>
-
-                            </tr>
-
-                        </table>
-                    </td>
-
-                </tr>
-
-                <tr>
-
-                    <table align="center" border="0" cellpadding="0" cellspacing="0" width="50%" style="padding-top: 50px"
-                           bgcolor="#f5f5f5">
-
-                        <tr>
-
-                            <td align="center" style="font-size: 36px; font-family: Helvetica; color: #000; font-weight: lighter">
-
-                                ¡Hola <span style="color: #71EB03;">{}</span>!
-
-                            </td>
-
-                        </tr>
-
-                        <tr>
-
-                            <td align="center"
-                                style="font-size: 24px; font-family: Helvetica; color: #000; padding-top: 30px; font-weight: lighter">
-
-                            Para modificar su contraseña presione el siguiente enlace:
-
-                            </td>
-
-                        </tr>
-
-                        <tr>
-
-                            <td>
-
-                                <table align="center" border="0" cellpadding="0" cellspacing="0" width="600">
-
-                                    <tr>
-                                        <td>&nbsp;</td>
-
-                                    </tr>
-
-
-
-                                    <tr>
-
-                                        <td align="center">
-
-                                            <a style="padding: 10px; background-color: #71EB03; text-align: center; font-weight: lighter; color: #000; font-size: 18px; width: 30%; margin-top: 30px; border: none; text-decoration:none;"
-
-                                        href="{}?t={}"
-
-                                            >
-                                                Recuperar Contraseña
-
-                                            </a>
-
-                                        </td>
-
-                                    </tr>
-
-                                    <tr>
-                                    <td>&nbsp;</td>
-                                    </tr>
-
-
-
-
-
-                                </table>
-                            </td>
-
-                        </tr>
-
-                    </table>
-
-                </tr>
-
-                <tr>
-
-                    <table align="center" border="0" cellpadding="0" cellspacing="0" width="50%" bgcolor="#f5f5f5">
-
-
-
-                        <tr>
-
-                            <td bgcolor="#7F7F7F" align="center"
-                                style="font-family: Helvetica; font-size: 22px; font-weight: 300; padding-bottom: 15px; padding-top: 40px; color: #fff; ">
-
-                                SÍGUENOS EN NUESTRAS REDES SOCIALES!
-<br>
-
-                                <table align="center">
-
-                                    <tr>
-
-                                        <td>
-
-                                            <img src="https://onelike-prod.s3.us-east-2.amazonaws.com/email-images/ig.png" alt="" width="80">
-
-                                        </td>
-
-                                        <td>
-
-                                            <img src="https://onelike-prod.s3.us-east-2.amazonaws.com/email-images/fb.png" alt="" width="80">
-
-                                        </td>
-
-                                        <td>
-
-                                            <img src="https://onelike-prod.s3.us-east-2.amazonaws.com/email-images/tw.png" alt="" width="80">
-
-                                        </td>
-
-                                        <td>
-
-                                            <img src="https://onelike-prod.s3.us-east-2.amazonaws.com/email-images/in.png" alt="" width="80">
-
-                                        </td>
-
-                                    </tr>
-
-                                </table>
-
-                            </td>
-
-                        </tr>
-
-                    </table>
-
-                </tr>
-
-            </table>
-
-            </body>
-
-            </html>
-
-        """.format(name, recover_url, token)
+        with open(os.path.join(
+                current_app.root_path,
+                'templates',
+                'recover_password.html'), 'r') as template:
+            html = template.read().format(name, recover_url, token)
 
         return html
 
