@@ -89,6 +89,7 @@ Deploy Stage:
   only:
     - stage
   before_script:
+    - apk add --no-cache openssh-client
     - export COMMIT_TIME=$(git show -s --format=%ct $CI_COMMIT_SHA)
     - export TAG=${CI_COMMIT_REF_NAME}_$COMMIT_TIME
     - rm -rf ~/.ssh
@@ -104,6 +105,7 @@ Deploy Production:
   only:
     - master
   before_script:
+    - apk add --no-cache openssh-client
     - export COMMIT_TIME=$(git show -s --format=%ct $CI_COMMIT_SHA)
     - export TAG=${CI_COMMIT_REF_NAME}_$COMMIT_TIME
     - rm -rf ~/.ssh
